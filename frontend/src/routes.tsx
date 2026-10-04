@@ -38,7 +38,7 @@ import EmployerDashboard from '@/pages/employer/EmployerDashboard';
 import EmployerJobs from '@/pages/employer/EmployerJobs';
 import EmployerJobForm from '@/pages/employer/EmployerJobForm';
 import EmployerApplicants from '@/pages/employer/EmployerApplicants';
-import EmployerCompany from '@/pages/employer/EmployerCompany';
+import EmployerCompanyProfile from '@/pages/employer/EmployerCompanyProfile';
 import EmployerSettings from '@/pages/employer/EmployerSettings';
 
 // Admin dashboard
@@ -49,6 +49,7 @@ import AdminCompanies from '@/pages/admin/AdminCompanies';
 import AdminCategories from '@/pages/admin/AdminCategories';
 import AdminBlog from '@/pages/admin/AdminBlog';
 import AdminSupport from '@/pages/admin/AdminSupport';
+import AdminSettings from '@/pages/admin/AdminSettings';
 
 // ================================
 // ROUTE GUARDS
@@ -149,7 +150,7 @@ export default function AppRoutes() {
         <Route path="jobs/new" element={<EmployerJobForm />} />
         <Route path="jobs/:id/edit" element={<EmployerJobForm />} />
         <Route path="jobs/:id/applicants" element={<EmployerApplicants />} />
-        <Route path="company" element={<EmployerCompany />} />
+        <Route path="company" element={<EmployerCompanyProfile />} />
         <Route path="settings" element={<EmployerSettings />} />
       </Route>
 
@@ -169,6 +170,7 @@ export default function AppRoutes() {
         <Route path="categories" element={<AdminCategories />} />
         <Route path="blog" element={<AdminBlog />} />
         <Route path="support" element={<AdminSupport />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       {/* 404 */}
