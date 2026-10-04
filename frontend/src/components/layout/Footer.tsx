@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, Phone, Mail, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Briefcase, MapPin, Phone, Mail, Github, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 const footerLinks = {
   quickLinks: [
@@ -56,7 +56,7 @@ export default function Footer() {
               hello@careerlift.io
             </p>
             <div className="flex gap-2">
-              <a href="#" className="social-btn" aria-label="Facebook"><Facebook className="w-4 h-4" /></a>
+              <a href="#" className="social-btn" aria-label="Github"><Github className="w-4 h-4" /></a>
               <a href="#" className="social-btn" aria-label="Twitter"><Twitter className="w-4 h-4" /></a>
               <a href="#" className="social-btn" aria-label="LinkedIn"><Linkedin className="w-4 h-4" /></a>
               <a href="#" className="social-btn" aria-label="Instagram"><Instagram className="w-4 h-4" /></a>
