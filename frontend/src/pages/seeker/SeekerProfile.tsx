@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/store/auth';
-import { User, Plus, Trash2, Edit3, Save, X, MapPin, Phone, Globe, Linkedin, Github, CheckCircle } from 'lucide-react';
+import { User, Plus, Trash2, Edit3, Save, X, MapPin, Phone, Globe, CheckCircle } from 'lucide-react';
 
 export default function SeekerProfile() {
   const { user } = useAuth();

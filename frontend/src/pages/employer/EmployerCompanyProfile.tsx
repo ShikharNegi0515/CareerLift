@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Building2, MapPin, Globe, Linkedin, Twitter, Users, CheckCircle, Camera } from 'lucide-react';
+import { Save, Building2, MapPin, Globe, Users, CheckCircle, Camera } from 'lucide-react';
 
 export default function EmployerCompanyProfile() {
   const [saved, setSaved] = useState(false);
@@ -105,11 +105,11 @@ export default function EmployerCompanyProfile() {
               <input className="form-control" type="url" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label"><Linkedin size={13} style={{ marginRight: 4 }} />LinkedIn Profile</label>
+              <label className="form-label">LinkedIn Profile</label>
               <input className="form-control" type="url" value={form.linkedin} onChange={(e) => setForm({ ...form, linkedin: e.target.value })} />
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label"><Twitter size={13} style={{ marginRight: 4 }} />Twitter Handle</label>
+              <label className="form-label">Twitter Handle</label>
               <input className="form-control" type="url" value={form.twitter} onChange={(e) => setForm({ ...form, twitter: e.target.value })} />
             </div>
           </div>
