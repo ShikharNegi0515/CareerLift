@@ -1,15 +1,18 @@
 import { Controller, Get, Post, Put, Delete, Query, Param, Body, HttpCode } from '@nestjs/common';
 import { JobsService } from './jobs.service.js';
+import { Public } from '../auth/public.decorator.js';
 
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
+  @Public()
   @Get()
   findAll(@Query() query: any) {
     return this.jobsService.findAll(query);
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.jobsService.findOne(id);
