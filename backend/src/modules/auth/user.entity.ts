@@ -43,7 +43,7 @@ export class User {
   isEmailVerified: boolean;
 
   @Column({ nullable: true })
-  refreshTokenHash: string;
+  refreshTokenHash: string | null;
 
   @OneToOne(() => JobSeekerProfile, (p) => p.user, { cascade: true, nullable: true })
   seekerProfile: JobSeekerProfile;
