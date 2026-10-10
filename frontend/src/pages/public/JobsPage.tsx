@@ -1,43 +1,45 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search, MapPin, Briefcase, Building2, ChevronLeft, ChevronRight,
   SlidersHorizontal, X, Clock, DollarSign
 } from 'lucide-react';
-
-// ─── Mock data ───────────────────────────────────────────────────────────────
-
-const allJobs = Array.from({ length: 24 }, (_, i) => ({
-  id: String(i + 1),
-  title: ['Senior React Developer', 'Product Manager', 'UX Designer', 'Data Scientist', 'DevOps Engineer', 'Marketing Specialist', 'Backend Engineer', 'Mobile Developer'][i % 8],
-  company: ['TechCorp', 'InnovateCo', 'DesignStudio', 'DataWave', 'CloudFirst', 'GrowthLabs', 'BuildIt', 'AppForge'][i % 8],
-  companyInitial: ['TC', 'IC', 'DS', 'DW', 'CF', 'GL', 'BI', 'AF'][i % 8],
-  location: ['San Francisco, CA', 'New York, NY', 'Austin, TX', 'Seattle, WA', 'Chicago, IL', 'Los Angeles, CA', 'Boston, MA', 'Remote'][i % 8],
-  type: ['Full Time', 'Part Time', 'Contract', 'Internship'][i % 4],
-  mode: ['Remote', 'Hybrid', 'On-site'][i % 3],
-  salaryMin: 70000 + i * 5000,
-  salaryMax: 100000 + i * 5000,
-  experience: ['Entry', 'Mid', 'Senior', 'Executive'][i % 4],
-  posted: [`${i + 1} day${i > 0 ? 's' : ''} ago`],
-  category: ['Technology', 'Design', 'Marketing', 'Finance'][i % 4],
-  isFeatured: i < 3,
-}));
+import api from '../../api/client';
 
 const PAGE_SIZE = 8;
 
 export default function JobsPage() {
-  const [keyword, setKeyword] = useState('');
-  const [location, setLocation] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [allJobs, setAllJobs] = useState<any[]>([]);
+  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const [location, setLocation] = useState(searchParams.get('location') || '');
+  const [experienceText, setExperienceText] = useState(searchParams.get('experienceText') || '');
   const [selectedType, setSelectedType] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState<string[]>([]);
   const [selectedExp, setSelectedExp] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const fetchJobs = () => {
+    const params: any = {};
+    if (keyword) params.keyword = keyword;
+    if (location) params.location = location;
+    if (experienceText) params.experienceText = experienceText;
+    
+    // Update URL to match search state
+    setSearchParams(params, { replace: true });
+
+    api.get('/jobs', { params })
+      .then(res => setAllJobs(res.data))
+      .catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const filtered = allJobs.filter((j) => {
-    const kw = keyword.toLowerCase();
-    if (kw && !j.title.toLowerCase().includes(kw) && !j.company.toLowerCase().includes(kw)) return false;
-    if (location && !j.location.toLowerCase().includes(location.toLowerCase())) return false;
     if (selectedType.length && !selectedType.includes(j.type)) return false;
     if (selectedMode.length && !selectedMode.includes(j.mode)) return false;
     if (selectedExp.length && !selectedExp.includes(j.experience)) return false;
@@ -69,8 +71,8 @@ export default function JobsPage() {
       {/* Search bar */}
       <div className="search-bar">
         <div className="container">
-          <form onSubmit={(e) => { e.preventDefault(); setPage(1); }}
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}
+          <form onSubmit={(e) => { e.preventDefault(); setPage(1); fetchJobs(); }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}
           >
             <div style={{ position: 'relative' }}>
               <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
@@ -79,6 +81,10 @@ export default function JobsPage() {
             <div style={{ position: 'relative' }}>
               <MapPin size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
               <input className="search-input" placeholder="Location..." style={{ paddingLeft: 40 }} value={location} onChange={(e) => { setLocation(e.target.value); setPage(1); }} />
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Briefcase size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
+              <input className="search-input" placeholder="Experience..." style={{ paddingLeft: 40 }} value={experienceText} onChange={(e) => { setExperienceText(e.target.value); setPage(1); }} />
             </div>
             <button type="submit" className="btn btn-secondary">Search</button>
           </form>

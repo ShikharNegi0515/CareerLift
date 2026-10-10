@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../api/client';
 import {
   Search, MapPin, Briefcase, ChevronRight, Monitor, HeartPulse,
   GraduationCap, TrendingUp, Building2, Cpu, Palette, ShieldCheck,
@@ -18,38 +20,7 @@ const categories = [
   { icon: ShieldCheck, label: 'Legal', count: 288 },
 ];
 
-const featuredJobs = [
-  {
-    id: '1', title: 'Senior React Developer', company: 'TechCorp', companyInitial: 'TC',
-    location: 'San Francisco, CA', type: 'Full Time', mode: 'Remote',
-    salary: '$120k – $160k', posted: '2 days ago',
-  },
-  {
-    id: '2', title: 'Product Manager', company: 'InnovateCo', companyInitial: 'IC',
-    location: 'New York, NY', type: 'Full Time', mode: 'Hybrid',
-    salary: '$100k – $140k', posted: '1 day ago',
-  },
-  {
-    id: '3', title: 'UX Designer', company: 'DesignStudio', companyInitial: 'DS',
-    location: 'Austin, TX', type: 'Full Time', mode: 'On-site',
-    salary: '$85k – $110k', posted: '3 days ago',
-  },
-  {
-    id: '4', title: 'Data Scientist', company: 'DataWave', companyInitial: 'DW',
-    location: 'Seattle, WA', type: 'Full Time', mode: 'Remote',
-    salary: '$130k – $170k', posted: '5 hours ago',
-  },
-  {
-    id: '5', title: 'DevOps Engineer', company: 'CloudFirst', companyInitial: 'CF',
-    location: 'Chicago, IL', type: 'Contract', mode: 'Remote',
-    salary: '$110k – $145k', posted: '1 day ago',
-  },
-  {
-    id: '6', title: 'Marketing Specialist', company: 'GrowthLabs', companyInitial: 'GL',
-    location: 'Los Angeles, CA', type: 'Full Time', mode: 'Hybrid',
-    salary: '$70k – $95k', posted: '4 days ago',
-  },
-];
+
 
 const testimonials = [
   {
@@ -79,6 +50,17 @@ const stats = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
+  const [keyword, setKeyword] = useState('');
+  const [location, setLocation] = useState('');
+  const [experienceText, setExperienceText] = useState('');
+
+  useEffect(() => {
+    api.get('/jobs')
+      .then(res => setFeaturedJobs(res.data.slice(0, 6)))
+      .catch(console.error);
+  }, []);
+
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -122,16 +104,27 @@ export default function HomePage() {
       <div className="search-bar">
         <div className="container">
           <form
-            onSubmit={(e) => { e.preventDefault(); window.location.href = '/jobs'; }}
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}
+            onSubmit={(e) => { 
+              e.preventDefault(); 
+              const params = new URLSearchParams();
+              if (keyword) params.set('keyword', keyword);
+              if (location) params.set('location', location);
+              if (experienceText) params.set('experienceText', experienceText);
+              window.location.href = `/jobs?${params.toString()}`; 
+            }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}
           >
             <div style={{ position: 'relative' }}>
               <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-              <input className="search-input" placeholder="Job title, keywords..." style={{ paddingLeft: 40 }} />
+              <input className="search-input" placeholder="Job title, keywords..." style={{ paddingLeft: 40 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
             </div>
             <div style={{ position: 'relative' }}>
               <MapPin size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-              <input className="search-input" placeholder="Location or remote..." style={{ paddingLeft: 40 }} />
+              <input className="search-input" placeholder="Location or remote..." style={{ paddingLeft: 40 }} value={location} onChange={(e) => setLocation(e.target.value)} />
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Briefcase size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
+              <input className="search-input" placeholder="Experience..." style={{ paddingLeft: 40 }} value={experienceText} onChange={(e) => setExperienceText(e.target.value)} />
             </div>
             <button type="submit" className="btn btn-secondary btn-lg" style={{ whiteSpace: 'nowrap' }}>
               Search Jobs
@@ -205,7 +198,9 @@ export default function HomePage() {
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                       <span className="job-badge badge-primary">{job.type}</span>
                       <span className="job-badge badge-success">{job.mode}</span>
-                      <span className="job-badge badge-secondary">{job.salary}</span>
+                      <span className="job-badge badge-secondary">
+                        ${(job.salaryMin / 1000).toFixed(0)}k – ${(job.salaryMax / 1000).toFixed(0)}k
+                      </span>
                     </div>
                     <p style={{ fontSize: '0.8rem', color: '#adb5bd', marginTop: '0.5rem' }}>{job.posted}</p>
                   </div>
