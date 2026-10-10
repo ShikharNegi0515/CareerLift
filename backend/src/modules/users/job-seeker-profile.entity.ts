@@ -4,12 +4,8 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
-  ManyToMany,
-  JoinTable,
-  OneToMany,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../auth/user.entity.js';
 
 export enum JobType {
   FULL_TIME = 'full_time',
@@ -29,11 +25,11 @@ export class JobSeekerProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => User, (u) => u.seekerProfile, { onDelete: 'CASCADE' })
+  @OneToOne('User', 'seekerProfile', { onDelete: 'CASCADE' })
   @JoinColumn()
-  user: User;
+  user: any;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   bio: string;
 
   @Column({ nullable: true })

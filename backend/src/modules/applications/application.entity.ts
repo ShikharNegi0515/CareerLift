@@ -7,8 +7,6 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../auth/user.entity.js';
-import { Job } from '../jobs/job.entity.js';
 
 export enum ApplicationStatus {
   APPLIED = 'applied',
@@ -23,13 +21,11 @@ export class Application {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (u) => u.applications, { eager: true, onDelete: 'CASCADE' })
-  @JoinColumn()
-  applicant: User;
+  @ManyToOne('User', 'applications', { onDelete: 'CASCADE', eager: false })
+  applicant: any;
 
-  @ManyToOne(() => Job, (j) => j.applications, { eager: true, onDelete: 'CASCADE' })
-  @JoinColumn()
-  job: Job;
+  @ManyToOne('Job', 'applications', { onDelete: 'CASCADE', eager: false })
+  job: any;
 
   @Column({ type: 'text', default: ApplicationStatus.APPLIED })
   status: ApplicationStatus;

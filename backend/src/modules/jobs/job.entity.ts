@@ -8,10 +8,6 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Company } from '../companies/company.entity.js';
-import { JobCategory } from '../categories/job-category.entity.js';
-import { Application } from '../applications/application.entity.js';
-import { SavedJob } from '../saved-jobs/saved-job.entity.js';
 
 export enum JobType {
   FULL_TIME = 'full_time',
@@ -102,19 +98,17 @@ export class Job {
   @Column({ type: 'simple-json', nullable: true, default: '[]' })
   skills: string[];
 
-  @ManyToOne(() => Company, (c) => c.jobs, { eager: true, nullable: true })
-  @JoinColumn()
-  company: Company;
+  @ManyToOne('Company', 'jobs', { nullable: true, eager: false })
+  company: any;
 
-  @ManyToOne(() => JobCategory, (cat) => cat.jobs, { eager: true, nullable: true })
-  @JoinColumn()
-  category: JobCategory;
+  @ManyToOne('JobCategory', 'jobs', { nullable: true, eager: false })
+  category: any;
 
-  @OneToMany(() => Application, (a) => a.job)
-  applications: Application[];
+  @OneToMany('Application', 'job')
+  applications: any[];
 
-  @OneToMany(() => SavedJob, (s) => s.job)
-  savedJobs: SavedJob[];
+  @OneToMany('SavedJob', 'job')
+  savedJobs: any[];
 
   @CreateDateColumn()
   createdAt: Date;

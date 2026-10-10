@@ -6,8 +6,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Job } from '../jobs/job.entity.js';
-import { EmployerProfile } from '../users/employer-profile.entity.js';
 
 @Entity('companies')
 export class Company {
@@ -47,11 +45,11 @@ export class Company {
   @Column({ nullable: true })
   phone: string;
 
-  @OneToMany(() => Job, (j) => j.company)
-  jobs: Job[];
+  @OneToMany('Job', 'company')
+  jobs: any[];
 
-  @OneToMany(() => EmployerProfile, (e) => e.company)
-  employerProfiles: EmployerProfile[];
+  @OneToMany('EmployerProfile', 'company')
+  employerProfiles: any[];
 
   @CreateDateColumn()
   createdAt: Date;

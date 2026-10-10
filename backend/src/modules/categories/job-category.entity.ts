@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
 } from 'typeorm';
-import { Job } from '../jobs/job.entity.js';
 
 @Entity('job_categories')
 export class JobCategory {
@@ -23,6 +22,6 @@ export class JobCategory {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @OneToMany(() => Job, (j) => j.category)
-  jobs: Job[];
+  @OneToMany('Job', 'category')
+  jobs: any[];
 }

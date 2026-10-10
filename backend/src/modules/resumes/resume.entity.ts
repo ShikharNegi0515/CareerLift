@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../auth/user.entity.js';
 
 @Entity('resumes')
 export class Resume {
@@ -25,9 +24,8 @@ export class Resume {
   @Column({ default: false })
   isDefault: boolean;
 
-  @ManyToOne(() => User, (u) => u.resumes, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  user: User;
+  @ManyToOne('User', 'resumes', { onDelete: 'CASCADE', eager: false })
+  user: any;
 
   @CreateDateColumn()
   createdAt: Date;

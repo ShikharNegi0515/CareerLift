@@ -7,23 +7,21 @@ import {
   ManyToOne,
   CreateDateColumn,
 } from 'typeorm';
-import { User } from '../auth/user.entity.js';
-import { Company } from '../companies/company.entity.js';
 
 @Entity('employer_profiles')
 export class EmployerProfile {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => User, (u) => u.employerProfile, { onDelete: 'CASCADE' })
+  @OneToOne('User', 'employerProfile', { onDelete: 'CASCADE' })
   @JoinColumn()
-  user: User;
+  user: any;
 
   @Column({ nullable: true })
   title: string;
 
-  @ManyToOne(() => Company, (c) => c.employerProfiles, { nullable: true, eager: true })
-  company: Company;
+  @ManyToOne('Company', 'employerProfiles', { nullable: true, eager: false })
+  company: any;
 
   @CreateDateColumn()
   createdAt: Date;

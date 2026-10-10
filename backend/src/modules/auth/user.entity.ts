@@ -7,11 +7,6 @@ import {
   OneToOne,
   OneToMany,
 } from 'typeorm';
-import { JobSeekerProfile } from '../users/job-seeker-profile.entity.js';
-import { EmployerProfile } from '../users/employer-profile.entity.js';
-import { Application } from '../applications/application.entity.js';
-import { SavedJob } from '../saved-jobs/saved-job.entity.js';
-import { Resume } from '../resumes/resume.entity.js';
 
 export enum UserRole {
   JOB_SEEKER = 'job_seeker',
@@ -42,23 +37,24 @@ export class User {
   @Column({ default: false })
   isEmailVerified: boolean;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   refreshTokenHash: string | null;
 
-  @OneToOne(() => JobSeekerProfile, (p) => p.user, { cascade: true, nullable: true })
-  seekerProfile: JobSeekerProfile;
+  // Relations defined lazily to avoid circular imports
+  @OneToOne('JobSeekerProfile', 'user', { cascade: true, nullable: true })
+  seekerProfile: any;
 
-  @OneToOne(() => EmployerProfile, (p) => p.user, { cascade: true, nullable: true })
-  employerProfile: EmployerProfile;
+  @OneToOne('EmployerProfile', 'user', { cascade: true, nullable: true })
+  employerProfile: any;
 
-  @OneToMany(() => Application, (a) => a.applicant)
-  applications: Application[];
+  @OneToMany('Application', 'applicant')
+  applications: any[];
 
-  @OneToMany(() => SavedJob, (s) => s.user)
-  savedJobs: SavedJob[];
+  @OneToMany('SavedJob', 'user')
+  savedJobs: any[];
 
-  @OneToMany(() => Resume, (r) => r.user)
-  resumes: Resume[];
+  @OneToMany('Resume', 'user')
+  resumes: any[];
 
   @CreateDateColumn()
   createdAt: Date;
