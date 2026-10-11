@@ -23,6 +23,7 @@ export class SavedJobsController {
     return this.savedJobsService.removeSavedJob(req.user.userId, jobId);
   }
 
+  @Get()
   @Get('me')
   async getMySavedJobs(@Req() req: any) {
     if (req.user.role !== 'job_seeker') {

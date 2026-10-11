@@ -20,6 +20,7 @@ const seekerNav = [
 const employerNav = [
   { to: '/employer', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/employer/jobs', label: 'My Jobs', icon: Briefcase },
+  { to: '/employer/applicants', label: 'Applicants', icon: Users },
   { to: '/employer/jobs/new', label: 'Post a Job', icon: PlusCircle },
   { to: '/employer/company', label: 'Company Profile', icon: Building2 },
   { to: '/employer/settings', label: 'Settings', icon: Settings },

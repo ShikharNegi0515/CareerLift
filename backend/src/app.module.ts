@@ -15,6 +15,8 @@ import { ApplicationsModule } from './modules/applications/applications.module.j
 import { SavedJobsModule } from './modules/saved-jobs/saved-jobs.module.js';
 import { ResumesModule } from './modules/resumes/resumes.module.js';
 import { CompaniesModule } from './modules/companies/companies.module.js';
+import { UsersModule } from './modules/users/users.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 
 // We'll import these as we build them out fully, for now just the entities are used by Auth/TypeORM
 import { User } from './modules/auth/user.entity.js';
@@ -61,6 +63,8 @@ import { Resume } from './modules/resumes/resume.entity.js';
     SavedJobsModule,
     ResumesModule,
     CompaniesModule,
+    UsersModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

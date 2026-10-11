@@ -157,6 +157,7 @@ export default function AppRoutes() {
         <Route path="jobs/new" element={<EmployerJobForm />} />
         <Route path="jobs/:id/edit" element={<EmployerJobForm />} />
         <Route path="jobs/:id/applicants" element={<EmployerApplicants />} />
+        <Route path="applicants" element={<EmployerApplicants />} />
         <Route path="company" element={<EmployerCompanyProfile />} />
         <Route path="settings" element={<EmployerSettings />} />
       </Route>

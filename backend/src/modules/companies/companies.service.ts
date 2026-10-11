@@ -49,4 +49,32 @@ export class CompaniesService {
 
     return profile?.company || null;
   }
+
+  async updateMyCompany(userId: string, data: Partial<Company>): Promise<Company> {
+    const profile = await this.employerProfileRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['company'] as any,
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Employer profile not found');
+    }
+
+    let company = profile.company;
+    if (!company) {
+      company = this.companiesRepository.create({
+        ...data,
+        name: data.name || 'My Company',
+        slug: (data.name || 'company').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
+        isVerified: false,
+      });
+      const savedCompany = await this.companiesRepository.save(company);
+      profile.company = savedCompany;
+      await this.employerProfileRepository.save(profile);
+      return savedCompany;
+    }
+
+    Object.assign(company, data);
+    return this.companiesRepository.save(company);
+  }
 }

@@ -28,6 +28,14 @@ export class ApplicationsController {
     return this.applicationsService.findByApplicant(req.user.userId);
   }
 
+  @Get('employer')
+  async getEmployerApplications(@Req() req: any) {
+    if (req.user.role !== 'employer') {
+       throw new UnauthorizedException('Only employers can view applicant listings');
+    }
+    return this.applicationsService.findForEmployer(req.user.userId);
+  }
+
   @Get('job/:jobId')
   async getJobApplications(@Req() req: any, @Param('jobId') jobId: string) {
     if (req.user.role !== 'employer') {

@@ -15,7 +15,7 @@ export class Resume {
   @Column()
   fileName: string;
 
-  @Column()
+  @Column({ type: 'text' })
   fileUrl: string;
 
   @Column({ type: 'int' })

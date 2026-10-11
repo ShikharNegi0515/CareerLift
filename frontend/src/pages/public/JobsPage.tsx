@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Search, MapPin, Briefcase, Building2, ChevronLeft, ChevronRight,
-  SlidersHorizontal, X, Clock, DollarSign
+  SlidersHorizontal, Clock, DollarSign, Bookmark
 } from 'lucide-react';
 import api from '../../api/client';
+import { useAuth } from '@/store/auth';
 
 const PAGE_SIZE = 8;
 
 export default function JobsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
   const [location, setLocation] = useState(searchParams.get('location') || '');
@@ -19,25 +23,68 @@ export default function JobsPage() {
   const [selectedExp, setSelectedExp] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  const fetchJobs = () => {
+  const normalizeJob = (j: any) => ({
+    ...j,
+    companyName: j.company?.name || j.companyName || 'Company',
+    companyInitial: (j.company?.name || j.companyName || 'CO').slice(0, 2).toUpperCase(),
+    jobTypeLabel: j.jobType ? j.jobType.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'Full Time',
+    workModeLabel: j.workMode ? j.workMode.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'On-site',
+    expLabel: j.experienceLevel ? j.experienceLevel.charAt(0).toUpperCase() + j.experienceLevel.slice(1) : 'Mid',
+    postedLabel: j.createdAt ? new Date(j.createdAt).toLocaleDateString() : 'Recently',
+  });
+
+  const fetchJobs = useCallback(() => {
     const params: any = {};
     if (keyword) params.keyword = keyword;
     if (location) params.location = location;
     if (experienceText) params.experienceText = experienceText;
-    
-    // Update URL to match search state
     setSearchParams(params, { replace: true });
 
     api.get('/jobs', { params })
-      .then(res => setAllJobs(res.data))
+      .then(res => setAllJobs(res.data.map(normalizeJob)))
       .catch(console.error);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, location, experienceText]);
 
   useEffect(() => {
     fetchJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchJobs]);
+
+  // Load saved job IDs for the current seeker
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'job_seeker') return;
+    api.get('/saved-jobs/me')
+      .then(res => {
+        if (Array.isArray(res.data)) {
+          setSavedIds(new Set(res.data.map((s: any) => s.job?.id).filter(Boolean)));
+        }
+      })
+      .catch(() => {});
+  }, [isAuthenticated, user]);
+
+  const handleToggleSave = async (e: React.MouseEvent, jobId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) { navigate('/login'); return; }
+    if (user?.role !== 'job_seeker') return;
+    setTogglingId(jobId);
+    try {
+      if (savedIds.has(jobId)) {
+        await api.delete(`/saved-jobs/${jobId}`);
+        setSavedIds(prev => { const n = new Set(prev); n.delete(jobId); return n; });
+      } else {
+        await api.post(`/saved-jobs/${jobId}`);
+        setSavedIds(prev => new Set(prev).add(jobId));
+      }
+    } catch (err) {
+      console.error('Save toggle failed', err);
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   const filtered = allJobs.filter((j) => {
     if (selectedType.length && !selectedType.includes(j.type)) return false;
@@ -184,20 +231,34 @@ export default function JobsPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <Link to={`/jobs/${job.id}`} className="job-title">{job.title}</Link>
                         <div className="job-meta" style={{ marginTop: 4 }}>
-                          <span className="job-meta-item"><Building2 size={14} /> {job.company}</span>
+                          <span className="job-meta-item"><Building2 size={14} /> {job.companyName}</span>
                           <span className="job-meta-item"><MapPin size={14} /> {job.location}</span>
-                          <span className="job-meta-item"><DollarSign size={14} /> ${(job.salaryMin / 1000).toFixed(0)}k – ${(job.salaryMax / 1000).toFixed(0)}k</span>
-                          <span className="job-meta-item"><Clock size={14} /> {job.posted}</span>
+                          {job.salaryMin > 0 && (
+                            <span className="job-meta-item"><DollarSign size={14} /> ${(job.salaryMin / 1000).toFixed(0)}k – ${(job.salaryMax / 1000).toFixed(0)}k</span>
+                          )}
+                          <span className="job-meta-item"><Clock size={14} /> {job.postedLabel}</span>
                         </div>
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                          <span className="job-badge badge-primary">{job.type}</span>
-                          <span className="job-badge badge-success">{job.mode}</span>
-                          <span className="job-badge badge-secondary">{job.experience}</span>
+                          <span className="job-badge badge-primary">{job.jobTypeLabel}</span>
+                          <span className="job-badge badge-success">{job.workModeLabel}</span>
+                          <span className="job-badge badge-secondary">{job.expLabel}</span>
                         </div>
                       </div>
-                      <Link to={`/jobs/${job.id}`} className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
-                        Apply Now
-                      </Link>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexShrink: 0 }}>
+                        <Link to={`/jobs/${job.id}`} className="btn btn-outline btn-sm">Apply Now</Link>
+                        {isAuthenticated && user?.role === 'job_seeker' && (
+                          <button
+                            onClick={(e) => handleToggleSave(e, job.id)}
+                            disabled={togglingId === job.id}
+                            title={savedIds.has(job.id) ? 'Unsave job' : 'Save job'}
+                            className={`btn btn-sm ${savedIds.has(job.id) ? 'btn-primary' : 'btn-light'}`}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+                          >
+                            <Bookmark size={14} fill={savedIds.has(job.id) ? '#fff' : 'none'} />
+                            {savedIds.has(job.id) ? 'Saved' : 'Save'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))

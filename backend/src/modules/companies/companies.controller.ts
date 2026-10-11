@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, UnauthorizedException, Get } from '@nestjs/common';
+import { Controller, Post, Put, Body, Req, UseGuards, UnauthorizedException, Get } from '@nestjs/common';
 import { CompaniesService } from './companies.service.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 
@@ -21,5 +21,13 @@ export class CompaniesController {
       throw new UnauthorizedException('Only employers have associated companies');
     }
     return this.companiesService.getMyCompany(req.user.userId);
+  }
+
+  @Put('my-company')
+  async updateMyCompany(@Req() req: any, @Body() body: any) {
+    if (req.user.role !== 'employer') {
+      throw new UnauthorizedException('Only employers can update company details');
+    }
+    return this.companiesService.updateMyCompany(req.user.userId, body);
   }
 }

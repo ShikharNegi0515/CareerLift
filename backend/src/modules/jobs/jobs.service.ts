@@ -54,8 +54,12 @@ export class JobsService implements OnModuleInit {
     return qb.getMany();
   }
 
-  async findOne(id: string): Promise<Job | null> {
-    return this.jobsRepository.findOneBy({ id });
+  async findOne(idOrSlug: string): Promise<Job | null> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+    return this.jobsRepository.findOne({
+      where: isUuid ? [{ id: idOrSlug }, { slug: idOrSlug }] : { slug: idOrSlug },
+      relations: ['company', 'category'] as any,
+    });
   }
 
   async findEmployerJobs(userId: string): Promise<Job[]> {

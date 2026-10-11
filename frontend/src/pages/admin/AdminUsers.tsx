@@ -1,34 +1,75 @@
-import { useState } from 'react';
-import { Search, Shield, Ban, CheckCircle, MoreVertical } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types';
+import api from '@/api/client';
 
-const mockUsers = [
-  { id: '1', name: 'Admin User', email: 'admin@careerlift.io', role: UserRole.ADMIN, status: 'Active', joinedAt: 'Jan 1, 2024' },
-  { id: '2', name: 'John Doe', email: 'john@example.com', role: UserRole.JOB_SEEKER, status: 'Active', joinedAt: 'Oct 1, 2026' },
-  { id: '3', name: 'Jane Smith', email: 'jane@techcorp.com', role: UserRole.EMPLOYER, status: 'Active', joinedAt: 'Sep 28, 2026' },
-  { id: '4', name: 'Spam Bot', email: 'spam@bot.com', role: UserRole.JOB_SEEKER, status: 'Suspended', joinedAt: 'Oct 3, 2026' },
-];
+interface UserItem {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+  isEmailVerified: boolean;
+  createdAt: string;
+}
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState<UserItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get<UserItem[]>('/admin/users');
+      setUsers(res.data);
+    } catch (err) {
+      console.error('Failed to load users', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRoleChange = async (id: string, newRole: string) => {
+    try {
+      setUpdatingId(id);
+      await api.put(`/admin/users/${id}/role`, { role: newRole });
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: newRole as UserRole } : u)));
+    } catch (err) {
+      console.error('Failed to update user role', err);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const filtered = users.filter((u) => {
     if (roleFilter !== 'All' && u.role !== roleFilter) return false;
-    if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
+    const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+    if (search && !fullName.includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) {
+      return false;
+    }
     return true;
   });
 
-  const toggleStatus = (id: string) => {
-    setUsers(users.map(u => u.id === id ? { ...u, status: u.status === 'Active' ? 'Suspended' : 'Active' } : u));
-  };
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Loader2 size={36} style={{ animation: 'spin 1s linear infinite', color: '#0d6efd' }} />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fadeIn">
       <div style={{ marginBottom: '1.75rem' }}>
         <h1 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#212529', marginBottom: '0.25rem' }}>User Management</h1>
-        <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>View, filter, and manage all users on the platform.</p>
+        <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>View, filter, and manage user roles across CareerLift.</p>
       </div>
 
       <div className="card">
@@ -50,7 +91,7 @@ export default function AdminUsers() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e9ecef' }}>
-                {['User', 'Role', 'Status', 'Joined', 'Actions'].map((h) => (
+                {['User', 'Role', 'Email Verified', 'Joined', 'Change Role'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -59,23 +100,34 @@ export default function AdminUsers() {
               {filtered.map((u) => (
                 <tr key={u.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <p style={{ fontWeight: 600, color: '#212529', marginBottom: 2 }}>{u.name}</p>
+                    <p style={{ fontWeight: 600, color: '#212529', marginBottom: 2 }}>{u.firstName} {u.lastName}</p>
                     <p style={{ fontSize: '0.75rem', color: '#6c757d' }}>{u.email}</p>
                   </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <span className="job-badge" style={{ background: u.role === UserRole.ADMIN ? '#6f42c1' : u.role === UserRole.EMPLOYER ? '#fd7e14' : '#0d6efd', color: '#fff' }}>{u.role.replace('_', ' ')}</span>
+                    <span className="job-badge" style={{ background: u.role === UserRole.ADMIN ? '#6f42c1' : u.role === UserRole.EMPLOYER ? '#fd7e14' : '#0d6efd', color: '#fff' }}>
+                      {u.role.replace('_', ' ')}
+                    </span>
                   </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: u.status === 'Active' ? '#198754' : '#dc3545', background: u.status === 'Active' ? '#d1e7dd' : '#f8d7da', padding: '3px 10px', borderRadius: 9999 }}>{u.status}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: u.isEmailVerified ? '#198754' : '#6c757d', background: u.isEmailVerified ? '#d1e7dd' : '#e9ecef', padding: '3px 10px', borderRadius: 9999 }}>
+                      {u.isEmailVerified ? 'Verified' : 'Pending'}
+                    </span>
                   </td>
-                  <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem' }}>{u.joinedAt}</td>
+                  <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem' }}>
+                    {new Date(u.createdAt).toLocaleDateString()}
+                  </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button onClick={() => toggleStatus(u.id)} className="btn btn-light btn-sm" title={u.status === 'Active' ? 'Suspend' : 'Activate'}>
-                        {u.status === 'Active' ? <Ban size={14} style={{ color: '#dc3545' }} /> : <CheckCircle size={14} style={{ color: '#198754' }} />}
-                      </button>
-                      <button className="btn btn-light btn-sm"><MoreVertical size={14} /></button>
-                    </div>
+                    <select
+                      className="form-control"
+                      style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+                      value={u.role}
+                      disabled={updatingId === u.id}
+                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                    >
+                      <option value={UserRole.JOB_SEEKER}>Job Seeker</option>
+                      <option value={UserRole.EMPLOYER}>Employer</option>
+                      <option value={UserRole.ADMIN}>Admin</option>
+                    </select>
                   </td>
                 </tr>
               ))}

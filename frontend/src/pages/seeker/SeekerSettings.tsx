@@ -34,7 +34,7 @@ export default function SeekerSettings() {
         <div className="card" style={{ padding: '0.5rem 0' }}>
           {tabs.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-              style={{ display: 'block', width: '100%', padding: '0.75rem 1.25rem', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: activeTab === tab.id ? 600 : 400, color: activeTab === tab.id ? (tab.id === 'danger' ? '#dc3545' : '#0d6efd') : (tab.id === 'danger' ? '#dc3545' : '#6c757d'), borderLeft: `3px solid ${activeTab === tab.id ? (tab.id === 'danger' ? '#dc3545' : '#0d6efd') : 'transparent'}`, background: activeTab === tab.id ? (tab.id === 'danger' ? '#f8d7da' : '#e8f0fe') : 'transparent', }}>
+              style={{ display: 'block', width: '100%', padding: '0.75rem 1.25rem', textAlign: 'left', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: activeTab === tab.id ? 600 : 400, color: activeTab === tab.id ? (tab.id === 'danger' ? '#dc3545' : '#0d6efd') : (tab.id === 'danger' ? '#dc3545' : '#6c757d'), borderLeft: `3px solid ${activeTab === tab.id ? (tab.id === 'danger' ? '#dc3545' : '#0d6efd') : 'transparent'}`, background: activeTab === tab.id ? (tab.id === 'danger' ? '#f8d7da' : '#e8f0fe') : 'transparent' }}>
               {tab.label}
             </button>
           ))}
