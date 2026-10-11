@@ -3,9 +3,23 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft, Plus, X, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import api from '../../api/client';
 
-const JOB_TYPES = ['Full Time', 'Part Time', 'Contract', 'Internship', 'Freelance'];
-const WORK_MODES = ['Remote', 'Hybrid', 'On-site'];
-const EXP_LEVELS = ['Entry', 'Mid', 'Senior', 'Executive'];
+const JOB_TYPES = [
+  { label: 'Full Time', value: 'full_time' },
+  { label: 'Part Time', value: 'part_time' },
+  { label: 'Contract', value: 'freelance' },
+  { label: 'Internship', value: 'internship' },
+];
+const WORK_MODES = [
+  { label: 'Remote', value: 'remote' },
+  { label: 'Hybrid', value: 'hybrid' },
+  { label: 'On-site', value: 'on_site' },
+];
+const EXP_LEVELS = [
+  { label: 'Entry', value: 'entry' },
+  { label: 'Mid', value: 'mid' },
+  { label: 'Senior', value: 'senior' },
+  { label: 'Executive', value: 'executive' },
+];
 const CATEGORIES = ['Technology', 'Design', 'Marketing', 'Finance', 'Healthcare', 'Education', 'Engineering', 'Legal'];
 
 const EMPTY_FORM = {
@@ -16,9 +30,9 @@ const EMPTY_FORM = {
   requirements: '',
   benefits: '',
   location: '',
-  type: '',
-  mode: '',
-  experience: '',
+  jobType: '',
+  workMode: '',
+  experienceLevel: '',
   salaryMin: '',
   salaryMax: '',
   category: '',
@@ -44,23 +58,23 @@ export default function EmployerJobForm() {
     api.get(`/jobs/${id}`)
       .then(res => {
         const j = res.data;
-        setForm({
-          title: j.title || '',
-          company: j.company || '',
-          description: j.description || '',
-          responsibilities: j.responsibilities || '',
-          requirements: j.requirements || '',
-          benefits: j.benefits || '',
-          location: j.location || '',
-          type: j.type || '',
-          mode: j.mode || '',
-          experience: j.experience || '',
-          salaryMin: j.salaryMin ? String(j.salaryMin) : '',
-          salaryMax: j.salaryMax ? String(j.salaryMax) : '',
-          category: j.category || '',
-          isFeatured: j.isFeatured || false,
-          skills: j.skills || [],
-        });
+          setForm({
+            title: j.title || '',
+            company: j.company?.name || '', // Note: we need to handle this differently if we just want a string in the form, but actually we shouldn't prompt for company name here if it's tied to employer profile. Let's leave it for now.
+            description: j.description || '',
+            responsibilities: j.responsibilities || '',
+            requirements: j.requirements || '',
+            benefits: j.benefits || '',
+            location: j.location || '',
+            jobType: j.jobType || '',
+            workMode: j.workMode || '',
+            experienceLevel: j.experienceLevel || '',
+            salaryMin: j.salaryMin ? String(j.salaryMin) : '',
+            salaryMax: j.salaryMax ? String(j.salaryMax) : '',
+            category: j.category?.id || '',
+            isFeatured: j.isFeatured || false,
+            skills: j.skills || [],
+          });
         setLoading(false);
       })
       .catch(() => {
@@ -159,23 +173,23 @@ export default function EmployerJobForm() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label">Job Type *</label>
-                  <select className="form-control" required value={form.type} onChange={e => set('type', e.target.value)}>
+                  <select className="form-control" required value={form.jobType} onChange={e => set('jobType', e.target.value)}>
                     <option value="">Select type</option>
-                    {JOB_TYPES.map(t => <option key={t}>{t}</option>)}
+                    {JOB_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Work Mode *</label>
-                  <select className="form-control" required value={form.mode} onChange={e => set('mode', e.target.value)}>
+                  <select className="form-control" required value={form.workMode} onChange={e => set('workMode', e.target.value)}>
                     <option value="">Select mode</option>
-                    {WORK_MODES.map(m => <option key={m}>{m}</option>)}
+                    {WORK_MODES.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Experience Level *</label>
-                  <select className="form-control" required value={form.experience} onChange={e => set('experience', e.target.value)}>
+                  <select className="form-control" required value={form.experienceLevel} onChange={e => set('experienceLevel', e.target.value)}>
                     <option value="">Select level</option>
-                    {EXP_LEVELS.map(l => <option key={l}>{l}</option>)}
+                    {EXP_LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
                   </select>
                 </div>
               </div>
@@ -187,9 +201,9 @@ export default function EmployerJobForm() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Category *</label>
-                  <select className="form-control" required value={form.category} onChange={e => set('category', e.target.value)}>
+                  <select className="form-control" value={form.category} onChange={e => set('category', e.target.value)}>
                     <option value="">Select category</option>
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>

@@ -45,6 +45,12 @@ export class Company {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ nullable: true })
+  registrationNumber: string;
+
+  @Column({ default: false })
+  isVerified: boolean;
+
   @OneToMany('Job', 'company')
   jobs: any[];
 

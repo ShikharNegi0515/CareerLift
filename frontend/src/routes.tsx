@@ -40,6 +40,7 @@ import EmployerJobForm from '@/pages/employer/EmployerJobForm';
 import EmployerApplicants from '@/pages/employer/EmployerApplicants';
 import EmployerCompanyProfile from '@/pages/employer/EmployerCompanyProfile';
 import EmployerSettings from '@/pages/employer/EmployerSettings';
+import EmployerOnboarding from '@/pages/employer/EmployerOnboarding';
 
 // Admin dashboard
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -91,7 +92,7 @@ function GuestOnly({ children }: { children: React.ReactNode }) {
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public and Auth routes */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/jobs" element={<JobsPage />} />
@@ -102,10 +103,6 @@ export default function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
-      </Route>
-
-      {/* Auth routes (guests only) */}
-      <Route element={<PublicLayout />}>
         <Route
           path="/login"
           element={<GuestOnly><LoginPage /></GuestOnly>}
@@ -135,6 +132,16 @@ export default function AppRoutes() {
         <Route path="recommendations" element={<SeekerRecommendations />} />
         <Route path="settings" element={<SeekerSettings />} />
       </Route>
+
+      {/* Employer Onboarding (Standalone) */}
+      <Route
+        path="/employer/onboarding"
+        element={
+          <RequireAuth roles={[UserRole.EMPLOYER]}>
+            <EmployerOnboarding />
+          </RequireAuth>
+        }
+      />
 
       {/* Employer dashboard */}
       <Route

@@ -58,6 +58,42 @@ export class JobsService implements OnModuleInit {
     return this.jobsRepository.findOneBy({ id });
   }
 
+  async findEmployerJobs(userId: string): Promise<Job[]> {
+    return this.jobsRepository.createQueryBuilder('job')
+      .leftJoinAndSelect('job.company', 'company')
+      .leftJoinAndSelect('job.category', 'category')
+      .innerJoin('company.employerProfiles', 'profile')
+      .innerJoin('profile.user', 'user')
+      .where('user.id = :userId', { userId })
+      .orderBy('job.createdAt', 'DESC')
+      .getMany();
+  }
+
+  async createForEmployer(userId: string, dto: Partial<Job>): Promise<Job> {
+    // Fetch the company associated with the user
+    const profile = await this.jobsRepository.manager.createQueryBuilder('EmployerProfile', 'profile')
+      .leftJoinAndSelect('profile.company', 'company')
+      .innerJoin('profile.user', 'user')
+      .where('user.id = :userId', { userId })
+      .getOne();
+
+    if (!profile) {
+      throw new Error('Employer profile not found. Please complete your company profile at /employer/onboarding');
+    }
+
+    if (!profile.company) {
+      throw new Error('You must register your company before posting jobs. Please complete company onboarding.');
+    }
+
+    const job = this.jobsRepository.create({
+      ...dto,
+      slug: dto.title?.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
+      status: JobStatus.PUBLISHED,
+      company: profile.company,
+    });
+    return this.jobsRepository.save(job);
+  }
+
   async create(dto: Partial<Job>): Promise<Job> {
     const job = this.jobsRepository.create(dto);
     return this.jobsRepository.save(job);

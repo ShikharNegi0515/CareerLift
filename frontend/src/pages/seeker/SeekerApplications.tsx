@@ -1,28 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Building2, Clock, Search, Filter, ExternalLink } from 'lucide-react';
+import { Search, ExternalLink, Loader2 } from 'lucide-react';
+import api from '@/api/client';
+import type { Application } from '@/types';
 
-const mockApplications = [
-  { id: '1', title: 'Senior React Developer', company: 'TechCorp', initial: 'TC', location: 'San Francisco, CA', type: 'Full Time', mode: 'Remote', status: 'Under Review', statusColor: '#ffc107', appliedAt: 'Oct 2, 2026', coverLetter: true },
-  { id: '2', title: 'Product Manager', company: 'InnovateCo', initial: 'IC', location: 'New York, NY', type: 'Full Time', mode: 'Hybrid', status: 'Shortlisted', statusColor: '#198754', appliedAt: 'Sep 28, 2026', coverLetter: true },
-  { id: '3', title: 'UX Designer', company: 'DesignStudio', initial: 'DS', location: 'Austin, TX', type: 'Full Time', mode: 'On-site', status: 'Applied', statusColor: '#0d6efd', appliedAt: 'Sep 25, 2026', coverLetter: false },
-  { id: '4', title: 'Data Scientist', company: 'DataWave', initial: 'DW', location: 'Seattle, WA', type: 'Full Time', mode: 'Remote', status: 'Rejected', statusColor: '#dc3545', appliedAt: 'Sep 15, 2026', coverLetter: true },
-  { id: '5', title: 'DevOps Engineer', company: 'CloudFirst', initial: 'CF', location: 'Chicago, IL', type: 'Contract', mode: 'Remote', status: 'Hired', statusColor: '#0dcaf0', appliedAt: 'Sep 10, 2026', coverLetter: true },
-];
+const statusOptions = ['All', 'applied', 'under_review', 'shortlisted', 'rejected', 'hired'];
 
-const statusOptions = ['All', 'Applied', 'Under Review', 'Shortlisted', 'Rejected', 'Hired'];
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'applied': return '#0d6efd';
+    case 'under_review': return '#ffc107';
+    case 'shortlisted': return '#198754';
+    case 'rejected': return '#dc3545';
+    case 'hired': return '#0dcaf0';
+    default: return '#6c757d';
+  }
+};
+
+const formatStatus = (status: string) => {
+  return status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
 
 export default function SeekerApplications() {
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockApplications.filter((a) => {
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await api.get<Application[]>('/applications/me');
+        setApplications(res.data);
+      } catch (err) {
+        console.error('Failed to fetch applications', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApplications();
+  }, []);
+
+  const filtered = applications.filter((a) => {
     if (filter !== 'All' && a.status !== filter) return false;
-    if (search && !a.title.toLowerCase().includes(search.toLowerCase()) && !a.company.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !a.job?.title?.toLowerCase().includes(search.toLowerCase()) && !a.job?.company?.name?.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
-  const statusCount = (s: string) => s === 'All' ? mockApplications.length : mockApplications.filter((a) => a.status === s).length;
+  const statusCount = (s: string) => s === 'All' ? applications.length : applications.filter((a) => a.status === s).length;
+
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} /></div>;
+  }
 
   return (
     <div className="animate-fadeIn">
@@ -34,14 +63,16 @@ export default function SeekerApplications() {
       {/* Stats bar */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Applied', count: mockApplications.filter(a => a.status === 'Applied').length, color: '#0d6efd' },
-          { label: 'Under Review', count: mockApplications.filter(a => a.status === 'Under Review').length, color: '#ffc107' },
-          { label: 'Shortlisted', count: mockApplications.filter(a => a.status === 'Shortlisted').length, color: '#198754' },
-          { label: 'Rejected', count: mockApplications.filter(a => a.status === 'Rejected').length, color: '#dc3545' },
-          { label: 'Hired', count: mockApplications.filter(a => a.status === 'Hired').length, color: '#0dcaf0' },
+          { label: 'Applied', status: 'applied', color: '#0d6efd' },
+          { label: 'Under Review', status: 'under_review', color: '#ffc107' },
+          { label: 'Shortlisted', status: 'shortlisted', color: '#198754' },
+          { label: 'Rejected', status: 'rejected', color: '#dc3545' },
+          { label: 'Hired', status: 'hired', color: '#0dcaf0' },
         ].map((stat) => (
           <div key={stat.label} className="card" style={{ textAlign: 'center', borderTop: `3px solid ${stat.color}` }}>
-            <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: stat.color }}>{stat.count}</span>
+            <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: stat.color }}>
+              {applications.filter(a => a.status === stat.status).length}
+            </span>
             <p style={{ fontSize: '0.75rem', color: '#6c757d', marginTop: 2 }}>{stat.label}</p>
           </div>
         ))}
@@ -57,7 +88,7 @@ export default function SeekerApplications() {
           <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
             {statusOptions.map((s) => (
               <button key={s} onClick={() => setFilter(s)} style={{ padding: '0.375rem 0.75rem', borderRadius: 9999, border: '1.5px solid', fontSize: '0.8125rem', cursor: 'pointer', fontWeight: 500, borderColor: filter === s ? '#0d6efd' : '#dee2e6', background: filter === s ? '#e8f0fe' : '#fff', color: filter === s ? '#0d6efd' : '#6c757d' }}>
-                {s} {statusCount(s) > 0 && <span style={{ marginLeft: 4, background: filter === s ? '#0d6efd' : '#e9ecef', color: filter === s ? '#fff' : '#6c757d', padding: '0 6px', borderRadius: 9999, fontSize: '0.7rem' }}>{statusCount(s)}</span>}
+                {formatStatus(s)} {statusCount(s) > 0 && <span style={{ marginLeft: 4, background: filter === s ? '#0d6efd' : '#e9ecef', color: filter === s ? '#fff' : '#6c757d', padding: '0 6px', borderRadius: 9999, fontSize: '0.7rem' }}>{statusCount(s)}</span>}
               </button>
             ))}
           </div>
@@ -83,24 +114,30 @@ export default function SeekerApplications() {
                 {filtered.map((app) => (
                   <tr key={app.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                     <td style={{ padding: '0.875rem 0.5rem' }}>
-                      <Link to={`/jobs/${app.id}`} style={{ fontWeight: 600, color: '#212529', textDecoration: 'none' }}>{app.title}</Link>
+                      <Link to={`/jobs/${app.job.id}`} style={{ fontWeight: 600, color: '#212529', textDecoration: 'none' }}>{app.job.title}</Link>
                     </td>
                     <td style={{ padding: '0.875rem 0.5rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div className="job-logo-placeholder" style={{ width: 28, height: 28, fontSize: '0.625rem', flexShrink: 0 }}>{app.initial}</div>
-                        {app.company}
+                        <div className="job-logo-placeholder" style={{ width: 28, height: 28, fontSize: '0.625rem', flexShrink: 0 }}>
+                           {app.job.company?.name ? app.job.company.name.substring(0, 2).toUpperCase() : 'CO'}
+                        </div>
+                        {app.job.company?.name || 'Company Name'}
                       </div>
                     </td>
-                    <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem' }}>{app.location}</td>
+                    <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem' }}>{app.job.location}</td>
                     <td style={{ padding: '0.875rem 0.5rem' }}>
-                      <span className="job-badge badge-primary" style={{ fontSize: '0.75rem' }}>{app.type}</span>
+                      <span className="job-badge badge-primary" style={{ fontSize: '0.75rem' }}>{formatStatus(app.job.jobType)}</span>
                     </td>
-                    <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>{app.appliedAt}</td>
-                    <td style={{ padding: '0.875rem 0.5rem' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: app.statusColor, background: app.statusColor + '20', padding: '3px 10px', borderRadius: 9999, whiteSpace: 'nowrap' }}>{app.status}</span>
+                    <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}>
+                       {new Date(app.createdAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '0.875rem 0.5rem' }}>
-                      <Link to={`/jobs/${app.id}`} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: getStatusColor(app.status), background: getStatusColor(app.status) + '20', padding: '3px 10px', borderRadius: 9999, whiteSpace: 'nowrap' }}>
+                         {formatStatus(app.status)}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.875rem 0.5rem' }}>
+                      <Link to={`/jobs/${app.job.id}`} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem' }}>
                         <ExternalLink size={13} />
                       </Link>
                     </td>
@@ -111,6 +148,7 @@ export default function SeekerApplications() {
           </div>
         )}
       </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

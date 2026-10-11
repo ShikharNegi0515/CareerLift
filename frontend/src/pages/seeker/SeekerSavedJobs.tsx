@@ -1,23 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, MapPin, Building2, DollarSign, Clock, Trash2, ArrowRight, Search } from 'lucide-react';
+import { Bookmark, MapPin, Building2, DollarSign, Clock, Trash2, ArrowRight, Search, Loader2 } from 'lucide-react';
+import api from '@/api/client';
+import type { Job } from '@/types';
 
-const savedJobs = [
-  { id: '1', title: 'Senior React Developer', company: 'TechCorp', initial: 'TC', location: 'San Francisco, CA', salary: '$120k–$160k', type: 'Full Time', mode: 'Remote', savedAt: '3 days ago', deadline: 'Nov 30, 2026' },
-  { id: '2', title: 'Product Manager', company: 'InnovateCo', initial: 'IC', location: 'New York, NY', salary: '$100k–$140k', type: 'Full Time', mode: 'Hybrid', savedAt: '5 days ago', deadline: 'Dec 15, 2026' },
-  { id: '3', title: 'Full Stack Developer', company: 'CloudFirst', initial: 'CF', location: 'Remote', salary: '$110k–$145k', type: 'Full Time', mode: 'Remote', savedAt: '1 week ago', deadline: 'Nov 20, 2026' },
-  { id: '4', title: 'UX Designer', company: 'DesignStudio', initial: 'DS', location: 'Austin, TX', salary: '$85k–$110k', type: 'Full Time', mode: 'On-site', savedAt: '2 weeks ago', deadline: 'Dec 1, 2026' },
-];
+interface SavedJobResponse {
+  id: string;
+  job: Job;
+  createdAt: string;
+}
 
 export default function SeekerSavedJobs() {
-  const [jobs, setJobs] = useState(savedJobs);
+  const [jobs, setJobs] = useState<SavedJobResponse[]>([]);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSavedJobs();
+  }, []);
+
+  const fetchSavedJobs = async () => {
+    try {
+      const res = await api.get<SavedJobResponse[]>('/saved-jobs/me');
+      setJobs(res.data);
+    } catch (err) {
+      console.error('Failed to fetch saved jobs', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const remove = async (id: string, jobId: string) => {
+    try {
+      await api.delete(`/saved-jobs/${jobId}`);
+      setJobs(jobs.filter((j) => j.id !== id));
+    } catch (err) {
+      console.error('Failed to remove saved job', err);
+    }
+  };
 
   const filtered = jobs.filter((j) =>
-    !search || j.title.toLowerCase().includes(search.toLowerCase()) || j.company.toLowerCase().includes(search.toLowerCase())
+    !search || j.job?.title?.toLowerCase().includes(search.toLowerCase()) || j.job?.company?.name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const remove = (id: string) => setJobs(jobs.filter((j) => j.id !== id));
+  const formatStatus = (status: string) => {
+      return status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
+  if (loading) {
+     return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} /></div>;
+  }
 
   return (
     <div className="animate-fadeIn">
@@ -42,29 +74,33 @@ export default function SeekerSavedJobs() {
             <Link to="/jobs" className="btn btn-primary btn-sm">Browse Jobs</Link>
           </div>
         ) : (
-          filtered.map((job) => (
-            <div key={job.id} className="job-item">
+          filtered.map((saved) => (
+            <div key={saved.id} className="job-item">
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <div className="job-logo-placeholder" style={{ flexShrink: 0 }}>{job.initial}</div>
+                <div className="job-logo-placeholder" style={{ flexShrink: 0 }}>
+                    {saved.job.company?.name ? saved.job.company.name.substring(0, 2).toUpperCase() : 'CO'}
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <Link to={`/jobs/${job.id}`} className="job-title">{job.title}</Link>
+                  <Link to={`/jobs/${saved.job.id}`} className="job-title">{saved.job.title}</Link>
                   <div className="job-meta" style={{ marginTop: 4 }}>
-                    <span className="job-meta-item"><Building2 size={13} /> {job.company}</span>
-                    <span className="job-meta-item"><MapPin size={13} /> {job.location}</span>
-                    <span className="job-meta-item"><DollarSign size={13} /> {job.salary}</span>
-                    <span className="job-meta-item"><Clock size={13} /> Saved {job.savedAt}</span>
+                    <span className="job-meta-item"><Building2 size={13} /> {saved.job.company?.name || 'Company'}</span>
+                    <span className="job-meta-item"><MapPin size={13} /> {saved.job.location}</span>
+                    <span className="job-meta-item"><DollarSign size={13} /> {saved.job.salaryMin ? `$${saved.job.salaryMin/1000}k` : 'Not specified'}</span>
+                    <span className="job-meta-item"><Clock size={13} /> Saved {new Date(saved.createdAt).toLocaleDateString()}</span>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
-                    <span className="job-badge badge-primary">{job.type}</span>
-                    <span className="job-badge badge-success">{job.mode}</span>
-                    <span className="job-badge badge-warning">Deadline: {job.deadline}</span>
+                    <span className="job-badge badge-primary">{formatStatus(saved.job.jobType)}</span>
+                    <span className="job-badge badge-success">{formatStatus(saved.job.workMode)}</span>
+                    {saved.job.applicationDeadline && (
+                        <span className="job-badge badge-warning">Deadline: {new Date(saved.job.applicationDeadline).toLocaleDateString()}</span>
+                    )}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                  <Link to={`/jobs/${job.id}`} className="btn btn-primary btn-sm">
+                  <Link to={`/jobs/${saved.job.id}`} className="btn btn-primary btn-sm">
                     Apply <ArrowRight size={14} />
                   </Link>
-                  <button onClick={() => remove(job.id)} className="btn btn-light btn-sm" style={{ color: '#dc3545' }}>
+                  <button onClick={() => remove(saved.id, saved.job.id)} className="btn btn-light btn-sm" style={{ color: '#dc3545' }}>
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -73,6 +109,7 @@ export default function SeekerSavedJobs() {
           ))
         )}
       </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Query, Param, Body, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Query, Param, Body, HttpCode, Req, UnauthorizedException } from '@nestjs/common';
 import { JobsService } from './jobs.service.js';
 import { Public } from '../auth/public.decorator.js';
 
@@ -12,6 +12,14 @@ export class JobsController {
     return this.jobsService.findAll(query);
   }
 
+  @Get('employer/me')
+  findEmployerJobs(@Req() req: any) {
+    if (req.user.role !== 'employer') {
+      throw new UnauthorizedException('Only employers can view their jobs');
+    }
+    return this.jobsService.findEmployerJobs(req.user.userId);
+  }
+
   @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -19,18 +27,27 @@ export class JobsController {
   }
 
   @Post()
-  create(@Body() body: any) {
-    return this.jobsService.create(body);
+  create(@Req() req: any, @Body() body: any) {
+    if (req.user.role !== 'employer') {
+      throw new UnauthorizedException('Only employers can create jobs');
+    }
+    return this.jobsService.createForEmployer(req.user.userId, body);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    if (req.user.role !== 'employer') {
+      throw new UnauthorizedException('Only employers can update jobs');
+    }
     return this.jobsService.update(id, body);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: string) {
+  remove(@Req() req: any, @Param('id') id: string) {
+    if (req.user.role !== 'employer') {
+      throw new UnauthorizedException('Only employers can delete jobs');
+    }
     return this.jobsService.remove(id);
   }
 }

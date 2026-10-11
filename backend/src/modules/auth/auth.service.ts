@@ -10,6 +10,7 @@ import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { JobSeekerProfile } from '../users/job-seeker-profile.entity.js';
 import { EmployerProfile } from '../users/employer-profile.entity.js';
+import { Company } from '../companies/company.entity.js';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,8 @@ export class AuthService {
     private seekerProfileRepository: Repository<JobSeekerProfile>,
     @InjectRepository(EmployerProfile)
     private employerProfileRepository: Repository<EmployerProfile>,
+    @InjectRepository(Company)
+    private companiesRepository: Repository<Company>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
@@ -48,7 +51,34 @@ export class AuthService {
       const profile = this.seekerProfileRepository.create({ user: savedUser });
       await this.seekerProfileRepository.save(profile);
     } else if (dto.role === UserRole.EMPLOYER) {
-      const profile = this.employerProfileRepository.create({ user: savedUser });
+      let company = null;
+      if (dto.companyName) {
+        const slug =
+          dto.companyName
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '') +
+          '-' +
+          Date.now();
+
+        company = this.companiesRepository.create({
+          name: dto.companyName.trim(),
+          slug,
+          website: dto.companyWebsite || undefined,
+          industry: dto.industry || undefined,
+          size: dto.companySize || undefined,
+          location: dto.location || undefined,
+          registrationNumber: dto.registrationNumber || undefined,
+          isVerified: false, // Default unverified until reviewed/approved
+        });
+        company = await this.companiesRepository.save(company);
+      }
+
+      const profile = this.employerProfileRepository.create({
+        user: savedUser,
+        title: dto.jobTitle || 'Hiring Manager',
+        company: company || undefined,
+      });
       await this.employerProfileRepository.save(profile);
     }
 

@@ -1,6 +1,8 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/store/auth';
-import { Briefcase, Users, Eye, TrendingUp, PlusCircle, ArrowRight, Clock } from 'lucide-react';
+import { Briefcase, Users, Eye, TrendingUp, PlusCircle, Clock, Loader2 } from 'lucide-react';
+import api from '../../api/client';
 
 const recentJobs = [
   { id: '1', title: 'Senior React Developer', applicants: 24, views: 312, status: 'Published', postedAt: '3 days ago' },
@@ -17,6 +19,21 @@ const recentApplicants = [
 
 export default function EmployerDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    api.get('/companies/my-company')
+      .then(res => {
+        if (!res.data) {
+          navigate('/employer/onboarding', { replace: true });
+        }
+      })
+      .catch(() => {
+        // If error, still allow access — don't block on network issues
+      })
+      .finally(() => setChecking(false));
+  }, [navigate]);
 
   const stats = [
     { icon: Briefcase, label: 'Active Jobs', value: '8', color: '#0d6efd' },
@@ -24,6 +41,15 @@ export default function EmployerDashboard() {
     { icon: Eye, label: 'Job Views', value: '3,248', color: '#fd7e14' },
     { icon: TrendingUp, label: 'Hired This Month', value: '3', color: '#6f42c1' },
   ];
+
+  if (checking) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', color: '#0d6efd' }} />
+        <style>{`@keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fadeIn">

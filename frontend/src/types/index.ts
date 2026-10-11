@@ -76,6 +76,13 @@ export interface RegisterDto {
   firstName: string;
   lastName: string;
   role: UserRole.JOB_SEEKER | UserRole.EMPLOYER;
+  companyName?: string;
+  jobTitle?: string;
+  companyWebsite?: string;
+  registrationNumber?: string;
+  industry?: string;
+  companySize?: string;
+  location?: string;
 }
 
 export interface AuthResponse {
