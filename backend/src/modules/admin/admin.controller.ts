@@ -48,4 +48,22 @@ export class AdminController {
     this.checkAdmin(req);
     return this.adminService.deleteJob(id);
   }
+
+  @Get('companies')
+  async getCompanies(@Req() req: any) {
+    this.checkAdmin(req);
+    return this.adminService.getAllCompanies();
+  }
+
+  @Put('companies/:id/verify')
+  async updateCompanyVerification(@Req() req: any, @Param('id') id: string, @Body('isVerified') isVerified: boolean) {
+    this.checkAdmin(req);
+    return this.adminService.updateCompanyVerification(id, isVerified);
+  }
+
+  @Delete('companies/:id')
+  async deleteCompany(@Req() req: any, @Param('id') id: string) {
+    this.checkAdmin(req);
+    return this.adminService.deleteCompany(id);
+  }
 }

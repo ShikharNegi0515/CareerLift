@@ -129,6 +129,7 @@ export interface Company {
   size?: string;
   foundedYear?: number;
   jobCount?: number;
+  isVerified?: boolean;
   createdAt: string;
 }
 

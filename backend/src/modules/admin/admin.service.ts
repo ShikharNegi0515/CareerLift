@@ -77,4 +77,22 @@ export class AdminService {
   async deleteJob(id: string) {
     return this.jobsRepo.delete(id);
   }
+
+  async getAllCompanies() {
+    return this.companiesRepo.find({
+      relations: { jobs: true },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async updateCompanyVerification(id: string, isVerified: boolean) {
+    const company = await this.companiesRepo.findOne({ where: { id } });
+    if (!company) throw new NotFoundException('Company not found');
+    company.isVerified = isVerified;
+    return this.companiesRepo.save(company);
+  }
+
+  async deleteCompany(id: string) {
+    return this.companiesRepo.delete(id);
+  }
 }
