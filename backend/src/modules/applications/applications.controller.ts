@@ -41,8 +41,7 @@ export class ApplicationsController {
     if (req.user.role !== 'employer') {
        throw new UnauthorizedException('Only employers can view job applications');
     }
-    // TODO: Add check to ensure employer owns the job
-    return this.applicationsService.findByJob(jobId);
+    return this.applicationsService.findByJobForEmployer(jobId, req.user.userId);
   }
 
   @Put(':id/status')
@@ -54,7 +53,6 @@ export class ApplicationsController {
     if (req.user.role !== 'employer') {
         throw new UnauthorizedException('Only employers can update application status');
     }
-    // TODO: Add check to ensure employer owns the job the application is for
-    return this.applicationsService.updateStatus(id, body.status);
+    return this.applicationsService.updateStatusForEmployer(id, body.status, req.user.userId);
   }
 }

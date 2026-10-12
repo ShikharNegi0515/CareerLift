@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle, ChevronDown } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, ChevronDown, Loader2 } from 'lucide-react';
+import api from '@/api/client';
 
 const faqs = [
   { q: 'Is CareerLift free to use for job seekers?', a: 'Yes! CareerLift is completely free for job seekers. Create your account, upload your resume, and start applying to thousands of jobs at no cost.' },
@@ -13,12 +14,24 @@ const faqs = [
 export default function ContactPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await api.post('/support', form);
+      setSubmitted(true);
+    } catch (err: any) {
+      setSubmitError(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
 
   return (
     <>
@@ -93,8 +106,14 @@ export default function ContactPage() {
                       style={{ resize: 'vertical' }}
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary btn-lg">
-                    <Send size={18} /> Send Message
+                  {submitError && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#dc3545', background: '#f8d7da', padding: '0.6rem 0.9rem', borderRadius: 8, marginBottom: '1rem', fontSize: '0.875rem' }}>
+                      {submitError}
+                    </div>
+                  )}
+                  <button type="submit" disabled={submitting} className="btn btn-primary btn-lg">
+                    {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    {submitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               )}

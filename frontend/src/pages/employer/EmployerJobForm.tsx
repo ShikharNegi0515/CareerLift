@@ -20,7 +20,6 @@ const EXP_LEVELS = [
   { label: 'Senior', value: 'senior' },
   { label: 'Executive', value: 'executive' },
 ];
-const CATEGORIES = ['Technology', 'Design', 'Marketing', 'Finance', 'Healthcare', 'Education', 'Engineering', 'Legal'];
 
 const EMPTY_FORM = {
   title: '',
@@ -51,6 +50,14 @@ export default function EmployerJobForm() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    api.get<{ id: string; name: string }[]>('/categories')
+      .then(res => setCategories(res.data))
+      .catch(() => setCategories([]));
+  }, []);
 
   // Load existing job data when editing
   useEffect(() => {
@@ -203,7 +210,11 @@ export default function EmployerJobForm() {
                   <label className="form-label">Category *</label>
                   <select className="form-control" value={form.category} onChange={e => set('category', e.target.value)}>
                     <option value="">Select category</option>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {categories.map((c) => (
+                      <option key={c.id || c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

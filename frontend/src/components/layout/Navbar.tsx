@@ -7,6 +7,8 @@ import {
   LayoutDashboard, Building2
 } from 'lucide-react';
 
+import NotificationBell from './NotificationBell';
+
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -74,7 +76,10 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
           {isAuthenticated && user ? (
-            <div className="relative">
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <div className="relative">
+
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"
@@ -131,6 +136,7 @@ export default function Navbar() {
                   </button>
                 </div>
               )}
+            </div>
             </div>
           ) : (
             <>

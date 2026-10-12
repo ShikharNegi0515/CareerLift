@@ -4,8 +4,10 @@ import { useAuth } from '@/store/auth';
 import {
   LayoutDashboard, User, FileText, Bookmark, Star, Settings, LogOut,
   Briefcase, Users, Building2, Tag, BookOpen, LifeBuoy, PlusCircle,
-  ChevronLeft, ChevronRight, Bell, Menu, X
+  ChevronLeft, ChevronRight, Menu, X
 } from 'lucide-react';
+import NotificationBell from './NotificationBell';
+
 
 const seekerNav = [
   { to: '/dashboard', label: 'Overview', icon: LayoutDashboard, end: true },
@@ -214,11 +216,8 @@ export default function DashboardLayout({ role }: Props) {
               {roleLabel} Dashboard
             </h2>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6c757d', position: 'relative' }}>
-              <Bell size={20} />
-              <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: '50%', background: '#dc3545' }} />
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <NotificationBell />
             <Link to="/" style={{ fontSize: '0.8125rem', color: '#0d6efd', textDecoration: 'none', fontWeight: 500 }}>
               ← Back to Site
             </Link>

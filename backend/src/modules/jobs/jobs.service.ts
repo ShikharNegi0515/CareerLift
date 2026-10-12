@@ -89,8 +89,22 @@ export class JobsService implements OnModuleInit {
       throw new Error('You must register your company before posting jobs. Please complete company onboarding.');
     }
 
+    let categoryObj = undefined;
+    if (dto.category) {
+      if (typeof dto.category === 'string') {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(dto.category);
+        const cat = await this.jobsRepository.manager.createQueryBuilder('JobCategory', 'c')
+          .where(isUuid ? 'c.id = :cat OR c.name = :cat' : 'c.name = :cat OR c.slug = :cat', { cat: dto.category })
+          .getOne();
+        if (cat) categoryObj = cat;
+      } else if (dto.category.id) {
+        categoryObj = dto.category;
+      }
+    }
+
     const job = this.jobsRepository.create({
       ...dto,
+      category: categoryObj || dto.category,
       slug: dto.title?.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now(),
       status: JobStatus.PUBLISHED,
       company: profile.company,
@@ -104,7 +118,16 @@ export class JobsService implements OnModuleInit {
   }
 
   async update(id: string, dto: Partial<Job>): Promise<Job | null> {
-    await this.jobsRepository.update(id, dto);
+    let categoryObj = undefined;
+    if (dto.category && typeof dto.category === 'string') {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(dto.category);
+      const cat = await this.jobsRepository.manager.createQueryBuilder('JobCategory', 'c')
+        .where(isUuid ? 'c.id = :cat OR c.name = :cat' : 'c.name = :cat OR c.slug = :cat', { cat: dto.category })
+        .getOne();
+      if (cat) categoryObj = cat;
+      dto = { ...dto, category: categoryObj };
+    }
+    await this.jobsRepository.save({ id, ...dto });
     return this.findOne(id);
   }
 
@@ -112,3 +135,4 @@ export class JobsService implements OnModuleInit {
     await this.jobsRepository.delete(id);
   }
 }
+

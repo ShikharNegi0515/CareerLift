@@ -19,56 +19,19 @@ export default function SeekerRecommendations() {
 
   const loadData = async () => {
     try {
-      const [jobsRes, profileRes, savedRes] = await Promise.allSettled([
-        api.get<Job[]>('/jobs'),
-        api.get<any>('/users/profile'),
+      const [recsRes, savedRes] = await Promise.allSettled([
+        api.get<ScoredJob[]>('/recommendations?limit=20'),
         api.get<any[]>('/saved-jobs'),
       ]);
 
-      let savedIds = new Set<string>();
       if (savedRes.status === 'fulfilled' && Array.isArray(savedRes.value.data)) {
-        savedIds = new Set(savedRes.value.data.map((item: any) => item.job?.id || item.jobId));
+        const savedIds = new Set(savedRes.value.data.map((item: any) => item.job?.id || item.jobId));
         setSavedJobIds(savedIds);
       }
 
-      const userProfile = profileRes.status === 'fulfilled' ? profileRes.value.data : null;
-      const rawJobs = jobsRes.status === 'fulfilled' && Array.isArray(jobsRes.value.data) ? jobsRes.value.data : [];
-
-      const userSkills: string[] = userProfile?.skills
-        ? Array.isArray(userProfile.skills)
-          ? userProfile.skills.map((s: string) => s.toLowerCase().trim())
-          : userProfile.skills.split(',').map((s: string) => s.toLowerCase().trim())
-        : [];
-
-      const scored: ScoredJob[] = rawJobs.map((job) => {
-        let score = 70;
-        const reasons: string[] = [];
-
-        // Check skill match
-        const extraSkills = (job as any).skillsRequired || (job as any).skills || [];
-        const jobDesc = `${job.title} ${job.description || ''} ${Array.isArray(extraSkills) ? extraSkills.join(' ') : extraSkills}`.toLowerCase();
-        const matchedSkills = userSkills.filter((skill) => jobDesc.includes(skill));
-
-        if (matchedSkills.length > 0) {
-          score += Math.min(25, matchedSkills.length * 8);
-          reasons.push(`Matches your skills: ${matchedSkills.slice(0, 3).join(', ')}`);
-        } else {
-          reasons.push('Relevant to current tech industry vacancies');
-        }
-
-        if (userProfile?.preferredLocation && job.location?.toLowerCase().includes(userProfile.preferredLocation.toLowerCase())) {
-          score += 5;
-        }
-
-        return {
-          ...job,
-          matchScore: Math.min(99, score),
-          matchReason: reasons[0],
-        };
-      });
-
-      scored.sort((a, b) => b.matchScore - a.matchScore);
-      setJobs(scored);
+      if (recsRes.status === 'fulfilled' && Array.isArray(recsRes.value.data)) {
+        setJobs(recsRes.value.data);
+      }
     } catch (err) {
       console.error('Failed to load recommendations', err);
     } finally {
@@ -76,6 +39,7 @@ export default function SeekerRecommendations() {
       setRefreshing(false);
     }
   };
+
 
   useEffect(() => {
     loadData();
