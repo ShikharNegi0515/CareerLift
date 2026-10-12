@@ -1,0 +1,5 @@
+John Doe
+Software Engineer
+Email: john@example.com
+Skills: React, TypeScript, Node.js, PostgreSQL, Docker, AWS, Python
+Experience: Senior Full Stack Developer at Tech Corp.

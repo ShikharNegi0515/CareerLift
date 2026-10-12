@@ -22,6 +22,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { BlogModule } from './modules/blog/blog.module.js';
 import { SupportModule } from './modules/support/support.module.js';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module.js';
+import { EmailModule } from './modules/email/email.module.js';
 
 // Entities
 import { User } from './modules/auth/user.entity.js';
@@ -81,6 +82,7 @@ import { SupportTicket } from './modules/support/support-ticket.entity.js';
     BlogModule,
     SupportModule,
     RecommendationsModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [

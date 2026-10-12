@@ -17,7 +17,7 @@ export class ApplicationsController {
     if (req.user.role !== 'job_seeker') {
        throw new UnauthorizedException('Only job seekers can apply for jobs');
     }
-    return this.applicationsService.apply(req.user.userId, jobId, body.coverLetter, body.resumeId);
+    return this.applicationsService.apply(req.user.id || req.user.userId, jobId, body.coverLetter, body.resumeId);
   }
 
   @Get('me')

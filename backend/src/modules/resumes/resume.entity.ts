@@ -24,7 +24,14 @@ export class Resume {
   @Column({ default: false })
   isDefault: boolean;
 
+  @Column({ type: 'simple-json', nullable: true, default: '[]' })
+  parsedSkills: string[];
+
+  @Column({ type: 'text', nullable: true })
+  parsedText: string;
+
   @ManyToOne('User', 'resumes', { onDelete: 'CASCADE', eager: false })
+  @JoinColumn({ name: 'user_id' })
   user: any;
 
   @CreateDateColumn()

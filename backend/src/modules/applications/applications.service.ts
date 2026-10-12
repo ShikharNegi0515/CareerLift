@@ -7,6 +7,7 @@ import { User } from '../auth/user.entity.js';
 import { Resume } from '../resumes/resume.entity.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
 import { NotificationType } from '../notifications/notification.entity.js';
+import { EmailService } from '../email/email.service.js';
 
 @Injectable()
 export class ApplicationsService {
@@ -20,12 +21,19 @@ export class ApplicationsService {
     @InjectRepository(Resume)
     private resumesRepository: Repository<Resume>,
     private notificationsService: NotificationsService,
+    private emailService: EmailService,
   ) {}
 
   async apply(userId: string, jobId: string, coverLetter?: string, resumeId?: string): Promise<Application> {
     const job = await this.jobsRepository.findOne({ 
       where: { id: jobId },
-      relations: ['company', 'company.employerProfiles', 'company.employerProfiles.user'] as any,
+      relations: {
+        company: {
+          employerProfiles: {
+            user: true,
+          },
+        },
+      },
     });
     if (!job) {
       throw new NotFoundException('Job not found');
@@ -54,8 +62,17 @@ export class ApplicationsService {
 
     const savedApp = await this.applicationsRepository.save(application);
 
-    // Notify employers associated with the job's company
+    // Notify employers associated with the job's company & email candidate
     try {
+      const candidateName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Candidate';
+      const companyName = job.company?.name || 'Company';
+
+      // 1. Send confirmation email to applicant
+      this.emailService.sendApplicationReceivedEmail(user.email, candidateName, job.title, companyName).catch(err => {
+        console.warn('Failed to send application confirmation email:', err);
+      });
+
+      // 2. Notify employers via in-app notification & email
       const employerProfiles = job.company?.employerProfiles || [];
       for (const ep of employerProfiles) {
         if (ep.user?.id) {
@@ -63,13 +80,20 @@ export class ApplicationsService {
             userId: ep.user.id,
             type: NotificationType.APPLICATION_RECEIVED,
             title: 'New Applicant Received',
-            message: `${[user.firstName, user.lastName].filter(Boolean).join(' ') || 'A candidate'} just submitted an application for "${job.title}".`,
+            message: `${candidateName} just submitted an application for "${job.title}".`,
             link: `/employer/applicants`,
           });
+
+          if (ep.user?.email) {
+            const employerName = [ep.user.firstName, ep.user.lastName].filter(Boolean).join(' ') || 'Hiring Manager';
+            this.emailService.sendNewApplicantEmployerEmail(ep.user.email, employerName, candidateName, job.title).catch(err => {
+              console.warn('Failed to send employer email:', err);
+            });
+          }
         }
       }
     } catch (e) {
-      console.warn('Failed to dispatch applicant notification', e);
+      console.warn('Failed to dispatch applicant notifications/emails', e);
     }
 
     return savedApp;
@@ -154,7 +178,7 @@ export class ApplicationsService {
     application.status = status;
     const updated = await this.applicationsRepository.save(application);
 
-    // Notify applicant of status update
+    // Notify applicant of status update via notification and email
     try {
       if (application.applicant?.id) {
         await this.notificationsService.create({
@@ -164,6 +188,15 @@ export class ApplicationsService {
           message: `Your application for "${application.job?.title}" has been updated to "${status}".`,
           link: `/seeker/applications`,
         });
+
+        if (application.applicant.email) {
+          const candidateName = [application.applicant.firstName, application.applicant.lastName].filter(Boolean).join(' ') || 'Candidate';
+          const jobTitle = application.job?.title || 'Job';
+          const companyName = application.job?.company?.name || 'Company';
+          this.emailService.sendApplicationStatusUpdatedEmail(application.applicant.email, candidateName, jobTitle, companyName, status).catch(err => {
+            console.warn('Failed to dispatch status email to applicant:', err);
+          });
+        }
       }
     } catch (e) {
       console.warn('Failed to dispatch status notification', e);

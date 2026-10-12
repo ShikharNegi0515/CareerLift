@@ -2,9 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module.js';
 import cookieParser from 'cookie-parser';
+import express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Serve static uploads
+  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   // Global prefix
   app.setGlobalPrefix('api');

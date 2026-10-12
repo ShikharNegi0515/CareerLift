@@ -11,6 +11,7 @@ import { LoginDto } from './dto/login.dto.js';
 import { JobSeekerProfile } from '../users/job-seeker-profile.entity.js';
 import { EmployerProfile } from '../users/employer-profile.entity.js';
 import { Company } from '../companies/company.entity.js';
+import { EmailService } from '../email/email.service.js';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
     private companiesRepository: Repository<Company>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -81,6 +83,12 @@ export class AuthService {
       });
       await this.employerProfileRepository.save(profile);
     }
+
+    // Trigger asynchronous welcome email
+    const fullName = [savedUser.firstName, savedUser.lastName].filter(Boolean).join(' ') || savedUser.email;
+    this.emailService.sendWelcomeEmail(fullName, savedUser.email, savedUser.role).catch((err) => {
+      console.warn('Failed to send welcome email:', err);
+    });
 
     return this.generateTokens(savedUser);
   }

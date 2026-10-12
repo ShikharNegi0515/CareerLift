@@ -255,6 +255,8 @@ export interface Resume {
   fileUrl: string;
   fileSize: number;
   isDefault: boolean;
+  parsedSkills?: string[];
+  parsedText?: string;
   createdAt: string;
 }
 

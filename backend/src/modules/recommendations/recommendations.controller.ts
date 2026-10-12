@@ -10,6 +10,6 @@ export class RecommendationsController {
   @Get()
   async getRecommendations(@Req() req: any, @Query('limit') limit?: string): Promise<ScoredJob[]> {
     const take = limit ? parseInt(limit, 10) : 20;
-    return this.recommendationsService.getRecommendations(req.user.userId, take);
+    return this.recommendationsService.getRecommendations(req.user.id || req.user.userId, take);
   }
 }
