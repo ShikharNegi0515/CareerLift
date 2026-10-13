@@ -156,3 +156,42 @@ export function getNewApplicantEmployerEmailHtml(
 
   return getBaseEmailLayout(`New Applicant for ${jobTitle}`, body);
 }
+
+export function getPasswordResetEmailHtml(name: string, resetUrl: string): string {
+  const body = `
+    <h2 style="margin-top: 0; color: #1a1f36; font-size: 20px;">Reset Your Password 🔐</h2>
+    <p>Hi ${name},</p>
+    <p>We received a request to reset the password for your CareerLift account. Click the button below to create a new password.</p>
+    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 14px 18px; margin: 20px 0; border-radius: 4px;">
+      <p style="margin: 0; font-size: 13px; color: #856404;">
+        ⏱️ This link will expire in <strong>1 hour</strong>. If you did not request a password reset, you can safely ignore this email.
+      </p>
+    </div>
+    <div style="text-align: center; margin: 28px 0;">
+      <a href="${resetUrl}" class="btn" style="background-color: #dc3545;">Reset My Password</a>
+    </div>
+    <p style="color: #6c757d; font-size: 13px;">
+      If the button above doesn't work, copy and paste this URL into your browser:<br>
+      <span style="word-break: break-all; color: #0d6efd;">${resetUrl}</span>
+    </p>
+  `;
+  return getBaseEmailLayout('Reset Your CareerLift Password', body);
+}
+
+export function getEmailVerificationHtml(name: string, verifyUrl: string): string {
+  const body = `
+    <h2 style="margin-top: 0; color: #1a1f36; font-size: 20px;">Verify Your Email Address ✉️</h2>
+    <p>Hi ${name},</p>
+    <p>Thanks for signing up! Please confirm your email address to activate your account and get full access to CareerLift features.</p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${verifyUrl}" class="btn" style="background-color: #198754;">Verify My Email</a>
+    </div>
+    <div style="background-color: #f8f9fa; border-left: 4px solid #198754; padding: 14px 18px; margin: 20px 0; border-radius: 4px;">
+      <p style="margin: 0; font-size: 13px; color: #495057;">
+        ⏱️ This link will expire in <strong>24 hours</strong>.
+      </p>
+    </div>
+    <p style="color: #6c757d; font-size: 13px;">If you did not create an account, no action is required.</p>
+  `;
+  return getBaseEmailLayout('Verify Your CareerLift Email', body);
+}

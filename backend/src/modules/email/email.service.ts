@@ -6,6 +6,8 @@ import {
   getApplicationReceivedEmailHtml,
   getApplicationStatusUpdatedEmailHtml,
   getNewApplicantEmployerEmailHtml,
+  getPasswordResetEmailHtml,
+  getEmailVerificationHtml,
 } from './email-templates.js';
 
 export interface SendMailOptions {
@@ -123,6 +125,26 @@ export class EmailService {
     return this.sendMail({
       to: employerEmail,
       subject: `New Application Received: ${candidateName} for ${jobTitle}`,
+      html,
+    });
+  }
+
+  async sendPasswordResetEmail(email: string, name: string, resetToken: string): Promise<boolean> {
+    const resetUrl = `${this.frontendUrl}/reset-password?token=${resetToken}`;
+    const html = getPasswordResetEmailHtml(name, resetUrl);
+    return this.sendMail({
+      to: email,
+      subject: 'Reset your CareerLift password',
+      html,
+    });
+  }
+
+  async sendEmailVerification(email: string, name: string, verificationToken: string): Promise<boolean> {
+    const verifyUrl = `${this.frontendUrl}/verify-email?token=${verificationToken}`;
+    const html = getEmailVerificationHtml(name, verifyUrl);
+    return this.sendMail({
+      to: email,
+      subject: 'Verify your CareerLift email address',
       html,
     });
   }

@@ -40,6 +40,18 @@ export class User {
   @Column({ nullable: true, type: 'text' })
   refreshTokenHash: string | null;
 
+  @Column({ nullable: true, type: 'text' })
+  resetPasswordToken: string | null;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  resetPasswordExpires: Date | null;
+
+  @Column({ nullable: true, type: 'text' })
+  emailVerificationToken: string | null;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  emailVerificationExpires: Date | null;
+
   // Relations defined lazily to avoid circular imports
   @OneToOne('JobSeekerProfile', 'user', { cascade: true, nullable: true })
   seekerProfile: any;
