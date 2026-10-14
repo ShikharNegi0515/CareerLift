@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller.js';
@@ -23,6 +24,7 @@ import { BlogModule } from './modules/blog/blog.module.js';
 import { SupportModule } from './modules/support/support.module.js';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module.js';
 import { EmailModule } from './modules/email/email.module.js';
+import { ConversationsModule } from './modules/conversations/conversations.module.js';
 
 // Entities
 import { User } from './modules/auth/user.entity.js';
@@ -37,10 +39,12 @@ import { Resume } from './modules/resumes/resume.entity.js';
 import { Notification } from './modules/notifications/notification.entity.js';
 import { BlogPost } from './modules/blog/blog-post.entity.js';
 import { SupportTicket } from './modules/support/support-ticket.entity.js';
+import { Conversation, Message, Interview } from './modules/conversations/conversation.entity.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -66,6 +70,9 @@ import { SupportTicket } from './modules/support/support-ticket.entity.js';
           Notification,
           BlogPost,
           SupportTicket,
+          Conversation,
+          Message,
+          Interview,
         ],
       }),
     }),
@@ -83,6 +90,7 @@ import { SupportTicket } from './modules/support/support-ticket.entity.js';
     SupportModule,
     RecommendationsModule,
     EmailModule,
+    ConversationsModule,
   ],
   controllers: [AppController],
   providers: [

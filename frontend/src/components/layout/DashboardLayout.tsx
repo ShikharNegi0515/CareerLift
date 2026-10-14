@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import {
   LayoutDashboard, User, FileText, Bookmark, Star, Settings, LogOut,
   Briefcase, Users, Building2, Tag, BookOpen, LifeBuoy, PlusCircle,
-  ChevronLeft, ChevronRight, Menu, X
+  ChevronLeft, ChevronRight, Menu, X, MessageSquare
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -13,6 +13,7 @@ const seekerNav = [
   { to: '/dashboard', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/dashboard/profile', label: 'My Profile', icon: User },
   { to: '/dashboard/applications', label: 'Applications', icon: FileText },
+  { to: '/dashboard/messages', label: 'Messages & Interviews', icon: MessageSquare },
   { to: '/dashboard/saved-jobs', label: 'Saved Jobs', icon: Bookmark },
   { to: '/dashboard/resumes', label: 'Resumes', icon: Star },
   { to: '/dashboard/recommendations', label: 'Recommendations', icon: Star },
@@ -23,6 +24,7 @@ const employerNav = [
   { to: '/employer', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/employer/jobs', label: 'My Jobs', icon: Briefcase },
   { to: '/employer/applicants', label: 'Applicants', icon: Users },
+  { to: '/employer/messages', label: 'Messages & Interviews', icon: MessageSquare },
   { to: '/employer/jobs/new', label: 'Post a Job', icon: PlusCircle },
   { to: '/employer/company', label: 'Company Profile', icon: Building2 },
   { to: '/employer/settings', label: 'Settings', icon: Settings },

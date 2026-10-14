@@ -2,13 +2,41 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification, NotificationType } from './notification.entity.js';
+import { Subject, Observable } from 'rxjs';
+
+export interface SseNotificationEvent {
+  data: {
+    type: 'notification';
+    notification: Notification;
+  };
+}
 
 @Injectable()
 export class NotificationsService {
+  // Per-user SSE subjects for real-time push
+  private readonly userStreams = new Map<string, Subject<SseNotificationEvent>>();
+
   constructor(
     @InjectRepository(Notification)
     private readonly notificationsRepository: Repository<Notification>,
   ) {}
+
+  /** Called by SSE controller to subscribe a user to their notification stream */
+  getUserStream(userId: string): Observable<SseNotificationEvent> {
+    if (!this.userStreams.has(userId)) {
+      this.userStreams.set(userId, new Subject<SseNotificationEvent>());
+    }
+    return this.userStreams.get(userId)!.asObservable();
+  }
+
+  /** Removes a user stream when they disconnect */
+  removeUserStream(userId: string) {
+    const subject = this.userStreams.get(userId);
+    if (subject) {
+      subject.complete();
+      this.userStreams.delete(userId);
+    }
+  }
 
   async create(data: {
     userId: string;
@@ -18,7 +46,15 @@ export class NotificationsService {
     link?: string;
   }): Promise<Notification> {
     const notification = this.notificationsRepository.create(data);
-    return this.notificationsRepository.save(notification);
+    const saved = await this.notificationsRepository.save(notification);
+
+    // Push real-time event to the connected user if they have an active SSE stream
+    const subject = this.userStreams.get(data.userId);
+    if (subject) {
+      subject.next({ data: { type: 'notification', notification: saved } });
+    }
+
+    return saved;
   }
 
   async getUserNotifications(userId: string): Promise<Notification[]> {
@@ -56,3 +92,4 @@ export class NotificationsService {
     return { success: true };
   }
 }
+

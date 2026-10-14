@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Search, Filter, Download, Star, StarOff, MapPin,
-  Clock, FileText, Loader2, AlertCircle, Mail, X, Eye
+  Clock, FileText, Loader2, AlertCircle, Mail, X, Eye, MessageSquare,
+  Kanban, LayoutList, CheckCircle2, User, ChevronRight, Calendar
 } from 'lucide-react';
 import api from '@/api/client';
 import { ApplicationStatus } from '@/types';
@@ -50,6 +51,7 @@ const statusColors: Record<string, { bg: string; text: string }> = {
 
 export default function EmployerApplicants() {
   const { id } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
   const [job, setJob] = useState<Job | null>(null);
   const [applicants, setApplicants] = useState<ApplicantData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +60,19 @@ export default function EmployerApplicants() {
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantData | null>(null);
   const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
+  const [draggedAppId, setDraggedAppId] = useState<string | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+
+  const openConversation = async (applicationId: string) => {
+    try {
+      const res = await api.post(`/conversations/application/${applicationId}`);
+      navigate(`/employer/messages?c=${res.data.id}`);
+    } catch (err) {
+      console.error('Failed to open conversation', err);
+      navigate('/employer/messages');
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -179,9 +194,55 @@ export default function EmployerApplicants() {
             {applicants.length} total applicant{applicants.length === 1 ? '' : 's'}
           </p>
         </div>
-        <button onClick={exportCSV} className="btn btn-outline btn-sm" disabled={applicants.length === 0}>
-          <Download size={16} /> Export CSV
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* View mode toggle */}
+          <div style={{ display: 'flex', background: '#e9ecef', padding: 3, borderRadius: 8 }}>
+            <button
+              onClick={() => setViewMode('kanban')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '0.35rem 0.75rem',
+                border: 'none',
+                borderRadius: 6,
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: viewMode === 'kanban' ? '#fff' : 'transparent',
+                color: viewMode === 'kanban' ? '#0d6efd' : '#6c757d',
+                boxShadow: viewMode === 'kanban' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Kanban size={14} /> Board
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '0.35rem 0.75rem',
+                border: 'none',
+                borderRadius: 6,
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: viewMode === 'list' ? '#fff' : 'transparent',
+                color: viewMode === 'list' ? '#0d6efd' : '#6c757d',
+                boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <LayoutList size={14} /> List
+            </button>
+          </div>
+
+          <button onClick={exportCSV} className="btn btn-outline btn-sm" disabled={applicants.length === 0}>
+            <Download size={16} /> Export CSV
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -247,13 +308,191 @@ export default function EmployerApplicants() {
           </div>
         </div>
 
-        {/* Applicant list */}
+        {/* View content: Board or List */}
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
             <Filter size={40} style={{ color: '#dee2e6', margin: '0 auto 1rem' }} />
             <p>No applicants found matching your filters.</p>
           </div>
+        ) : viewMode === 'kanban' ? (
+          /* ──────── Kanban Pipeline Board ──────── */
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, minmax(250px, 1fr))',
+            gap: '1rem',
+            overflowX: 'auto',
+            paddingBottom: '1rem',
+            minHeight: 520,
+          }}>
+            {[
+              { key: ApplicationStatus.APPLIED, label: 'Applied', color: '#0d6efd', bg: '#eff6ff', border: '#bfdbfe' },
+              { key: ApplicationStatus.UNDER_REVIEW, label: 'Under Review', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+              { key: ApplicationStatus.SHORTLISTED, label: 'Shortlisted', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
+              { key: ApplicationStatus.HIRED, label: 'Hired / Offer', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
+              { key: ApplicationStatus.REJECTED, label: 'Archived / Rejected', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+            ].map((col) => {
+              const colApps = filtered.filter((a) => a.status === col.key);
+              const isOver = dragOverColumn === col.key;
+
+              return (
+                <div
+                  key={col.key}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (dragOverColumn !== col.key) setDragOverColumn(col.key);
+                  }}
+                  onDragLeave={() => {
+                    if (dragOverColumn === col.key) setDragOverColumn(null);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOverColumn(null);
+                    if (draggedAppId) {
+                      updateStatus(draggedAppId, col.key);
+                      setDraggedAppId(null);
+                    }
+                  }}
+                  style={{
+                    background: isOver ? '#e0f2fe' : col.bg,
+                    border: `1.5px ${isOver ? 'dashed #0284c7' : 'solid ' + col.border}`,
+                    borderRadius: 12,
+                    padding: '0.875rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {/* Column header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: `1px solid ${col.border}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: col.color }} />
+                      <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1e293b' }}>{col.label}</span>
+                    </div>
+                    <span style={{
+                      background: '#fff',
+                      color: col.color,
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      padding: '1px 8px',
+                      borderRadius: 9999,
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    }}>
+                      {colApps.length}
+                    </span>
+                  </div>
+
+                  {/* Column cards container */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1, minHeight: 120 }}>
+                    {colApps.length === 0 ? (
+                      <div style={{
+                        border: '1px dashed rgba(0,0,0,0.1)',
+                        borderRadius: 8,
+                        height: 90,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#94a3b8',
+                        fontSize: '0.75rem',
+                      }}>
+                        Drag candidates here
+                      </div>
+                    ) : (
+                      colApps.map((a) => {
+                        const fullName = `${a.applicant?.firstName || ''} ${a.applicant?.lastName || ''}`.trim() || 'Candidate';
+                        const isRated = ratedIds.has(a.id);
+                        const isBeingDragged = draggedAppId === a.id;
+
+                        return (
+                          <div
+                            key={a.id}
+                            draggable
+                            onDragStart={() => setDraggedAppId(a.id)}
+                            onDragEnd={() => {
+                              setDraggedAppId(null);
+                              setDragOverColumn(null);
+                            }}
+                            style={{
+                              background: '#fff',
+                              borderRadius: 10,
+                              padding: '0.875rem',
+                              boxShadow: isBeingDragged ? '0 12px 20px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.06)',
+                              border: '1px solid #e2e8f0',
+                              cursor: 'grab',
+                              opacity: isBeingDragged ? 0.4 : 1,
+                              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <div style={{
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: '50%',
+                                  background: col.color,
+                                  color: '#fff',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                }}>
+                                  {getInitials(a.applicant?.firstName, a.applicant?.lastName)}
+                                </div>
+                                <div>
+                                  <h4 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: '#1e293b' }}>
+                                    {fullName}
+                                  </h4>
+                                  <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                    {a.job?.title || job?.title || 'Applicant'}
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => toggleRate(a.id)}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                              >
+                                {isRated ? <Star size={14} fill="#ffc107" color="#ffc107" /> : <StarOff size={14} color="#cbd5e1" />}
+                              </button>
+                            </div>
+
+                            {a.applicant?.seekerProfile?.headline && (
+                              <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#475569', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                {a.applicant.seekerProfile.headline}
+                              </p>
+                            )}
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, borderTop: '1px solid #f1f5f9', fontSize: '0.7rem', color: '#94a3b8' }}>
+                              <span>{formatDate(a.createdAt)}</span>
+                              <div style={{ display: 'flex', gap: 4 }}>
+                                <button
+                                  onClick={() => openConversation(a.id)}
+                                  className="btn btn-light btn-sm"
+                                  style={{ padding: '2px 6px', fontSize: '0.7rem' }}
+                                  title="Chat"
+                                >
+                                  <MessageSquare size={12} color="#2563eb" />
+                                </button>
+                                <button
+                                  onClick={() => setSelectedApplicant(a)}
+                                  className="btn btn-light btn-sm"
+                                  style={{ padding: '2px 6px', fontSize: '0.7rem' }}
+                                  title="Details"
+                                >
+                                  <Eye size={12} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
+          /* ──────── Classic List View ──────── */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {filtered.map((a) => {
               const fullName = `${a.applicant?.firstName || ''} ${a.applicant?.lastName || ''}`.trim() || 'Candidate';
@@ -353,6 +592,15 @@ export default function EmployerApplicants() {
                       title="View Application Details"
                     >
                       <Eye size={14} /> Details
+                    </button>
+
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => openConversation(a.id)}
+                      title="Message / Interview candidate"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <MessageSquare size={14} /> Message
                     </button>
 
                     {/* Resume download or open */}
@@ -495,6 +743,17 @@ export default function EmployerApplicants() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <button
+                onClick={() => {
+                  const appId = selectedApplicant.id;
+                  setSelectedApplicant(null);
+                  openConversation(appId);
+                }}
+                className="btn btn-primary btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <MessageSquare size={14} /> Message & Schedule
+              </button>
               <button onClick={() => setSelectedApplicant(null)} className="btn btn-secondary btn-sm">
                 Close
               </button>

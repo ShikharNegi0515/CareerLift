@@ -1,4 +1,6 @@
-import { Controller, Get, Put, Delete, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Param, Req, Res, UseGuards, Sse, MessageEvent } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import type { Response } from 'express';
 import { NotificationsService } from './notifications.service.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 
@@ -6,6 +8,23 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 @UseGuards(JwtAuthGuard)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
+
+  /**
+   * SSE endpoint — clients connect once and receive live notification pushes.
+   * The JWT is sent as Authorization header via the EventSource wrapper in the frontend.
+   */
+  @Sse('stream')
+  stream(@Req() req: any, @Res() res: Response): Observable<MessageEvent> {
+    const userId = req.user?.id || req.user?.userId;
+    const stream$ = this.notificationsService.getUserStream(userId);
+
+    // Clean up when the client disconnects
+    res.on('close', () => {
+      this.notificationsService.removeUserStream(userId);
+    });
+
+    return stream$ as unknown as Observable<MessageEvent>;
+  }
 
   @Get()
   async getMyNotifications(@Req() req: any) {

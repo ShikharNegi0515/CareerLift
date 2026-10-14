@@ -1,10 +1,25 @@
-import { Controller, Post, Body, Req, Res, Get, UseGuards, HttpCode, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Req, Res, Get, Query, UseGuards, HttpCode, UnauthorizedException } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 import { Public } from './public.decorator.js';
+import { IsEmail, IsString, MinLength } from 'class-validator';
+
+class ForgotPasswordDto {
+  @IsEmail()
+  email: string;
+}
+
+class ResetPasswordDto {
+  @IsString()
+  token: string;
+
+  @IsString()
+  @MinLength(8)
+  password: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -53,8 +68,43 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Req() req: any) {
-    const { passwordHash, refreshTokenHash, ...user } = req.user;
+    const { passwordHash, refreshTokenHash, resetPasswordToken, emailVerificationToken, ...user } = req.user;
     return user;
+  }
+
+  // ─── Password Reset ────────────────────────────────────────
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(200)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(dto.email);
+    return { message: 'If that email exists, a reset link has been sent.' };
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(200)
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.token, dto.password);
+    return { message: 'Password has been reset successfully. Please log in again.' };
+  }
+
+  // ─── Email Verification ───────────────────────────────────
+
+  @UseGuards(JwtAuthGuard)
+  @Post('send-verification-email')
+  @HttpCode(200)
+  async sendVerificationEmail(@Req() req: any) {
+    await this.authService.sendVerificationEmail(req.user.id);
+    return { message: 'Verification email sent. Please check your inbox.' };
+  }
+
+  @Public()
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    await this.authService.verifyEmail(token);
+    return { message: 'Email verified successfully! You can now log in.' };
   }
 
   private setRefreshTokenCookie(res: Response, token: string) {
@@ -66,3 +116,4 @@ export class AuthController {
     });
   }
 }
+

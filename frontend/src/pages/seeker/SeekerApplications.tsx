@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, ExternalLink, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, ExternalLink, Loader2, MessageSquare } from 'lucide-react';
 import api from '@/api/client';
 import type { Application } from '@/types';
 
@@ -22,10 +22,21 @@ const formatStatus = (status: string) => {
 };
 
 export default function SeekerApplications() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const openConversation = async (applicationId: string) => {
+    try {
+      const res = await api.post(`/conversations/application/${applicationId}`);
+      navigate(`/dashboard/messages?c=${res.data.id}`);
+    } catch (err) {
+      console.error('Failed to open conversation', err);
+      navigate('/dashboard/messages');
+    }
+  };
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -137,9 +148,19 @@ export default function SeekerApplications() {
                       </span>
                     </td>
                     <td style={{ padding: '0.875rem 0.5rem' }}>
-                      <Link to={`/jobs/${app.job.id}`} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem' }}>
-                        <ExternalLink size={13} />
-                      </Link>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => openConversation(app.id)}
+                          className="btn btn-outline-primary btn-sm"
+                          style={{ padding: '0.3rem 0.5rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          title="Message Employer"
+                        >
+                          <MessageSquare size={13} />
+                        </button>
+                        <Link to={`/jobs/${app.job.id}`} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem' }} title="View Job Details">
+                          <ExternalLink size={13} />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

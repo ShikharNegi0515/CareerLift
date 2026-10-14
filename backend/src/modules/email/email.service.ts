@@ -8,6 +8,7 @@ import {
   getNewApplicantEmployerEmailHtml,
   getPasswordResetEmailHtml,
   getEmailVerificationHtml,
+  getJobAlertDigestEmailHtml,
 } from './email-templates.js';
 
 export interface SendMailOptions {
@@ -145,6 +146,19 @@ export class EmailService {
     return this.sendMail({
       to: email,
       subject: 'Verify your CareerLift email address',
+      html,
+    });
+  }
+
+  async sendJobAlertDigest(
+    email: string,
+    name: string,
+    jobs: Array<{ id: string; title: string; companyName: string; location: string; matchScore: number; matchReason: string }>,
+  ): Promise<boolean> {
+    const html = getJobAlertDigestEmailHtml(name, jobs, this.frontendUrl);
+    return this.sendMail({
+      to: email,
+      subject: `🎯 ${jobs.length} New Job Opportunities Matched for You - CareerLift`,
       html,
     });
   }

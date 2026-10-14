@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Briefcase, Lock, Eye, EyeOff, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import api from '@/api/client';
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token') || '';
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -15,12 +19,18 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     if (password !== confirmPassword) { setError('Passwords do not match.'); return; }
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+    if (!token) { setError('Invalid or missing reset token. Please request a new link.'); return; }
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setSuccess(true);
-    setLoading(false);
-    setTimeout(() => navigate('/login'), 3000);
+    try {
+      await api.post('/auth/reset-password', { token, password });
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 3000);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Reset link is invalid or has expired. Please request a new one.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;

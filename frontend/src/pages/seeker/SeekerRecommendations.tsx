@@ -87,9 +87,37 @@ export default function SeekerRecommendations() {
           </h1>
           <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>Jobs dynamically matched to your profile skills and preferences.</p>
         </div>
-        <button className="btn btn-light btn-sm" onClick={handleRefresh} disabled={refreshing}>
-          <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} /> {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-light btn-sm" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} /> {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+      </div>
+
+      {/* Daily Email Digest info alert */}
+      <div style={{
+        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        border: '1px solid #bfdbfe',
+        borderRadius: 12,
+        padding: '0.875rem 1.25rem',
+        marginBottom: '1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
+            <Zap size={18} />
+          </div>
+          <div>
+            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1e3a8a' }}>Daily Job Digest Active</span>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: '#3b82f6' }}>
+              We automatically compute and email you your top matches every morning at 9:00 AM.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Match score legend */}

@@ -32,6 +32,7 @@ import SeekerSavedJobs from '@/pages/seeker/SeekerSavedJobs';
 import SeekerResumes from '@/pages/seeker/SeekerResumes';
 import SeekerRecommendations from '@/pages/seeker/SeekerRecommendations';
 import SeekerSettings from '@/pages/seeker/SeekerSettings';
+import MessagesInterviewsPage from '@/pages/common/MessagesInterviewsPage';
 
 // Employer dashboard
 import EmployerDashboard from '@/pages/employer/EmployerDashboard';
@@ -127,6 +128,7 @@ export default function AppRoutes() {
         <Route index element={<SeekerDashboard />} />
         <Route path="profile" element={<SeekerProfile />} />
         <Route path="applications" element={<SeekerApplications />} />
+        <Route path="messages" element={<MessagesInterviewsPage />} />
         <Route path="saved-jobs" element={<SeekerSavedJobs />} />
         <Route path="resumes" element={<SeekerResumes />} />
         <Route path="recommendations" element={<SeekerRecommendations />} />
@@ -158,6 +160,7 @@ export default function AppRoutes() {
         <Route path="jobs/:id/edit" element={<EmployerJobForm />} />
         <Route path="jobs/:id/applicants" element={<EmployerApplicants />} />
         <Route path="applicants" element={<EmployerApplicants />} />
+        <Route path="messages" element={<MessagesInterviewsPage />} />
         <Route path="company" element={<EmployerCompanyProfile />} />
         <Route path="settings" element={<EmployerSettings />} />
       </Route>

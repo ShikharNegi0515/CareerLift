@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from '@/store/auth';
 import AppRoutes from '@/routes';
+import ScrollToTop from '@/components/common/ScrollToTop';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -18,6 +19,7 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <AppRoutes />

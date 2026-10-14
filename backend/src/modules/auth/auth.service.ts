@@ -5,11 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+
 
 import { User, UserRole } from './user.entity.js';
 import { RegisterDto } from './dto/register.dto.js';
@@ -166,4 +162,90 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  // ────────────────────────────────────────────────────────────
+  // PASSWORD RESET
+  // ────────────────────────────────────────────────────────────
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    // Always return success to avoid exposing whether the email exists
+    if (!user) return;
+
+    // Generate a plain random token and store its hash in DB
+    const plainToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(plainToken).digest('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.usersRepository.update(user.id, {
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: expires,
+    });
+
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+    await this.emailService.sendPasswordResetEmail(user.email, fullName, plainToken);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await this.usersRepository.findOne({
+      where: { resetPasswordToken: hashedToken },
+    });
+
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      throw new BadRequestException('Password reset token is invalid or has expired');
+    }
+
+    const salt = await bcrypt.genSalt();
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    await this.usersRepository.update(user.id, {
+      passwordHash: newHash,
+      resetPasswordToken: null,
+      resetPasswordExpires: null,
+      refreshTokenHash: null, // Invalidate all existing sessions
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────
+  // EMAIL VERIFICATION
+  // ────────────────────────────────────────────────────────────
+
+  async sendVerificationEmail(userId: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.isEmailVerified) throw new BadRequestException('Email is already verified');
+
+    const plainToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(plainToken).digest('hex');
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await this.usersRepository.update(user.id, {
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: expires,
+    });
+
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+    await this.emailService.sendEmailVerification(user.email, fullName, plainToken);
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await this.usersRepository.findOne({
+      where: { emailVerificationToken: hashedToken },
+    });
+
+    if (!user || !user.emailVerificationExpires || user.emailVerificationExpires < new Date()) {
+      throw new BadRequestException('Email verification token is invalid or has expired');
+    }
+
+    await this.usersRepository.update(user.id, {
+      isEmailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+    });
+  }
 }
+

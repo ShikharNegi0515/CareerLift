@@ -195,3 +195,49 @@ export function getEmailVerificationHtml(name: string, verifyUrl: string): strin
   `;
   return getBaseEmailLayout('Verify Your CareerLift Email', body);
 }
+
+export function getJobAlertDigestEmailHtml(
+  name: string,
+  jobs: Array<{ id: string; title: string; companyName: string; location: string; matchScore: number; matchReason: string }>,
+  frontendUrl: string,
+): string {
+  const jobItemsHtml = jobs.map((j) => `
+    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; background: #ffffff;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <h3 style="margin: 0 0 6px 0; font-size: 16px; color: #1e293b;">
+          <a href="${frontendUrl}/jobs/${j.id}" style="color: #2563eb; text-decoration: none;">${j.title}</a>
+        </h3>
+        <span style="background: #eff6ff; color: #1d4ed8; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 9999px;">
+          ${j.matchScore}% Match
+        </span>
+      </div>
+      <p style="margin: 0 0 6px 0; font-size: 13px; color: #64748b;">
+        🏢 ${j.companyName} &nbsp;•&nbsp; 📍 ${j.location}
+      </p>
+      <p style="margin: 0; font-size: 12px; color: #059669; font-weight: 500;">
+        ✨ ${j.matchReason}
+      </p>
+    </div>
+  `).join('');
+
+  const body = `
+    <h2 style="margin-top: 0; color: #1a1f36; font-size: 20px;">Your Tailored Job Opportunities 🎯</h2>
+    <p>Hi ${name},</p>
+    <p>We found <strong>${jobs.length} new opportunities</strong> matching your skills and career preferences on CareerLift:</p>
+    
+    <div style="margin: 20px 0;">
+      ${jobItemsHtml}
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${frontendUrl}/dashboard/recommendations" class="btn">Explore All Recommendations</a>
+    </div>
+
+    <p style="color: #6c757d; font-size: 12px; text-align: center; margin-top: 24px;">
+      You received this email because you are registered as a job seeker on CareerLift.
+    </p>
+  `;
+
+  return getBaseEmailLayout('New Job Matches for You', body);
+}
+
