@@ -793,3 +793,194 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+
+/* ================================
+   DARK MODE THEME
+   ================================ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background-color: #0d1117;
+  color: #e6edf3;
+}
+
+/* ---- Navbar ---- */
+[data-theme="dark"] .navbar {
+  background: #161b22;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  border-bottom: 1px solid #30363d;
+}
+
+[data-theme="dark"] .navbar-brand {
+  color: #58a6ff;
+}
+
+[data-theme="dark"] .nav-link {
+  color: #c9d1d9;
+}
+
+[data-theme="dark"] .nav-link:hover,
+[data-theme="dark"] .nav-link.active {
+  color: #58a6ff;
+}
+
+/* ---- Cards ---- */
+[data-theme="dark"] .card {
+  background: #161b22;
+  border-color: #30363d;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  color: #e6edf3;
+}
+
+[data-theme="dark"] .card-title {
+  color: #e6edf3;
+}
+
+/* ---- Buttons ---- */
+[data-theme="dark"] .btn-light {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border-color: #30363d;
+}
+
+[data-theme="dark"] .btn-light:hover {
+  background-color: #30363d;
+}
+
+[data-theme="dark"] .btn-outline {
+  color: #58a6ff;
+  border-color: #58a6ff;
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  background-color: #58a6ff;
+  color: #0d1117;
+}
+
+/* ---- Inputs / Forms ---- */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #21262d !important;
+  color: #e6edf3 !important;
+  border-color: #30363d !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #6e7681 !important;
+}
+
+[data-theme="dark"] .search-input {
+  background: #21262d;
+  color: #e6edf3;
+  border-color: #30363d;
+}
+
+/* ---- Job Badges ---- */
+[data-theme="dark"] .job-badge {
+  opacity: 0.9;
+}
+
+/* ---- Job Logo Placeholder ---- */
+[data-theme="dark"] .job-logo-placeholder {
+  background: #21262d;
+  color: #58a6ff;
+  border: 1px solid #30363d;
+}
+
+/* ---- Footer ---- */
+[data-theme="dark"] footer {
+  background: #010409 !important;
+}
+
+/* ---- Dashboard sidebar & header ---- */
+[data-theme="dark"] aside {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+[data-theme="dark"] header {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+/* ---- Page backgrounds ---- */
+[data-theme="dark"] main,
+[data-theme="dark"] .page-bg,
+[data-theme="dark"] [style*="background: #f8f9fa"],
+[data-theme="dark"] [style*="background: rgb(248, 249, 250)"] {
+  background: #0d1117 !important;
+}
+
+/* ---- Dropdown menus ---- */
+[data-theme="dark"] [class*="absolute"][class*="bg-white"] {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+/* ---- Kanban columns ---- */
+[data-theme="dark"] [style*="background: #f8f9fa"],
+[data-theme="dark"] [style*="background: #f1f3f5"] {
+  background: #161b22 !important;
+}
+
+/* ---- Misc text overrides ---- */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: #e6edf3;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] li {
+  color: inherit;
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #161b22; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #30363d; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
+
+/* ---- Dark mode toggle button ---- */
+.dark-mode-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dark-mode-toggle:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="dark"] .dark-mode-toggle {
+  border-color: #30363d;
+  background: #21262d;
+  color: #f0c040;
+}
+
+[data-theme="dark"] .dark-mode-toggle:hover {
+  border-color: #f0c040;
+  color: #f0c040;
+  box-shadow: 0 0 0 4px rgba(240, 192, 64, 0.12);
+}
+

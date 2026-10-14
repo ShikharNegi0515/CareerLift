@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '@/store/auth';
+import { useDarkMode } from '@/store/darkMode';
 import { UserRole } from '@/types';
 import {
   Briefcase, Menu, X, ChevronDown, User, LogOut,
-  LayoutDashboard, Building2
+  LayoutDashboard, Building2, Sun, Moon
 } from 'lucide-react';
 
 import NotificationBell from './NotificationBell';
 
+
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { dark, toggle: toggleDark } = useDarkMode();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [jobsOpen, setJobsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -75,6 +78,16 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
+          {/* Dark mode toggle */}
+          <button
+            className="dark-mode-toggle"
+            onClick={toggleDark}
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={dark ? 'Light mode' : 'Dark mode'}
+          >
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
           {isAuthenticated && user ? (
             <div className="flex items-center gap-2">
               <NotificationBell />
@@ -158,7 +171,18 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 py-4 px-6 animate-fadeIn">
+        <div className="lg:hidden border-t border-gray-100 py-4 px-6 animate-fadeIn" style={{ background: 'var(--bg-surface, #fff)' }}>
+          {/* Mobile dark mode row */}
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">{dark ? '🌙 Dark Mode On' : '☀️ Light Mode On'}</span>
+            <button
+              className="dark-mode-toggle"
+              onClick={toggleDark}
+              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {dark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+          </div>
           <nav className="flex flex-col gap-1">
             <Link to="/" className="nav-link py-2" onClick={() => setMobileOpen(false)}>Home</Link>
             <Link to="/jobs" className="nav-link py-2" onClick={() => setMobileOpen(false)}>Jobs</Link>

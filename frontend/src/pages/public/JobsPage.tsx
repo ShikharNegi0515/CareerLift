@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Search, MapPin, Briefcase, Building2, ChevronLeft, ChevronRight,
-  SlidersHorizontal, Clock, DollarSign, Bookmark
+  SlidersHorizontal, Clock, DollarSign, Bookmark, Sparkles, Zap, Flame, X
 } from 'lucide-react';
 import api from '../../api/client';
 import { useAuth } from '@/store/auth';
@@ -21,6 +21,8 @@ export default function JobsPage() {
   const [selectedType, setSelectedType] = useState<string[]>([]);
   const [selectedMode, setSelectedMode] = useState<string[]>([]);
   const [selectedExp, setSelectedExp] = useState<string[]>([]);
+  const [minSalary, setMinSalary] = useState<number>(0);
+  const [quickFilter, setQuickFilter] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
@@ -34,6 +36,9 @@ export default function JobsPage() {
     workModeLabel: j.workMode ? j.workMode.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'On-site',
     expLabel: j.experienceLevel ? j.experienceLevel.charAt(0).toUpperCase() + j.experienceLevel.slice(1) : 'Mid',
     postedLabel: j.createdAt ? new Date(j.createdAt).toLocaleDateString() : 'Recently',
+    jobTypeKey: j.jobType || '',
+    workModeKey: j.workMode || '',
+    expKey: j.experienceLevel || '',
   });
 
   const fetchJobs = useCallback(() => {
@@ -87,9 +92,32 @@ export default function JobsPage() {
   };
 
   const filtered = allJobs.filter((j) => {
-    if (selectedType.length && !selectedType.includes(j.type)) return false;
-    if (selectedMode.length && !selectedMode.includes(j.mode)) return false;
-    if (selectedExp.length && !selectedExp.includes(j.experience)) return false;
+    // Quick filter chips
+    if (quickFilter === 'remote' && j.workModeKey !== 'remote') return false;
+    if (quickFilter === 'featured' && !j.isFeatured) return false;
+    if (quickFilter === 'high_salary' && (j.salaryMax || j.salaryMin || 0) < 100000) return false;
+    if (quickFilter === 'full_time' && j.jobTypeKey !== 'full_time') return false;
+
+    // Sidebar checkboxes
+    if (selectedType.length) {
+      const match = selectedType.some(t => t.toLowerCase().replace(/\s+/g, '_') === j.jobTypeKey.toLowerCase());
+      if (!match) return false;
+    }
+    if (selectedMode.length) {
+      const match = selectedMode.some(m => m.toLowerCase().replace(/[- ]/g, '_') === j.workModeKey.toLowerCase() || (m === 'On-site' && j.workModeKey === 'on_site'));
+      if (!match) return false;
+    }
+    if (selectedExp.length) {
+      const match = selectedExp.some(e => e.toLowerCase() === j.expKey.toLowerCase());
+      if (!match) return false;
+    }
+
+    // Salary slider filter
+    if (minSalary > 0) {
+      const jobMax = j.salaryMax || j.salaryMin || 0;
+      if (jobMax < minSalary) return false;
+    }
+
     return true;
   });
 
@@ -187,7 +215,7 @@ export default function JobsPage() {
               </div>
 
               {/* Experience */}
-              <div>
+              <div style={{ marginBottom: '1.5rem' }}>
                 <h4 style={{ fontWeight: 600, fontSize: '0.875rem', color: '#212529', marginBottom: '0.75rem' }}>Experience Level</h4>
                 {['Entry', 'Mid', 'Senior', 'Executive'].map((e) => (
                   <label key={e} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: '#495057' }}>
@@ -200,12 +228,81 @@ export default function JobsPage() {
                   </label>
                 ))}
               </div>
+
+              {/* Salary Range Slider */}
+              <div style={{ borderTop: '1px solid #e9ecef', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <h4 style={{ fontWeight: 600, fontSize: '0.875rem', color: '#212529', margin: 0 }}>Min Salary</h4>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0d6efd' }}>
+                    {minSalary === 0 ? 'Any' : `$${(minSalary / 1000).toFixed(0)}k+`}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="200000"
+                  step="10000"
+                  value={minSalary}
+                  onChange={(e) => {
+                    setMinSalary(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  style={{ width: '100%', accentColor: '#0d6efd', cursor: 'pointer' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#94a3b8', marginTop: 2 }}>
+                  <span>$0</span>
+                  <span>$100k</span>
+                  <span>$200k+</span>
+                </div>
+              </div>
             </aside>
 
             {/* Job listings */}
             <div>
+              {/* Quick Filter Chips */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#64748b' }}>Quick Filters:</span>
+                {[
+                  { key: 'remote', label: 'Remote Only', icon: Zap },
+                  { key: 'featured', label: 'Featured', icon: Flame },
+                  { key: 'high_salary', label: 'Salary > $100k', icon: DollarSign },
+                  { key: 'full_time', label: 'Full Time', icon: Briefcase },
+                ].map((chip) => {
+                  const isActive = quickFilter === chip.key;
+                  const Icon = chip.icon;
+                  return (
+                    <button
+                      key={chip.key}
+                      onClick={() => {
+                        setQuickFilter(isActive ? null : chip.key);
+                        setPage(1);
+                      }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '0.35rem 0.85rem',
+                        borderRadius: 9999,
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: `1.5px solid ${isActive ? '#0d6efd' : '#e2e8f0'}`,
+                        background: isActive ? '#eff6ff' : '#fff',
+                        color: isActive ? '#0d6efd' : '#475569',
+                        boxShadow: isActive ? '0 2px 4px rgba(13,110,253,0.15)' : 'none',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <Icon size={13} color={isActive ? '#0d6efd' : '#64748b'} />
+                      <span>{chip.label}</span>
+                      {isActive && <X size={12} style={{ marginLeft: 2 }} />}
+                    </button>
+                  );
+                })}
+              </div>
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <p style={{ fontSize: '0.9375rem', color: '#6c757d' }}>
+                <p style={{ fontSize: '0.9375rem', color: '#6c757d', margin: 0 }}>
                   Showing <strong>{paginated.length}</strong> of <strong>{filtered.length}</strong> jobs
                 </p>
                 <select className="form-control" style={{ width: 'auto' }}>
