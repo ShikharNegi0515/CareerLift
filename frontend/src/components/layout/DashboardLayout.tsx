@@ -62,56 +62,36 @@ export default function DashboardLayout({ role }: Props) {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa' }}>
+    <div className="flex min-h-screen bg-slate-50/60">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200 }}
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        style={{
-          width: collapsed ? 72 : 260,
-          flexShrink: 0,
-          background: '#fff',
-          borderRight: '1px solid #e9ecef',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'width 0.25s ease',
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          zIndex: 100,
-        }}
-        className={`hidden lg:flex`}
+        className={`hidden lg:flex flex-col flex-shrink-0 bg-white border-r border-slate-200/80 sticky top-0 h-screen transition-all duration-300 z-40 ${
+          collapsed ? 'w-20' : 'w-64'
+        }`}
       >
         {/* Sidebar brand */}
-        <div style={{ padding: '1.25rem', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
           {!collapsed && (
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-              <Briefcase size={20} style={{ color: '#0d6efd' }} />
-              <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.125rem', color: '#0d6efd' }}>
-                CareerLift
-              </span>
+            <Link to="/" className="flex items-center gap-2.5 text-slate-900 hover:text-blue-600 transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shadow-blue-500/20">
+                <Briefcase size={18} />
+              </div>
+              <span className="font-extrabold text-lg tracking-tight">Career<span className="text-blue-600">Lift</span></span>
             </Link>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            style={{
-              marginLeft: collapsed ? 'auto' : 0,
-              width: 28, height: 28,
-              borderRadius: '50%',
-              border: '1px solid #e9ecef',
-              background: '#f8f9fa',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: '#6c757d', flexShrink: 0,
-            }}
+            className={`w-7 h-7 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors ${
+              collapsed ? 'mx-auto' : ''
+            }`}
             aria-label="Toggle sidebar"
           >
             {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -120,25 +100,16 @@ export default function DashboardLayout({ role }: Props) {
 
         {/* User info */}
         {!collapsed && user && (
-          <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e9ecef' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: '50%',
-                background: roleColor, display: 'flex', alignItems: 'center',
-                justifyContent: 'center', color: '#fff', fontWeight: 700,
-                fontSize: '0.875rem', flexShrink: 0,
-              }}>
-                {user.firstName[0]}{user.lastName[0]}
+          <div className="p-4 border-b border-slate-100 bg-slate-50/40">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-500/20 flex-shrink-0">
+                {user.firstName?.[0]}{user.lastName?.[0]}
               </div>
-              <div style={{ minWidth: 0 }}>
-                <p style={{ fontWeight: 600, fontSize: '0.875rem', color: '#212529', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div className="min-w-0">
+                <p className="font-bold text-xs text-slate-900 truncate">
                   {user.firstName} {user.lastName}
                 </p>
-                <span style={{
-                  display: 'inline-block', padding: '1px 8px', borderRadius: 9999,
-                  background: roleColor + '20', color: roleColor,
-                  fontSize: '0.7rem', fontWeight: 600,
-                }}>
+                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60 mt-0.5">
                   {roleLabel}
                 </span>
               </div>
@@ -147,144 +118,114 @@ export default function DashboardLayout({ role }: Props) {
         )}
 
         {/* Nav items */}
-        <nav style={{ flex: 1, padding: '0.75rem 0' }}>
+        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
-              style={({ isActive }) => ({
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: collapsed ? '0.75rem' : '0.75rem 1.25rem',
-                justifyContent: collapsed ? 'center' : 'flex-start',
-                textDecoration: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 500,
-                color: isActive ? '#0d6efd' : '#6c757d',
-                background: isActive ? '#e8f0fe' : 'transparent',
-                borderLeft: isActive ? '3px solid #0d6efd' : '3px solid transparent',
-                transition: 'all 0.15s',
-              })}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  collapsed ? 'justify-center' : 'justify-start'
+                } ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                }`
+              }
               title={collapsed ? item.label : undefined}
             >
-              <item.icon size={18} style={{ flexShrink: 0 }} />
-              {!collapsed && item.label}
+              <item.icon size={18} className="flex-shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
             </NavLink>
           ))}
         </nav>
 
         {/* Logout */}
-        <div style={{ padding: '0.75rem 0', borderTop: '1px solid #e9ecef' }}>
+        <div className="p-3 border-t border-slate-100">
           <button
             onClick={handleLogout}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: collapsed ? '0.75rem' : '0.75rem 1.25rem',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              width: '100%',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#dc3545',
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              transition: 'background 0.15s',
-            }}
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors ${
+              collapsed ? 'justify-center' : 'justify-start'
+            }`}
             title={collapsed ? 'Logout' : undefined}
           >
-            <LogOut size={18} style={{ flexShrink: 0 }} />
-            {!collapsed && 'Logout'}
+            <LogOut size={18} className="flex-shrink-0" />
+            {!collapsed && <span>Log Out</span>}
           </button>
         </div>
       </aside>
 
       {/* Main content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top header */}
-        <header style={{
-          position: 'sticky', top: 0, zIndex: 50,
-          background: '#fff', borderBottom: '1px solid #e9ecef',
-          padding: '0 1.5rem',
-          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button className="lg:hidden" onClick={() => setMobileOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6c757d' }}>
-              <Menu size={22} />
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 h-16 flex items-center justify-between shadow-sm shadow-slate-900/5">
+          <div className="flex items-center gap-3">
+            <button className="lg:hidden p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg" onClick={() => setMobileOpen(true)}>
+              <Menu size={20} />
             </button>
-            <h2 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '1rem', color: '#212529' }}>
-              {roleLabel} Dashboard
+            <h2 className="font-bold text-sm text-slate-800 tracking-tight">
+              {roleLabel} Console
             </h2>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div className="flex items-center gap-4">
             <NotificationBell />
-            <Link to="/" style={{ fontSize: '0.8125rem', color: '#0d6efd', textDecoration: 'none', fontWeight: 500 }}>
-              ← Back to Site
+            <Link to="/" className="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1.5">
+              ← View Site
             </Link>
           </div>
         </header>
 
         {/* Page content */}
-        <main style={{ flex: 1, padding: '1.5rem' }}>
+        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>
 
       {/* Mobile sidebar */}
       <aside
-        style={{
-          position: 'fixed',
-          top: 0, left: 0, bottom: 0,
-          width: 260,
-          background: '#fff',
-          zIndex: 300,
-          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.25s ease',
-          display: 'flex', flexDirection: 'column',
-          borderRight: '1px solid #e9ecef',
-        }}
+        className={`fixed top-0 left-0 bottom-0 w-64 bg-white z-50 flex flex-col border-r border-slate-200/80 transition-transform duration-300 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
-        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-            <Briefcase size={20} style={{ color: '#0d6efd' }} />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.125rem', color: '#0d6efd' }}>CareerLift</span>
+        <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5 text-slate-900" onClick={() => setMobileOpen(false)}>
+            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
+              <Briefcase size={18} />
+            </div>
+            <span className="font-extrabold text-lg tracking-tight">Career<span className="text-blue-600">Lift</span></span>
           </Link>
-          <button onClick={() => setMobileOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6c757d' }}>
+          <button onClick={() => setMobileOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
             <X size={20} />
           </button>
         </div>
-        <nav style={{ flex: 1, padding: '0.75rem 0', overflowY: 'auto' }}>
+        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               onClick={() => setMobileOpen(false)}
-              style={({ isActive }) => ({
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '0.75rem 1.25rem',
-                textDecoration: 'none',
-                fontSize: '0.9rem', fontWeight: 500,
-                color: isActive ? '#0d6efd' : '#6c757d',
-                background: isActive ? '#e8f0fe' : 'transparent',
-                borderLeft: isActive ? '3px solid #0d6efd' : '3px solid transparent',
-              })}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                }`
+              }
             >
               <item.icon size={18} />
-              {item.label}
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
-        <div style={{ padding: '0.75rem 0', borderTop: '1px solid #e9ecef' }}>
+        <div className="p-3 border-t border-slate-100">
           <button
             onClick={handleLogout}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0.75rem 1.25rem', width: '100%', background: 'none', border: 'none', cursor: 'pointer', color: '#dc3545', fontSize: '0.9rem', fontWeight: 500 }}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
           >
             <LogOut size={18} />
-            Logout
+            <span>Log Out</span>
           </button>
         </div>
       </aside>

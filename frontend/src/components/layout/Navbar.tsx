@@ -27,34 +27,36 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="container flex items-center justify-between h-[72px]">
         {/* Brand */}
-        <Link to="/" className="navbar-brand" aria-label="CareerLift Home">
-          <Briefcase className="w-6 h-6 mr-2" />
-          CareerLift
+        <Link to="/" className="navbar-brand flex items-center gap-2.5" aria-label="CareerLift Home">
+          <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 font-black">
+            <Briefcase className="w-5 h-5" />
+          </div>
+          <span className="font-extrabold text-xl tracking-tight text-slate-900">Career<span className="text-blue-600">Lift</span></span>
         </Link>
 
         {/* Desktop nav links */}
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1.5">
           <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             Home
           </NavLink>
 
           <div className="relative" onMouseEnter={() => setJobsOpen(true)} onMouseLeave={() => setJobsOpen(false)}>
             <button className="nav-link flex items-center gap-1">
-              Jobs <ChevronDown className="w-4 h-4" />
+              Jobs <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
             {jobsOpen && (
-              <div className="absolute top-full left-0 mt-0 w-48 bg-white shadow-lg border border-gray-100 rounded-b-lg py-2 z-50 animate-fadeIn">
-                <Link to="/jobs" className="block px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50 transition-colors">
-                  Browse Jobs
+              <div className="absolute top-full left-0 mt-1 w-52 bg-white shadow-xl shadow-slate-900/5 border border-slate-100 rounded-xl py-2 z-50 animate-fadeIn">
+                <Link to="/jobs" className="block px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors">
+                  Browse All Jobs
                 </Link>
-                <Link to="/jobs?type=full_time" className="block px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50 transition-colors">
-                  Full Time
+                <Link to="/jobs?type=full_time" className="block px-4 py-2 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors">
+                  Full Time Openings
                 </Link>
-                <Link to="/jobs?workMode=remote" className="block px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50 transition-colors">
-                  Remote Jobs
+                <Link to="/jobs?workMode=remote" className="block px-4 py-2 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors">
+                  Remote Opportunities
                 </Link>
-                <Link to="/jobs?type=internship" className="block px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50 transition-colors">
-                  Internships
+                <Link to="/jobs?type=internship" className="block px-4 py-2 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors">
+                  Internships & Fellowships
                 </Link>
               </div>
             )}
@@ -76,85 +78,87 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
-
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <NotificationBell />
               <div className="relative">
-
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"
-                aria-expanded={userMenuOpen}
-              >
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {user.firstName[0]}{user.lastName[0]}
-                </div>
-                <span>{user.firstName}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-
-              {userMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-52 bg-white shadow-lg border border-gray-100 rounded-lg py-2 z-50 animate-fadeIn">
-                  <div className="px-4 py-2 border-b border-gray-100 mb-1">
-                    <p className="text-sm font-semibold text-gray-800">{user.firstName} {user.lastName}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2.5 py-1.5 px-3 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-800"
+                  aria-expanded={userMenuOpen}
+                >
+                  <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm shadow-blue-500/20">
+                    {user.firstName?.[0]}{user.lastName?.[0]}
                   </div>
-                  <Link
-                    to={dashboardPath}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </Link>
-                  {user.role === UserRole.EMPLOYER && (
-                    <>
-                      <Link
-                        to="/employer/jobs/new"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        <Briefcase className="w-4 h-4" />
-                        Post a Job
-                      </Link>
-                      <Link
-                        to="/employer/company"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        <Building2 className="w-4 h-4" />
-                        My Company
-                      </Link>
-                    </>
-                  )}
-                  {user.role === UserRole.JOB_SEEKER && (
+                  <span className="text-xs font-bold text-slate-900">{user.firstName}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </button>
+
+                {userMenuOpen && (
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl shadow-slate-900/10 border border-slate-100 rounded-2xl py-2 z-50 animate-fadeIn">
+                    <div className="px-4 py-3 border-b border-slate-100 mb-1">
+                      <p className="text-xs font-bold text-slate-900">{user.firstName} {user.lastName}</p>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">{user.email}</p>
+                    </div>
                     <Link
-                      to="/dashboard/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-blue-50"
+                      to={dashboardPath}
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
                       onClick={() => setUserMenuOpen(false)}
                     >
-                      <User className="w-4 h-4" />
-                      My Profile
+                      <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                      Dashboard
                     </Link>
-                  )}
-                  <hr className="my-1 border-gray-100" />
-                  <button
-                    onClick={() => { void logout(); setUserMenuOpen(false); }}
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+                    {user.role === UserRole.EMPLOYER && (
+                      <>
+                        <Link
+                          to="/employer/jobs/new"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <Briefcase className="w-4 h-4 text-slate-400" />
+                          Post a Job
+                        </Link>
+                        <Link
+                          to="/employer/company"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <Building2 className="w-4 h-4 text-slate-400" />
+                          My Company
+                        </Link>
+                      </>
+                    )}
+                    {user.role === UserRole.JOB_SEEKER && (
+                      <Link
+                        to="/dashboard/profile"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <User className="w-4 h-4 text-slate-400" />
+                        My Profile
+                      </Link>
+                    )}
+                    <hr className="my-1.5 border-slate-100" />
+                    <button
+                      onClick={() => { void logout(); setUserMenuOpen(false); }}
+                      className="flex items-center gap-2.5 w-full px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
-            <>
-              <Link to="/login" className="btn btn-light btn-sm">Sign In</Link>
-              <Link to="/register" className="btn btn-primary btn-sm">Post A Job</Link>
-            </>
+            <div className="flex items-center gap-2.5">
+              <Link to="/login" className="btn btn-outline btn-sm font-semibold">
+                Sign In
+              </Link>
+              <Link to="/register" className="btn btn-primary btn-sm font-semibold shadow-sm shadow-blue-500/20">
+                Post a Job
+              </Link>
+            </div>
           )}
         </div>
 

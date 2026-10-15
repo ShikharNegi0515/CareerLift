@@ -22,8 +22,11 @@ export class JobsController {
 
   @Public()
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.jobsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.userId || req.user?.id || null;
+    const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || '';
+    return this.jobsService.findOne(id, { userId, ip: String(ip), userAgent: String(userAgent) });
   }
 
   @Post()

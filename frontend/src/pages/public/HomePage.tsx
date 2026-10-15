@@ -76,108 +76,107 @@ export default function HomePage() {
       <section className="hero-section">
         <div className="hero-overlay" />
         <div className="container hero-content py-20 animate-fadeInUp">
-          <p style={{ color: '#93c5fd', fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9375rem' }}>
-            # 1 Job Platform in the Industry
-          </p>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold mb-6">
+            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+            The #1 Platform for Top Engineering & Product Roles
+          </div>
           <h1 className="hero-title">
-            Find Your Dream Job<br />
-            <span style={{ color: '#93c5fd' }}>Without the Hassle</span>
+            Discover Opportunities at <br />
+            <span className="text-blue-600">World-Class Companies</span>
           </h1>
           <p className="hero-subtitle">
-            Connect with top employers and discover thousands of opportunities
-            tailored to your skills and career goals.
+            Connect directly with verified employers and fast-track your career with AI-driven job matching and instant hiring workflows.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/jobs" className="btn btn-primary btn-lg">
-              <Search size={18} /> Browse Jobs
-            </Link>
-            <Link to={postJobPath} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#fff' }}>
-              Post a Job <ArrowRight size={18} />
-            </Link>
+
+          {/* Search bar inside Hero container */}
+          <div className="search-bar mt-8">
+            <form
+              onSubmit={(e) => { 
+                e.preventDefault(); 
+                const params = new URLSearchParams();
+                if (keyword) params.set('keyword', keyword);
+                if (location) params.set('location', location);
+                if (experienceText) params.set('experienceText', experienceText);
+                window.location.href = `/jobs?${params.toString()}`; 
+              }}
+              className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center"
+            >
+              <div className="relative">
+                <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input className="search-input" placeholder="Role, skill, or keyword..." style={{ paddingLeft: 40 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+              </div>
+              <div className="relative">
+                <MapPin size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input className="search-input" placeholder="Location or 'Remote'..." style={{ paddingLeft: 40 }} value={location} onChange={(e) => setLocation(e.target.value)} />
+              </div>
+              <div className="relative">
+                <Briefcase size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input className="search-input" placeholder="Experience level..." style={{ paddingLeft: 40 }} value={experienceText} onChange={(e) => setExperienceText(e.target.value)} />
+              </div>
+              <button type="submit" className="btn btn-primary btn-lg w-full">
+                Find Jobs
+              </button>
+            </form>
+            <div className="flex items-center gap-2 mt-4 flex-wrap text-xs text-slate-500">
+              <span className="font-semibold text-slate-700">Trending Searches:</span>
+              {['Frontend Engineer', 'Product Designer', 'Data Scientist', 'Remote'].map((kw) => (
+                <Link
+                  key={kw}
+                  to={`/jobs?keyword=${kw}`}
+                  className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 transition-colors"
+                >
+                  {kw}
+                </Link>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+
+          <div className="flex items-center gap-6 mt-8 flex-wrap">
             {[
-              'No registration fee',
-              'Verified employers',
-              'Instant notifications',
+              'Zero hidden fees',
+              '100% verified companies',
+              'Direct hiring manager access',
             ].map((item) => (
-              <span key={item} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.85)', fontSize: '0.875rem' }}>
-                <CheckCircle size={15} style={{ color: '#4ade80' }} /> {item}
+              <span key={item} className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                <CheckCircle size={16} className="text-emerald-500" /> {item}
               </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Search bar ───────────────────────────────────────────────── */}
-      <div className="search-bar">
-        <div className="container">
-          <form
-            onSubmit={(e) => { 
-              e.preventDefault(); 
-              const params = new URLSearchParams();
-              if (keyword) params.set('keyword', keyword);
-              if (location) params.set('location', location);
-              if (experienceText) params.set('experienceText', experienceText);
-              window.location.href = `/jobs?${params.toString()}`; 
-            }}
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '0.75rem', alignItems: 'center' }}
-          >
-            <div style={{ position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-              <input className="search-input" placeholder="Job title, keywords..." style={{ paddingLeft: 40 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-            </div>
-            <div style={{ position: 'relative' }}>
-              <MapPin size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-              <input className="search-input" placeholder="Location or remote..." style={{ paddingLeft: 40 }} value={location} onChange={(e) => setLocation(e.target.value)} />
-            </div>
-            <div style={{ position: 'relative' }}>
-              <Briefcase size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-              <input className="search-input" placeholder="Experience..." style={{ paddingLeft: 40 }} value={experienceText} onChange={(e) => setExperienceText(e.target.value)} />
-            </div>
-            <button type="submit" className="btn btn-secondary btn-lg" style={{ whiteSpace: 'nowrap' }}>
-              Search Jobs
-            </button>
-          </form>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-            <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8125rem' }}>Popular:</span>
-            {['React Developer', 'Product Manager', 'Data Analyst', 'Remote'].map((kw) => (
-              <Link key={kw} to={`/jobs?keyword=${kw}`} style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8125rem', textDecoration: 'none', background: 'rgba(255,255,255,0.15)', padding: '2px 10px', borderRadius: 9999 }}>
-                {kw}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ── Stats bar ────────────────────────────────────────────────── */}
-      <div className="stats-bar">
+      <section className="bg-white border-y border-slate-200/80 py-10">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s) => (
-              <div key={s.label} className="stat-item">
-                <span className="stat-number">{s.number}</span>
-                <span className="stat-label">{s.label}</span>
+              <div key={s.label} className="text-center md:border-r last:border-r-0 border-slate-100 px-4">
+                <span className="block text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{s.number}</span>
+                <span className="block text-xs md:text-sm font-medium text-slate-500 mt-1 uppercase tracking-wider">{s.label}</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ── Categories ───────────────────────────────────────────────── */}
-      <section className="section-py" style={{ background: '#f8f9fa' }}>
+      <section className="py-20 bg-slate-50/50">
         <div className="container">
-          <h2 className="section-title">Browse by Category</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1.5rem' }}>
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Explore Sectors</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Browse by Category</h2>
+            <p className="text-sm text-slate-600 mt-2">Find open roles tailored to your exact domain and expertise.</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
             {categories.map((cat) => (
-              <Link key={cat.label} to={`/jobs?category=${cat.label.toLowerCase()}`} className="cat-item">
-                <div className="cat-icon">
-                  <cat.icon size={40} />
+              <Link key={cat.label} to={`/jobs?category=${cat.label.toLowerCase()}`} className="cat-item group">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <cat.icon size={24} />
                 </div>
-                <h4 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '1rem', marginBottom: '0.375rem' }}>
+                <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors mb-1">
                   {cat.label}
                 </h4>
-                <p style={{ fontSize: '0.875rem', color: '#6c757d' }}>{cat.count.toLocaleString()} Jobs</p>
+                <p className="text-xs text-slate-500">{cat.count.toLocaleString()} Opportunities</p>
               </Link>
             ))}
           </div>
@@ -185,38 +184,48 @@ export default function HomePage() {
       </section>
 
       {/* ── Featured Jobs ─────────────────────────────────────────────── */}
-      <section className="section-py">
+      <section className="py-20 bg-white">
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-            <h2 className="section-title-left">Featured Job Openings</h2>
-            <Link to="/jobs" className="btn btn-outline btn-sm">
-              View All Jobs <ChevronRight size={16} />
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+              <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Top Opportunities</span>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">Featured Openings</h2>
+              <p className="text-sm text-slate-600 mt-1">Hand-picked high-growth opportunities hiring immediately.</p>
+            </div>
+            <Link to="/jobs" className="btn btn-outline btn-sm self-start md:self-auto">
+              View All Openings <ChevronRight size={16} />
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {featuredJobs.map((job) => (
-              <Link key={job.id} to={`/jobs/${job.id}`} className="job-item" style={{ textDecoration: 'none', display: 'block' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                  <div className="job-logo-placeholder">
-                    {typeof job.company === 'object' ? (job.company?.name?.[0] || 'C') : (job.company?.[0] || job.companyInitial || 'C')}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 className="job-title">{job.title}</h3>
-                    <div className="job-meta">
-                      <span className="job-meta-item">
-                        <Building2 size={14} /> {typeof job.company === 'object' ? job.company?.name : (job.company || 'Company')}
-                      </span>
-                      <span className="job-meta-item"><MapPin size={14} /> {job.location}</span>
+              <Link key={job.id} to={`/jobs/${job.id}`} className="job-item flex flex-col justify-between group hover:-translate-y-1 transition-all">
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <div className="job-logo-placeholder">
+                      {typeof job.company === 'object' ? (job.company?.name?.[0] || 'C') : (job.company?.[0] || job.companyInitial || 'C')}
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                      <span className="job-badge badge-primary">{job.type}</span>
-                      <span className="job-badge badge-success">{job.mode}</span>
-                      <span className="job-badge badge-secondary">
-                        ${(job.salaryMin / 1000).toFixed(0)}k – ${(job.salaryMax / 1000).toFixed(0)}k
-                      </span>
-                    </div>
-                    <p style={{ fontSize: '0.8rem', color: '#adb5bd', marginTop: '0.5rem' }}>{job.posted}</p>
+                    <span className="job-badge badge-primary uppercase text-[11px] font-bold">
+                      {job.type || 'Full Time'}
+                    </span>
                   </div>
+                  <h3 className="job-title text-base group-hover:text-blue-600 transition-colors line-clamp-1">{job.title}</h3>
+                  <div className="job-meta mt-2 text-xs">
+                    <span className="job-meta-item">
+                      <Building2 size={13} className="text-slate-400" /> {typeof job.company === 'object' ? job.company?.name : (job.company || 'Company')}
+                    </span>
+                    <span className="job-meta-item">
+                      <MapPin size={13} className="text-slate-400" /> {job.location || 'Remote'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-900">
+                    ${(job.salaryMin / 1000).toFixed(0)}k – ${(job.salaryMax / 1000).toFixed(0)}k
+                  </span>
+                  <span className="text-xs font-semibold text-blue-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    Apply <ChevronRight size={14} />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -225,22 +234,27 @@ export default function HomePage() {
       </section>
 
       {/* ── Why CareerLift ─────────────────────────────────────────────── */}
-      <section className="section-py" style={{ background: 'linear-gradient(135deg, #2b3940 0%, #1a3a4a 100%)' }}>
-        <div className="container">
-          <h2 className="section-title" style={{ color: '#fff' }}>Why Choose CareerLift?</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '2rem' }}>
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-20"></div>
+        <div className="container relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">Built For Excellence</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold mt-2">Why Modern Leaders Choose CareerLift</h2>
+            <p className="text-sm text-slate-400 mt-2">A streamlined platform connecting exceptional candidates with visionary organizations.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: ShieldCheck, title: 'Verified Employers', desc: 'All companies are thoroughly vetted to ensure legitimate opportunities.' },
-              { icon: Star, title: 'Smart Matching', desc: 'AI-powered job recommendations tailored to your skills and preferences.' },
-              { icon: Briefcase, title: '50,000+ Jobs Daily', desc: 'New opportunities added every day across hundreds of industries.' },
-              { icon: Users, title: 'Career Support', desc: 'Access resume tips, interview prep, and career coaching resources.' },
+              { icon: ShieldCheck, title: 'Verified Organizations', desc: 'Every employer is manually verified to ensure high standard opportunities.' },
+              { icon: Star, title: 'Intelligent Matching', desc: 'Machine learning algorithms that connect your talent directly to ideal teams.' },
+              { icon: Briefcase, title: 'Direct Hiring', desc: 'No recruitment agency middlemen—speak directly with hiring leads.' },
+              { icon: Users, title: 'Executive Support', desc: 'Personalized application feedback, status transparency, and career tools.' },
             ].map((item) => (
-              <div key={item.title} style={{ textAlign: 'center', padding: '1.5rem' }}>
-                <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(13,110,253,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                  <item.icon size={28} style={{ color: '#93c5fd' }} />
+              <div key={item.title} className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-sm hover:border-blue-500/50 transition-all">
+                <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-5">
+                  <item.icon size={24} />
                 </div>
-                <h4 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{item.title}</h4>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', lineHeight: 1.6 }}>{item.desc}</p>
+                <h4 className="font-bold text-white text-base mb-2">{item.title}</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -248,25 +262,31 @@ export default function HomePage() {
       </section>
 
       {/* ── Testimonials ─────────────────────────────────────────────── */}
-      <section className="section-py" style={{ background: '#f8f9fa' }}>
+      <section className="py-20 bg-slate-50/70">
         <div className="container">
-          <h2 className="section-title">Success Stories</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Candidate & Employer Stories</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Trusted by Leading Professionals</h2>
+            <p className="text-sm text-slate-600 mt-2">Read how candidates and founders elevate their careers and scale their teams.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((t) => (
-              <div key={t.id} className="testimonial-card">
-                <Star size={20} style={{ color: '#ffc107', marginBottom: '0.75rem' }} />
-                <Star size={20} style={{ color: '#ffc107' }} />
-                <Star size={20} style={{ color: '#ffc107' }} />
-                <Star size={20} style={{ color: '#ffc107' }} />
-                <Star size={20} style={{ color: '#ffc107', marginBottom: '1rem' }} />
-                <p className="testimonial-text">"{t.text}"</p>
-                <div className="testimonial-author">
-                  <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#0d6efd', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
+              <div key={t.id} className="p-8 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div>
+                  <div className="flex gap-1 text-amber-400 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} fill="currentColor" />
+                    ))}
+                  </div>
+                  <p className="text-slate-600 text-sm leading-relaxed mb-6 font-normal">"{t.text}"</p>
+                </div>
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
                     {t.avatar}
                   </div>
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: '0.9rem', color: '#212529' }}>{t.name}</p>
-                    <p style={{ fontSize: '0.8rem', color: '#6c757d' }}>{t.role}</p>
+                    <p className="font-bold text-sm text-slate-900">{t.name}</p>
+                    <p className="text-xs text-slate-500">{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -276,20 +296,20 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA Banner ───────────────────────────────────────────────── */}
-      <section style={{ background: '#0d6efd', padding: '4rem 0', textAlign: 'center' }}>
-        <div className="container">
-          <h2 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '2rem', color: '#fff', marginBottom: '0.75rem' }}>
-            Ready to Take the Next Step?
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white relative overflow-hidden">
+        <div className="container relative z-10 text-center max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+            Ready to Take the Next Step in Your Career?
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.0625rem' }}>
-            Join over 2.5 million professionals who found their dream jobs through CareerLift.
+          <p className="text-base text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Join over 2.5 million professionals who discovered their ideal roles and world-class teams through CareerLift.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="btn btn-lg" style={{ background: '#fff', color: '#0d6efd', borderColor: '#fff' }}>
-              Get Started Free
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <Link to="/register" className="px-6 py-3 rounded-xl bg-white text-blue-600 font-bold text-sm hover:bg-blue-50 transition-colors shadow-lg shadow-black/10">
+              Get Started for Free
             </Link>
-            <Link to="/jobs" className="btn btn-lg" style={{ background: 'transparent', color: '#fff', borderColor: '#fff' }}>
-              Browse Jobs
+            <Link to="/jobs" className="px-6 py-3 rounded-xl bg-blue-700/60 border border-blue-400/40 text-white font-bold text-sm hover:bg-blue-700 transition-colors">
+              Browse Open Roles
             </Link>
           </div>
         </div>

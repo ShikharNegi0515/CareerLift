@@ -41,6 +41,8 @@ import { BlogPost } from './modules/blog/blog-post.entity.js';
 import { SupportTicket } from './modules/support/support-ticket.entity.js';
 import { Conversation, Message, Interview } from './modules/conversations/conversation.entity.js';
 
+import { JobView } from './modules/jobs/job-view.entity.js';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -64,6 +66,7 @@ import { Conversation, Message, Interview } from './modules/conversations/conver
           Company,
           JobCategory,
           Job,
+          JobView,
           Application,
           SavedJob,
           Resume,
