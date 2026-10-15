@@ -58,7 +58,7 @@ export class SavedJobsService {
   async findByUser(userId: string): Promise<SavedJob[]> {
     return this.savedJobsRepository.find({
       where: { user: { id: userId } },
-      relations: ['job', 'job.company'] as any,
+      relations: { job: { company: true } },
       order: { createdAt: 'DESC' },
     });
   }

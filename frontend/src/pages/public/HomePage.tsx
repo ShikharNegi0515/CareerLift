@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/store/auth';
+import { UserRole } from '@/types';
 import api from '../../api/client';
 import {
   Search, MapPin, Briefcase, ChevronRight, Monitor, HeartPulse,
@@ -50,10 +52,17 @@ const stats = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const { user, isAuthenticated } = useAuth();
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [experienceText, setExperienceText] = useState('');
+
+  const postJobPath = !isAuthenticated
+    ? '/register'
+    : user?.role === UserRole.EMPLOYER
+    ? '/employer/jobs/new'
+    : '/dashboard';
 
   useEffect(() => {
     api.get('/jobs')
@@ -82,7 +91,7 @@ export default function HomePage() {
             <Link to="/jobs" className="btn btn-primary btn-lg">
               <Search size={18} /> Browse Jobs
             </Link>
-            <Link to="/register" className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#fff' }}>
+            <Link to={postJobPath} className="btn btn-outline btn-lg" style={{ color: '#fff', borderColor: '#fff' }}>
               Post a Job <ArrowRight size={18} />
             </Link>
           </div>
@@ -188,11 +197,15 @@ export default function HomePage() {
             {featuredJobs.map((job) => (
               <Link key={job.id} to={`/jobs/${job.id}`} className="job-item" style={{ textDecoration: 'none', display: 'block' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                  <div className="job-logo-placeholder">{job.companyInitial}</div>
+                  <div className="job-logo-placeholder">
+                    {typeof job.company === 'object' ? (job.company?.name?.[0] || 'C') : (job.company?.[0] || job.companyInitial || 'C')}
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h3 className="job-title">{job.title}</h3>
                     <div className="job-meta">
-                      <span className="job-meta-item"><Building2 size={14} /> {job.company}</span>
+                      <span className="job-meta-item">
+                        <Building2 size={14} /> {typeof job.company === 'object' ? job.company?.name : (job.company || 'Company')}
+                      </span>
                       <span className="job-meta-item"><MapPin size={14} /> {job.location}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>

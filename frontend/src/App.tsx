@@ -2,7 +2,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from '@/store/auth';
-import { DarkModeProvider } from '@/store/darkMode';
 import AppRoutes from '@/routes';
 import ScrollToTop from '@/components/common/ScrollToTop';
 import './index.css';
@@ -21,14 +20,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <DarkModeProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-        </QueryClientProvider>
-      </DarkModeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }

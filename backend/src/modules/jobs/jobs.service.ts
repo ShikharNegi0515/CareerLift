@@ -58,7 +58,7 @@ export class JobsService implements OnModuleInit {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
     return this.jobsRepository.findOne({
       where: isUuid ? [{ id: idOrSlug }, { slug: idOrSlug }] : { slug: idOrSlug },
-      relations: ['company', 'category'] as any,
+      relations: { company: true, category: true },
     });
   }
 

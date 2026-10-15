@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/store/auth';
-import { useDarkMode } from '@/store/darkMode';
 import {
   LayoutDashboard, User, FileText, Bookmark, Star, Settings, LogOut,
   Briefcase, Users, Building2, Tag, BookOpen, LifeBuoy, PlusCircle,
-  ChevronLeft, ChevronRight, Menu, X, MessageSquare, Sun, Moon
+  ChevronLeft, ChevronRight, Menu, X, MessageSquare
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -49,7 +48,6 @@ interface Props {
 export default function DashboardLayout({ role }: Props) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { dark, toggle: toggleDark } = useDarkMode();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -222,15 +220,6 @@ export default function DashboardLayout({ role }: Props) {
             </h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <button
-              className="dark-mode-toggle"
-              onClick={toggleDark}
-              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={dark ? 'Light mode' : 'Dark mode'}
-              style={{ width: 34, height: 34 }}
-            >
-              {dark ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
             <NotificationBell />
             <Link to="/" style={{ fontSize: '0.8125rem', color: '#0d6efd', textDecoration: 'none', fontWeight: 500 }}>
               ← Back to Site

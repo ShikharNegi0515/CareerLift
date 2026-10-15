@@ -135,6 +135,13 @@ export default function AppRoutes() {
         <Route path="settings" element={<SeekerSettings />} />
       </Route>
 
+      {/* Seeker route aliases */}
+      <Route path="/seeker/resumes" element={<Navigate to="/dashboard/resumes" replace />} />
+      <Route path="/seeker/profile" element={<Navigate to="/dashboard/profile" replace />} />
+      <Route path="/seeker/applications" element={<Navigate to="/dashboard/applications" replace />} />
+      <Route path="/seeker/saved-jobs" element={<Navigate to="/dashboard/saved-jobs" replace />} />
+      <Route path="/seeker/*" element={<Navigate to="/dashboard" replace />} />
+
       {/* Employer Onboarding (Standalone) */}
       <Route
         path="/employer/onboarding"

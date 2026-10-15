@@ -187,7 +187,7 @@ export class CompaniesService implements OnModuleInit {
   async onboardEmployer(userId: string, data: Partial<Company>): Promise<Company> {
     const profile = await this.employerProfileRepository.findOne({
       where: { user: { id: userId } },
-      relations: ['company'] as any,
+      relations: { company: true },
     });
 
     if (!profile) {
@@ -215,7 +215,7 @@ export class CompaniesService implements OnModuleInit {
   async getMyCompany(userId: string): Promise<Company | null> {
     const profile = await this.employerProfileRepository.findOne({
       where: { user: { id: userId } },
-      relations: ['company'] as any,
+      relations: { company: true },
     });
 
     return profile?.company || null;
@@ -224,7 +224,7 @@ export class CompaniesService implements OnModuleInit {
   async updateMyCompany(userId: string, data: Partial<Company>): Promise<Company> {
     const profile = await this.employerProfileRepository.findOne({
       where: { user: { id: userId } },
-      relations: ['company'] as any,
+      relations: { company: true },
     });
 
     if (!profile) {

@@ -81,6 +81,28 @@ export default function JobDetailPage() {
   const [submittingApply, setSubmittingApply] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
+
+  const handleQuickUpload = async (file: File) => {
+    setUploadingResume(true);
+    setApplyError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('syncSkills', 'true');
+      const res = await api.post('/resumes/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const newResume = res.data.resume || res.data;
+      setResumes((prev) => [newResume, ...prev]);
+      setSelectedResumeId(newResume.id);
+    } catch (err: any) {
+      console.error('Failed to upload resume', err);
+      setApplyError(err?.response?.data?.message || 'Failed to upload resume file.');
+    } finally {
+      setUploadingResume(false);
+    }
+  };
 
   // Fetch Job details and related jobs
   useEffect(() => {
@@ -532,21 +554,31 @@ export default function JobDetailPage() {
                 <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                   <label className="form-label" style={{ fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
                     <span>Select Resume <span style={{ color: '#dc3545' }}>*</span></span>
-                    <Link to="/seeker/resumes" target="_blank" style={{ fontSize: '0.8rem', color: '#0d6efd', textDecoration: 'none' }}>
+                    <Link to="/dashboard/resumes" target="_blank" style={{ fontSize: '0.8rem', color: '#0d6efd', textDecoration: 'none' }}>
                       + Upload New Resume
                     </Link>
                   </label>
 
                   {resumes.length === 0 ? (
-                    <div style={{ border: '2px dashed #dee2e6', borderRadius: 8, padding: '1.25rem', textAlign: 'center', background: '#f8f9fa' }}>
-                      <FileText size={32} style={{ color: '#adb5bd', margin: '0 auto 0.5rem' }} />
-                      <p style={{ color: '#495057', fontSize: '0.9rem', marginBottom: '0.75rem' }}>You don't have any uploaded resumes yet.</p>
-                      <Link to="/seeker/resumes" className="btn btn-outline btn-sm">
-                        <Upload size={14} /> Go to Resumes Page to Upload
-                      </Link>
+                    <div style={{ border: '2px dashed #0d6efd', borderRadius: 8, padding: '1.25rem', textAlign: 'center', background: '#f8fafd' }}>
+                      <FileText size={32} style={{ color: '#0d6efd', margin: '0 auto 0.5rem' }} />
+                      <p style={{ color: '#495057', fontSize: '0.9rem', marginBottom: '0.75rem' }}>Upload your resume directly to apply:</p>
+                      <label className="btn btn-primary btn-sm" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <Upload size={14} /> {uploadingResume ? 'Uploading...' : 'Choose File (PDF/DOCX)'}
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.txt"
+                          style={{ display: 'none' }}
+                          disabled={uploadingResume}
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) handleQuickUpload(e.target.files[0]);
+                          }}
+                        />
+                      </label>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: 180, overflowY: 'auto' }}>
+                    <>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: 180, overflowY: 'auto', marginBottom: '0.75rem' }}>
                       {resumes.map((r) => (
                         <label
                           key={r.id}
@@ -583,7 +615,22 @@ export default function JobDetailPage() {
                           )}
                         </label>
                       ))}
-                    </div>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <label className="btn btn-outline btn-xs" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <Upload size={12} /> {uploadingResume ? 'Uploading...' : 'Upload Another Resume'}
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.txt"
+                            style={{ display: 'none' }}
+                            disabled={uploadingResume}
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) handleQuickUpload(e.target.files[0]);
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </>
                   )}
                 </div>
 

@@ -90,6 +90,14 @@ export class ResumesController {
     return this.resumesService.uploadResume(req.user.id || req.user.userId, body.fileName, body.fileUrl, body.fileSize);
   }
 
+  @Get()
+  async getResumes(@Req() req: any) {
+    if (req.user.role !== 'job_seeker') {
+      throw new UnauthorizedException('Only job seekers can view their resumes');
+    }
+    return this.resumesService.findByUser(req.user.id || req.user.userId);
+  }
+
   @Get('me')
   async getMyResumes(@Req() req: any) {
     if (req.user.role !== 'job_seeker') {

@@ -103,7 +103,7 @@ export class ApplicationsService {
   async findByApplicant(userId: string): Promise<Application[]> {
     return this.applicationsRepository.find({
       where: { applicant: { id: userId } },
-      relations: ['job', 'job.company'] as any,
+      relations: { job: { company: true } },
       order: { createdAt: 'DESC' },
     });
   }
@@ -140,7 +140,7 @@ export class ApplicationsService {
   async findByJob(jobId: string): Promise<Application[]> {
     const applications = await this.applicationsRepository.find({
       where: { job: { id: jobId } },
-      relations: ['applicant', 'applicant.seekerProfile', 'job'] as any,
+      relations: { applicant: { seekerProfile: true }, job: true },
       order: { createdAt: 'DESC' },
     });
     return this.attachResumes(applications);

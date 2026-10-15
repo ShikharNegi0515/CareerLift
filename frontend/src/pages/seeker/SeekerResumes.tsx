@@ -140,7 +140,16 @@ export default function SeekerResumes() {
       link.download = resume.fileName;
       link.click();
     } else {
-      window.open(resume.fileUrl, '_blank');
+      const fullUrl = resume.fileUrl.startsWith('http')
+        ? resume.fileUrl
+        : `http://localhost:3000${resume.fileUrl}`;
+      const link = document.createElement('a');
+      link.href = fullUrl;
+      link.setAttribute('download', resume.fileName);
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
