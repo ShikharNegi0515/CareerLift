@@ -82,6 +82,7 @@ export default function JobDetailPage() {
   const [applyError, setApplyError] = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [roleError, setRoleError] = useState<string | null>(null);
 
   const handleQuickUpload = async (file: File) => {
     setUploadingResume(true);
@@ -228,9 +229,10 @@ export default function JobDetailPage() {
       return;
     }
     if (user?.role !== 'job_seeker') {
-      alert('Only job seekers can apply for jobs.');
+      setRoleError('Only job seekers can apply for jobs. Please log in with a job seeker account.');
       return;
     }
+    setRoleError(null);
 
     setApplyError(null);
     setApplySuccess(false);
@@ -363,32 +365,57 @@ export default function JobDetailPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  {!applied ? (
-                    <button
-                      onClick={handleOpenApply}
-                      className="btn btn-primary btn-lg"
-                    >
-                      <Briefcase size={18} /> Apply Now
-                    </button>
-                  ) : (
-                    <span className="btn btn-lg" style={{ background: '#d1e7dd', color: '#0a3622', borderColor: '#badbcc', fontWeight: 600 }}>
-                      <CheckCircle size={18} style={{ marginRight: 6 }} /> Application Submitted!
-                    </span>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+                  {/* Role error banner — shown when employer clicks Apply */}
+                  {roleError && (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      background: '#fff3cd', border: '1px solid #ffc107',
+                      borderRadius: 8, padding: '0.625rem 1rem',
+                      fontSize: '0.875rem', color: '#664d03',
+                    }}>
+                      <AlertCircle size={16} style={{ flexShrink: 0, color: '#b45309' }} />
+                      <span>{roleError}</span>
+                      <button
+                        onClick={() => setRoleError(null)}
+                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#664d03', fontWeight: 700, fontSize: '1rem', lineHeight: 1 }}
+                        title="Dismiss"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   )}
-                  <button
-                    onClick={handleToggleSave}
-                    disabled={saveLoading}
-                    className={`btn btn-lg ${saved ? 'btn-primary' : 'btn-light'}`}
-                  >
-                    {saveLoading ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : (
-                      <Bookmark size={18} fill={saved ? '#fff' : 'none'} />
+
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    {/* Only show Apply Now to job seekers or unauthenticated users */}
+                    {user?.role !== 'employer' && (
+                      !applied ? (
+                        <button
+                          onClick={handleOpenApply}
+                          className="btn btn-primary btn-lg"
+                        >
+                          <Briefcase size={18} /> Apply Now
+                        </button>
+                      ) : (
+                        <span className="btn btn-lg" style={{ background: '#d1e7dd', color: '#0a3622', borderColor: '#badbcc', fontWeight: 600 }}>
+                          <CheckCircle size={18} style={{ marginRight: 6 }} /> Application Submitted!
+                        </span>
+                      )
                     )}
-                    {saved ? 'Saved' : 'Save Job'}
-                  </button>
-                  <button onClick={handleShare} className="btn btn-light btn-lg">
-                    <Share2 size={18} /> {copied ? 'Link Copied!' : 'Share'}
-                  </button>
+                    <button
+                      onClick={handleToggleSave}
+                      disabled={saveLoading}
+                      className={`btn btn-lg ${saved ? 'btn-primary' : 'btn-light'}`}
+                    >
+                      {saveLoading ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : (
+                        <Bookmark size={18} fill={saved ? '#fff' : 'none'} />
+                      )}
+                      {saved ? 'Saved' : 'Save Job'}
+                    </button>
+                    <button onClick={handleShare} className="btn btn-light btn-lg">
+                      <Share2 size={18} /> {copied ? 'Link Copied!' : 'Share'}
+                    </button>
+                  </div>
                 </div>
               </div>
 

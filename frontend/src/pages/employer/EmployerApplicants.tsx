@@ -58,11 +58,17 @@ export default function EmployerApplicants() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedApplicant, setSelectedApplicant] = useState<ApplicantData | null>(null);
+  const [previewResume, setPreviewResume] = useState<Resume | null>(null);
   const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('kanban');
   const [draggedAppId, setDraggedAppId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+
+  const getResumeUrl = (url?: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : `http://localhost:3000${url}`;
+  };
 
   const openConversation = async (applicationId: string) => {
     try {
@@ -605,16 +611,14 @@ export default function EmployerApplicants() {
 
                     {/* Resume download or open */}
                     {a.resume?.fileUrl ? (
-                      <a
-                        href={a.resume.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => setPreviewResume(a.resume || null)}
                         className="btn btn-light btn-sm"
                         title={`View Resume: ${a.resume.fileName}`}
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                       >
                         <FileText size={14} color="#0d6efd" /> Resume
-                      </a>
+                      </button>
                     ) : (
                       <button className="btn btn-light btn-sm" disabled title="No resume attached" style={{ opacity: 0.5 }}>
                         <FileText size={14} /> No Resume
@@ -711,14 +715,25 @@ export default function EmployerApplicants() {
                 <span style={{ fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', fontWeight: 600 }}>Resume</span>
                 <p style={{ margin: '4px 0 0' }}>
                   {selectedApplicant.resume?.fileUrl ? (
-                    <a
-                      href={selectedApplicant.resume.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontSize: '0.8125rem', color: '#0d6efd', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                    >
-                      <Download size={14} /> {selectedApplicant.resume.fileName}
-                    </a>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewResume(selectedApplicant.resume || null)}
+                        className="btn btn-outline-primary btn-sm"
+                        style={{ padding: '2px 8px', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                      >
+                        <Eye size={13} /> View Full Resume
+                      </button>
+                      <a
+                        href={getResumeUrl(selectedApplicant.resume.fileUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={selectedApplicant.resume.fileName}
+                        style={{ fontSize: '0.78rem', color: '#0d6efd', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                      >
+                        <Download size={13} /> {selectedApplicant.resume.fileName}
+                      </a>
+                    </div>
                   ) : (
                     <span style={{ fontSize: '0.8125rem', color: '#6c757d' }}>No resume uploaded</span>
                   )}
@@ -757,6 +772,76 @@ export default function EmployerApplicants() {
               <button onClick={() => setSelectedApplicant(null)} className="btn btn-secondary btn-sm">
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Resume Preview Modal for Employer */}
+      {previewResume && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '1.5rem' }}>
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 900, height: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
+            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <FileText size={20} style={{ color: '#0d6efd' }} />
+                <div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#1e293b' }}>
+                    {previewResume.fileName}
+                  </h3>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Uploaded resume</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  href={getResumeUrl(previewResume.fileUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline-primary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                >
+                  <Eye size={14} /> Open in New Tab
+                </a>
+                <a
+                  href={getResumeUrl(previewResume.fileUrl)}
+                  download={previewResume.fileName}
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                >
+                  <Download size={14} /> Download
+                </a>
+                <button
+                  className="btn btn-light btn-sm"
+                  onClick={() => setPreviewResume(null)}
+                  style={{ marginLeft: 6 }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Extracted Skills Bar */}
+            {previewResume.parsedSkills && previewResume.parsedSkills.length > 0 && (
+              <div style={{ padding: '0.75rem 1.5rem', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
+                  Candidate Skills ({previewResume.parsedSkills.length}):
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 60, overflowY: 'auto' }}>
+                  {previewResume.parsedSkills.map((s) => (
+                    <span key={s} style={{ background: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: 12, fontSize: '0.72rem', fontWeight: 600 }}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Document Iframe View */}
+            <div style={{ flex: 1, position: 'relative', background: '#525659' }}>
+              <iframe
+                src={getResumeUrl(previewResume.fileUrl)}
+                title={`Resume ${previewResume.fileName}`}
+                style={{ width: '100%', height: '100%', border: 'none' }}
+              />
             </div>
           </div>
         </div>

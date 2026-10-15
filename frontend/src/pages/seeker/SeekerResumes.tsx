@@ -340,50 +340,70 @@ export default function SeekerResumes() {
 
       {/* Preview Modal */}
       {previewResume && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050, padding: '1.5rem' }}>
-          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 700, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <FileText size={18} style={{ color: '#0d6efd' }} />
-                {previewResume.fileName}
-              </h3>
-              <button className="btn btn-light btn-sm" onClick={() => setPreviewResume(null)}>
-                Close
-              </button>
-            </div>
-            <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
-              {previewResume.parsedSkills && previewResume.parsedSkills.length > 0 && (
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <h4 style={{ fontSize: '0.85rem', color: '#6c757d', textTransform: 'uppercase', marginBottom: 8 }}>
-                    Detected Skills
-                  </h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {previewResume.parsedSkills.map((s) => (
-                      <span key={s} style={{ background: '#e8f0fe', color: '#0d6efd', padding: '3px 10px', borderRadius: 16, fontSize: '0.8rem', fontWeight: 500 }}>
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {previewResume.parsedText ? (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050, padding: '1.5rem' }}>
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 880, height: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
+            <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <FileText size={20} style={{ color: '#0d6efd' }} />
                 <div>
-                  <h4 style={{ fontSize: '0.85rem', color: '#6c757d', textTransform: 'uppercase', marginBottom: 8 }}>
-                    Parsed Resume Text
-                  </h4>
-                  <pre style={{ background: '#f8f9fa', padding: '1rem', borderRadius: 8, fontSize: '0.8rem', whiteSpace: 'pre-wrap', maxHeight: 350, overflowY: 'auto', fontFamily: 'monospace' }}>
-                    {previewResume.parsedText}
-                  </pre>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#1e293b' }}>
+                    {previewResume.fileName}
+                  </h3>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    {formatSize(previewResume.fileSize)} • Uploaded {formatDate(previewResume.createdAt)}
+                  </span>
                 </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '2rem 0', color: '#6c757d' }}>
-                  <p>Direct preview is available for parsed PDF resumes.</p>
-                  <button className="btn btn-primary" onClick={() => handleDownload(previewResume)}>
-                    <Download size={16} /> Download Resume File
-                  </button>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  href={previewResume.fileUrl.startsWith('http') ? previewResume.fileUrl : `http://localhost:3000${previewResume.fileUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline-primary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                >
+                  <Eye size={14} /> Open in New Tab
+                </a>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => handleDownload(previewResume)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                >
+                  <Download size={14} /> Download
+                </button>
+                <button
+                  className="btn btn-light btn-sm"
+                  onClick={() => setPreviewResume(null)}
+                  style={{ marginLeft: 6 }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Extracted Skills Bar */}
+            {previewResume.parsedSkills && previewResume.parsedSkills.length > 0 && (
+              <div style={{ padding: '0.75rem 1.5rem', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
+                  Parsed Skills ({previewResume.parsedSkills.length}):
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxHeight: 60, overflowY: 'auto' }}>
+                  {previewResume.parsedSkills.map((s) => (
+                    <span key={s} style={{ background: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: 12, fontSize: '0.72rem', fontWeight: 600 }}>
+                      {s}
+                    </span>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* Full Document View */}
+            <div style={{ flex: 1, position: 'relative', background: '#525659' }}>
+              <iframe
+                src={previewResume.fileUrl.startsWith('http') ? previewResume.fileUrl : `http://localhost:3000${previewResume.fileUrl}`}
+                title={`Preview ${previewResume.fileName}`}
+                style={{ width: '100%', height: '100%', border: 'none' }}
+              />
             </div>
           </div>
         </div>
