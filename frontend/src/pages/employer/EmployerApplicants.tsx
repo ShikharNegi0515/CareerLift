@@ -321,21 +321,14 @@ export default function EmployerApplicants() {
             <p>No applicants found matching your filters.</p>
           </div>
         ) : viewMode === 'kanban' ? (
-          /* ──────── Kanban Pipeline Board ──────── */
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(5, minmax(250px, 1fr))',
-            gap: '1rem',
-            overflowX: 'auto',
-            paddingBottom: '1rem',
-            minHeight: 520,
-          }}>
+          /* ──────── Jira-Style Kanban Pipeline Board ──────── */
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5 overflow-x-auto pb-4 min-h-[580px] bg-slate-100/60 p-3 rounded-2xl border border-slate-200/80">
             {[
-              { key: ApplicationStatus.APPLIED, label: 'Applied', color: '#0d6efd', bg: '#eff6ff', border: '#bfdbfe' },
-              { key: ApplicationStatus.UNDER_REVIEW, label: 'Under Review', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
-              { key: ApplicationStatus.SHORTLISTED, label: 'Shortlisted', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
-              { key: ApplicationStatus.HIRED, label: 'Hired / Offer', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
-              { key: ApplicationStatus.REJECTED, label: 'Archived / Rejected', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+              { key: ApplicationStatus.APPLIED, label: 'TO DO / APPLIED', tag: 'APP', badgeBg: 'bg-slate-200 text-slate-700', headerBorder: 'border-blue-500' },
+              { key: ApplicationStatus.UNDER_REVIEW, label: 'IN REVIEW', tag: 'REV', badgeBg: 'bg-amber-100 text-amber-800', headerBorder: 'border-amber-500' },
+              { key: ApplicationStatus.SHORTLISTED, label: 'SHORTLISTED', tag: 'SHL', badgeBg: 'bg-purple-100 text-purple-800', headerBorder: 'border-purple-500' },
+              { key: ApplicationStatus.HIRED, label: 'OFFER / HIRED', tag: 'HIR', badgeBg: 'bg-emerald-100 text-emerald-800', headerBorder: 'border-emerald-500' },
+              { key: ApplicationStatus.REJECTED, label: 'ARCHIVED', tag: 'ARC', badgeBg: 'bg-rose-100 text-rose-800', headerBorder: 'border-rose-400' },
             ].map((col) => {
               const colApps = filtered.filter((a) => a.status === col.key);
               const isOver = dragOverColumn === col.key;
@@ -358,55 +351,35 @@ export default function EmployerApplicants() {
                       setDraggedAppId(null);
                     }
                   }}
-                  style={{
-                    background: isOver ? '#e0f2fe' : col.bg,
-                    border: `1.5px ${isOver ? 'dashed #0284c7' : 'solid ' + col.border}`,
-                    borderRadius: 12,
-                    padding: '0.875rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'all 0.2s ease',
-                  }}
+                  className={`flex flex-col rounded-xl bg-slate-200/50 p-2.5 transition-all border ${
+                    isOver ? 'border-dashed border-blue-500 bg-blue-50/70 shadow-sm' : 'border-slate-300/40'
+                  }`}
                 >
-                  {/* Column header */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: `1px solid ${col.border}` }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: col.color }} />
-                      <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1e293b' }}>{col.label}</span>
+                  {/* Jira Column header */}
+                  <div className="flex items-center justify-between px-1.5 py-1.5 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${col.headerBorder.replace('border-', 'bg-')}`}></span>
+                      <span className="font-bold text-[11px] tracking-wider text-slate-600 uppercase font-mono">
+                        {col.label}
+                      </span>
                     </div>
-                    <span style={{
-                      background: '#fff',
-                      color: col.color,
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      padding: '1px 8px',
-                      borderRadius: 9999,
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                    }}>
+                    <span className="text-[11px] font-bold text-slate-600 px-1.5 py-0.5 rounded-full bg-slate-300/60 min-w-5 text-center">
                       {colApps.length}
                     </span>
                   </div>
 
-                  {/* Column cards container */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1, minHeight: 120 }}>
+                  {/* Jira Ticket List */}
+                  <div className="flex flex-col gap-2 flex-1 min-h-[140px]">
                     {colApps.length === 0 ? (
-                      <div style={{
-                        border: '1px dashed rgba(0,0,0,0.1)',
-                        borderRadius: 8,
-                        height: 90,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#94a3b8',
-                        fontSize: '0.75rem',
-                      }}>
-                        Drag candidates here
+                      <div className="border border-dashed border-slate-300 rounded-lg flex-1 min-h-[100px] flex items-center justify-center text-[11px] text-slate-400 font-medium">
+                        Drop candidate here
                       </div>
                     ) : (
-                      colApps.map((a) => {
+                      colApps.map((a, idx) => {
                         const fullName = `${a.applicant?.firstName || ''} ${a.applicant?.lastName || ''}`.trim() || 'Candidate';
                         const isRated = ratedIds.has(a.id);
                         const isBeingDragged = draggedAppId === a.id;
+                        const ticketKey = `${col.tag}-${a.id.slice(0, 4).toUpperCase()}`;
 
                         return (
                           <div
@@ -417,75 +390,82 @@ export default function EmployerApplicants() {
                               setDraggedAppId(null);
                               setDragOverColumn(null);
                             }}
-                            style={{
-                              background: '#fff',
-                              borderRadius: 10,
-                              padding: '0.875rem',
-                              boxShadow: isBeingDragged ? '0 12px 20px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.06)',
-                              border: '1px solid #e2e8f0',
-                              cursor: 'grab',
-                              opacity: isBeingDragged ? 0.4 : 1,
-                              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                            }}
+                            className={`group bg-white rounded-lg p-3 border border-slate-200/80 shadow-[0_1px_2px_rgba(9,30,66,0.1)] hover:border-blue-400 hover:shadow-[0_4px_8px_-2px_rgba(9,30,66,0.15)] transition-all cursor-grab active:cursor-grabbing ${
+                              isBeingDragged ? 'opacity-40 scale-95' : 'opacity-100'
+                            }`}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <div style={{
-                                  width: 32,
-                                  height: 32,
-                                  borderRadius: '50%',
-                                  background: col.color,
-                                  color: '#fff',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 700,
-                                }}>
-                                  {getInitials(a.applicant?.firstName, a.applicant?.lastName)}
-                                </div>
-                                <div>
-                                  <h4 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: '#1e293b' }}>
-                                    {fullName}
-                                  </h4>
-                                  <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                                    {a.job?.title || job?.title || 'Applicant'}
-                                  </span>
-                                </div>
+                            {/* Top Jira Key & Action row */}
+                            <div className="flex items-center justify-between gap-1 mb-1.5">
+                              <span className="text-[10px] font-mono font-bold text-slate-400 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
+                                {ticketKey}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => toggleRate(a.id)}
+                                  className="text-slate-300 hover:text-amber-400 transition-colors"
+                                  title="Star Candidate"
+                                >
+                                  {isRated ? (
+                                    <Star size={13} className="fill-amber-400 text-amber-400" />
+                                  ) : (
+                                    <StarOff size={13} />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => setSelectedApplicant(a)}
+                                  className="text-slate-400 hover:text-slate-700 transition-colors p-0.5 rounded"
+                                  title="Open Ticket"
+                                >
+                                  <Eye size={13} />
+                                </button>
                               </div>
-                              <button
-                                onClick={() => toggleRate(a.id)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                              >
-                                {isRated ? <Star size={14} fill="#ffc107" color="#ffc107" /> : <StarOff size={14} color="#cbd5e1" />}
-                              </button>
                             </div>
 
+                            {/* Candidate Title & Role */}
+                            <h4
+                              onClick={() => setSelectedApplicant(a)}
+                              className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors cursor-pointer line-clamp-1 mb-1"
+                            >
+                              {fullName}
+                            </h4>
+                            <p className="text-[11px] text-slate-500 font-medium line-clamp-1 mb-2">
+                              {a.job?.title || job?.title || 'Applicant'}
+                            </p>
+
+                            {/* Headline / snippet if present */}
                             {a.applicant?.seekerProfile?.headline && (
-                              <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#475569', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                              <p className="text-[10px] text-slate-600 line-clamp-2 bg-slate-50 rounded p-1.5 border border-slate-100 mb-2 leading-relaxed">
                                 {a.applicant.seekerProfile.headline}
                               </p>
                             )}
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, borderTop: '1px solid #f1f5f9', fontSize: '0.7rem', color: '#94a3b8' }}>
-                              <span>{formatDate(a.createdAt)}</span>
-                              <div style={{ display: 'flex', gap: 4 }}>
+                            {/* Bottom row: Resume Badge, Date, Assignee Avatar */}
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px] text-slate-400">
+                              <div className="flex items-center gap-2">
+                                {a.resume ? (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200/50">
+                                    <FileText size={10} /> CV
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] text-slate-400">No CV</span>
+                                )}
+                                <span>{formatDate(a.createdAt)}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1.5">
                                 <button
-                                  onClick={() => openConversation(a.id)}
-                                  className="btn btn-light btn-sm"
-                                  style={{ padding: '2px 6px', fontSize: '0.7rem' }}
-                                  title="Chat"
+                                  onClick={(e) => { e.stopPropagation(); openConversation(a.id); }}
+                                  className="p-1 rounded hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                                  title="Direct Message"
                                 >
-                                  <MessageSquare size={12} color="#2563eb" />
+                                  <MessageSquare size={12} />
                                 </button>
-                                <button
-                                  onClick={() => setSelectedApplicant(a)}
-                                  className="btn btn-light btn-sm"
-                                  style={{ padding: '2px 6px', fontSize: '0.7rem' }}
-                                  title="Details"
+                                <div
+                                  className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[9px] shadow-sm"
+                                  title={fullName}
                                 >
-                                  <Eye size={12} />
-                                </button>
+                                  {getInitials(a.applicant?.firstName, a.applicant?.lastName)}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -641,137 +621,149 @@ export default function EmployerApplicants() {
         )}
       </div>
 
-      {/* Application Details Modal */}
+      {/* Jira-Style Ticket Details Modal */}
       {selectedApplicant && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1050,
-            padding: '1rem',
-          }}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
           onClick={() => setSelectedApplicant(null)}
         >
           <div
-            className="card"
-            style={{ width: '100%', maxWidth: 580, maxHeight: '90vh', overflowY: 'auto' }}
+            className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <div>
-                <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>
-                  {selectedApplicant.applicant?.firstName} {selectedApplicant.applicant?.lastName}
-                </h3>
-                <p style={{ color: '#6c757d', fontSize: '0.875rem', marginTop: 2 }}>
-                  {selectedApplicant.applicant?.email}
-                </p>
+            {/* Jira Top Header Bar */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-500">
+                <span className="text-blue-600">CAREERLIFT</span>
+                <span>/</span>
+                <span className="text-slate-800">CAND-{selectedApplicant.id.slice(0, 4).toUpperCase()}</span>
               </div>
-              <button
-                onClick={() => setSelectedApplicant(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6c757d' }}
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openConversation(selectedApplicant.id)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                >
+                  <MessageSquare size={13} /> Message Candidate
+                </button>
+                <button
+                  onClick={() => setSelectedApplicant(null)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem', padding: '0.75rem', background: '#f8f9fa', borderRadius: 8 }}>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', fontWeight: 600 }}>Applied For</span>
-                <p style={{ fontWeight: 600, fontSize: '0.875rem', color: '#212529', margin: '2px 0 0' }}>
-                  {selectedApplicant.job?.title || job?.title || 'Job'}
-                </p>
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', fontWeight: 600 }}>Applied Date</span>
-                <p style={{ fontWeight: 600, fontSize: '0.875rem', color: '#212529', margin: '2px 0 0' }}>
-                  {formatDate(selectedApplicant.createdAt)}
-                </p>
-              </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', fontWeight: 600 }}>Status</span>
-                <div style={{ marginTop: 4 }}>
-                  <select
-                    className="form-control"
-                    style={{ padding: '0.3rem 0.5rem', fontSize: '0.8125rem' }}
-                    value={selectedApplicant.status}
-                    onChange={(e) => updateStatus(selectedApplicant.id, e.target.value as ApplicationStatus)}
-                  >
-                    {Object.entries(statusLabels).map(([key, label]) => (
-                      <option key={key} value={key}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
+            <div className="p-6">
+              {/* Candidate Main Header */}
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm shadow-blue-500/20 shrink-0">
+                  {getInitials(selectedApplicant.applicant?.firstName, selectedApplicant.applicant?.lastName)}
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                    {selectedApplicant.applicant?.firstName} {selectedApplicant.applicant?.lastName}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">{selectedApplicant.applicant?.email}</p>
                 </div>
               </div>
-              <div>
-                <span style={{ fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', fontWeight: 600 }}>Resume</span>
-                <p style={{ margin: '4px 0 0' }}>
-                  {selectedApplicant.resume?.fileUrl ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewResume(selectedApplicant.resume || null)}
-                        className="btn btn-outline-primary btn-sm"
-                        style={{ padding: '2px 8px', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                      >
-                        <Eye size={13} /> View Full Resume
-                      </button>
-                      <a
-                        href={getResumeUrl(selectedApplicant.resume.fileUrl)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download={selectedApplicant.resume.fileName}
-                        style={{ fontSize: '0.78rem', color: '#0d6efd', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                      >
-                        <Download size={13} /> {selectedApplicant.resume.fileName}
-                      </a>
-                    </div>
-                  ) : (
-                    <span style={{ fontSize: '0.8125rem', color: '#6c757d' }}>No resume uploaded</span>
-                  )}
-                </p>
-              </div>
-            </div>
 
-            {/* Candidate Headline/Bio */}
-            {selectedApplicant.applicant?.seekerProfile?.headline && (
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#495057', marginBottom: '0.25rem' }}>Headline</h4>
-                <p style={{ fontSize: '0.875rem', color: '#212529' }}>{selectedApplicant.applicant.seekerProfile.headline}</p>
-              </div>
-            )}
+              {/* Jira Issue Properties Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200/80 mb-6">
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
+                  <div className="mt-1">
+                    <select
+                      className="w-full text-xs font-bold rounded-lg border border-slate-200 bg-white py-1 px-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedApplicant.status}
+                      onChange={(e) => updateStatus(selectedApplicant.id, e.target.value as ApplicationStatus)}
+                    >
+                      {Object.entries(statusLabels).map(([key, label]) => (
+                        <option key={key} value={key}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-            {/* Cover Letter */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#495057', marginBottom: '0.5rem' }}>Cover Letter</h4>
-              <div style={{ padding: '0.875rem', background: '#f8f9fa', borderRadius: 8, fontSize: '0.875rem', color: '#212529', whiteSpace: 'pre-line', lineHeight: 1.6, maxHeight: 200, overflowY: 'auto' }}>
-                {selectedApplicant.coverLetter || 'No cover letter was submitted with this application.'}
-              </div>
-            </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Applied Role</span>
+                  <p className="text-xs font-semibold text-slate-900 mt-1.5 truncate">
+                    {selectedApplicant.job?.title || job?.title || 'Role'}
+                  </p>
+                </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-              <button
-                onClick={() => {
-                  const appId = selectedApplicant.id;
-                  setSelectedApplicant(null);
-                  openConversation(appId);
-                }}
-                className="btn btn-primary btn-sm"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-              >
-                <MessageSquare size={14} /> Message & Schedule
-              </button>
-              <button onClick={() => setSelectedApplicant(null)} className="btn btn-secondary btn-sm">
-                Close
-              </button>
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Submitted</span>
+                  <p className="text-xs font-semibold text-slate-900 mt-1.5">
+                    {formatDate(selectedApplicant.createdAt)}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Resume / CV</span>
+                  <div className="mt-1">
+                    {selectedApplicant.resume?.fileUrl ? (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewResume(selectedApplicant.resume || null)}
+                          className="px-2 py-1 rounded bg-blue-600 text-white text-[11px] font-semibold hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
+                        >
+                          <Eye size={12} /> View CV
+                        </button>
+                        <a
+                          href={getResumeUrl(selectedApplicant.resume.fileUrl)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={selectedApplicant.resume.fileName}
+                          className="p-1 rounded text-slate-500 hover:text-blue-600 hover:bg-slate-200/60 transition-colors"
+                          title="Download PDF"
+                        >
+                          <Download size={13} />
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] text-slate-400">None</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Candidate Headline/Bio */}
+              {selectedApplicant.applicant?.seekerProfile?.headline && (
+                <div className="mb-5">
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Headline</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed bg-white p-3 rounded-lg border border-slate-200">
+                    {selectedApplicant.applicant.seekerProfile.headline}
+                  </p>
+                </div>
+              )}
+
+              {/* Cover Letter / Notes */}
+              <div className="mb-6">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Cover Letter</h4>
+                <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed whitespace-pre-line max-h-48 overflow-y-auto">
+                  {selectedApplicant.coverLetter || 'No cover letter was submitted with this application.'}
+                </div>
+              </div>
+
+              {/* Footer action buttons */}
+              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+                <button
+                  onClick={() => setSelectedApplicant(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Close Ticket
+                </button>
+                <button
+                  onClick={() => openConversation(selectedApplicant.id)}
+                  className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Interview / Message
+                </button>
+              </div>
             </div>
           </div>
         </div>
