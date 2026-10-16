@@ -4,230 +4,268 @@ import { useAuth } from '@/store/auth';
 import {
   LayoutDashboard, User, FileText, Bookmark, Star, Settings, LogOut,
   Briefcase, Users, Building2, Tag, BookOpen, LifeBuoy, PlusCircle,
-  ChevronLeft, ChevronRight, Menu, X, MessageSquare
+  Menu, MessageSquare,
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
-
-
 const seekerNav = [
-  { to: '/dashboard', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/dashboard/profile', label: 'My Profile', icon: User },
-  { to: '/dashboard/applications', label: 'Applications', icon: FileText },
-  { to: '/dashboard/messages', label: 'Messages & Interviews', icon: MessageSquare },
-  { to: '/dashboard/saved-jobs', label: 'Saved Jobs', icon: Bookmark },
-  { to: '/dashboard/resumes', label: 'Resumes', icon: Star },
-  { to: '/dashboard/recommendations', label: 'Recommendations', icon: Star },
-  { to: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { to: '/dashboard',                 label: 'Overview',              icon: LayoutDashboard, end: true },
+  { to: '/dashboard/profile',         label: 'My Profile',            icon: User },
+  { to: '/dashboard/applications',    label: 'Applications',          icon: FileText },
+  { to: '/dashboard/messages',        label: 'Messages & Interviews', icon: MessageSquare },
+  { to: '/dashboard/saved-jobs',      label: 'Saved Jobs',            icon: Bookmark },
+  { to: '/dashboard/resumes',         label: 'Resumes',               icon: Star },
+  { to: '/dashboard/recommendations', label: 'Recommendations',       icon: Star },
+  { to: '/dashboard/settings',        label: 'Settings',              icon: Settings },
 ];
-
 const employerNav = [
-  { to: '/employer', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/employer/jobs', label: 'My Jobs', icon: Briefcase },
-  { to: '/employer/applicants', label: 'Applicants', icon: Users },
-  { to: '/employer/messages', label: 'Messages & Interviews', icon: MessageSquare },
-  { to: '/employer/jobs/new', label: 'Post a Job', icon: PlusCircle },
-  { to: '/employer/company', label: 'Company Profile', icon: Building2 },
-  { to: '/employer/settings', label: 'Settings', icon: Settings },
+  { to: '/employer',              label: 'Overview',              icon: LayoutDashboard, end: true },
+  { to: '/employer/jobs',         label: 'My Jobs',               icon: Briefcase },
+  { to: '/employer/applicants',   label: 'Applicants',            icon: Users },
+  { to: '/employer/messages',     label: 'Messages & Interviews', icon: MessageSquare },
+  { to: '/employer/jobs/new',     label: 'Post a Job',            icon: PlusCircle },
+  { to: '/employer/company',      label: 'Company Profile',       icon: Building2 },
+  { to: '/employer/settings',     label: 'Settings',              icon: Settings },
 ];
-
 const adminNav = [
-  { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/admin/users', label: 'Users', icon: Users },
-  { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
-  { to: '/admin/companies', label: 'Companies', icon: Building2 },
+  { to: '/admin',            label: 'Overview',   icon: LayoutDashboard, end: true },
+  { to: '/admin/users',      label: 'Users',      icon: Users },
+  { to: '/admin/jobs',       label: 'Jobs',       icon: Briefcase },
+  { to: '/admin/companies',  label: 'Companies',  icon: Building2 },
   { to: '/admin/categories', label: 'Categories', icon: Tag },
-  { to: '/admin/blog', label: 'Blog', icon: BookOpen },
-  { to: '/admin/support', label: 'Support', icon: LifeBuoy },
+  { to: '/admin/blog',       label: 'Blog',       icon: BookOpen },
+  { to: '/admin/support',    label: 'Support',    icon: LifeBuoy },
 ];
 
-interface Props {
-  role: 'seeker' | 'employer' | 'admin';
+interface Props { role: 'seeker' | 'employer' | 'admin'; }
+
+function SidebarContent({
+  navItems, user, roleLabel, roleColor, handleLogout, onNavigate,
+}: {
+  navItems: typeof seekerNav;
+  user: any; roleLabel: string; roleColor: string;
+  handleLogout: () => void; onNavigate?: () => void;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fff' }}>
+
+      {/* ── Logo ── */}
+      <div style={{
+        height: 64,
+        padding: '0 20px',
+        display: 'flex', alignItems: 'center', gap: 10,
+        borderBottom: '1px solid #f1f3f5',
+        flexShrink: 0,
+      }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: 9,
+          background: 'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, boxShadow: '0 2px 6px rgba(59,130,246,0.3)',
+        }}>
+          <Briefcase size={15} color="#fff" strokeWidth={2.2} />
+        </div>
+        <Link to="/" onClick={onNavigate} style={{ textDecoration: 'none' }}>
+          <span style={{
+            fontWeight: 800, fontSize: '1.075rem',
+            color: '#111827', letterSpacing: '-0.5px',
+          }}>
+            Career<span style={{ color: '#3b82f6' }}>Lift</span>
+          </span>
+        </Link>
+      </div>
+
+      {/* ── User profile strip ── */}
+      {user && (
+        <div style={{
+          padding: '16px 20px',
+          borderBottom: '1px solid #f1f3f5',
+          display: 'flex', alignItems: 'center', gap: 11,
+          flexShrink: 0,
+        }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: '50%',
+            background: 'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+            color: '#fff', fontWeight: 700, fontSize: '0.8125rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, letterSpacing: '-0.3px',
+            boxShadow: '0 2px 6px rgba(59,130,246,0.25)',
+          }}>
+            {user.firstName?.[0]}{user.lastName?.[0]}
+          </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{
+              margin: 0, fontWeight: 600, fontSize: '0.875rem',
+              color: '#111827', whiteSpace: 'nowrap',
+              overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {user.firstName} {user.lastName}
+            </p>
+            <p style={{
+              margin: 0, fontSize: '0.72rem', fontWeight: 500,
+              color: roleColor, textTransform: 'uppercase',
+              letterSpacing: '0.06em', marginTop: 2,
+            }}>
+              {roleLabel}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Nav ── */}
+      <nav style={{ flex: 1, padding: '10px 10px', overflowY: 'auto' }}>
+        {navItems.map(({ to, label, icon: Icon, end }) => (
+          <NavLink key={to} to={to} end={end} onClick={onNavigate}
+            style={{ textDecoration: 'none', display: 'block' }}>
+            {({ isActive }) => (
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 11,
+                  padding: '9px 12px', marginBottom: 2, borderRadius: 8,
+                  background: isActive ? '#2563eb' : 'transparent',
+                  color: isActive ? '#fff' : '#6b7280',
+                  fontSize: '0.855rem', fontWeight: isActive ? 600 : 400,
+                  cursor: 'pointer', transition: 'all 0.12s ease',
+                  userSelect: 'none',
+                }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#111827'; }}}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}}
+              >
+                <Icon size={16} strokeWidth={isActive ? 2.2 : 1.75}
+                  style={{ flexShrink: 0, color: isActive ? 'rgba(255,255,255,0.85)' : '#9ca3af' }} />
+                <span style={{ letterSpacing: '-0.01em' }}>{label}</span>
+              </div>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* ── Logout ── */}
+      <div style={{ padding: '8px 10px 14px', borderTop: '1px solid #f1f3f5', flexShrink: 0 }}>
+        <button onClick={handleLogout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 11,
+            width: '100%', padding: '9px 12px',
+            background: 'transparent', border: 'none', borderRadius: 8,
+            cursor: 'pointer', fontSize: '0.855rem', fontWeight: 400,
+            color: '#ef4444', fontFamily: 'inherit', transition: 'background 0.12s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#fff1f2'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        >
+          <LogOut size={16} strokeWidth={1.75} style={{ flexShrink: 0, color: '#ef4444' }} />
+          Log Out
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function DashboardLayout({ role }: Props) {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout }   = useAuth();
+  const navigate            = useNavigate();
+  const [mobileOpen, setMo] = useState(false);
 
-  const navItems = role === 'seeker' ? seekerNav : role === 'employer' ? employerNav : adminNav;
-
+  const navItems  = role === 'seeker' ? seekerNav : role === 'employer' ? employerNav : adminNav;
   const roleLabel = role === 'seeker' ? 'Job Seeker' : role === 'employer' ? 'Employer' : 'Admin';
-  const roleColor = role === 'admin' ? '#dc3545' : role === 'employer' ? '#198754' : '#0d6efd';
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
+  const roleColor = role === 'admin' ? '#dc2626' : role === 'employer' ? '#16a34a' : '#2563eb';
+  const logout_  = async () => { await logout(); navigate('/'); };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      {/* Mobile overlay */}
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#f4f6f9', fontFamily: "'Inter',system-ui,sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *,*::before,*::after{box-sizing:border-box}
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+      `}</style>
+
+      {/* Overlay */}
       {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 transition-opacity"
-          onClick={() => setMobileOpen(false)}
-        />
+        <div style={{ position:'fixed',inset:0,zIndex:48,background:'rgba(15,23,42,0.4)',backdropFilter:'blur(2px)' }}
+          onClick={() => setMo(false)} />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`hidden lg:flex flex-col flex-shrink-0 bg-white border-r border-slate-200/80 sticky top-0 h-screen transition-all duration-300 z-40 ${
-          collapsed ? 'w-20' : 'w-64'
-        }`}
-      >
-        {/* Sidebar brand */}
-        <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
-          {!collapsed && (
-            <Link to="/" className="flex items-center gap-2.5 text-slate-900 hover:text-blue-600 transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shadow-blue-500/20">
-                <Briefcase size={18} />
-              </div>
-              <span className="font-extrabold text-lg tracking-tight">Career<span className="text-blue-600">Lift</span></span>
-            </Link>
-          )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className={`w-7 h-7 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-colors ${
-              collapsed ? 'mx-auto' : ''
-            }`}
-            aria-label="Toggle sidebar"
-          >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-          </button>
-        </div>
-
-        {/* User info */}
-        {!collapsed && user && (
-          <div className="p-4 border-b border-slate-100 bg-slate-50/40">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-500/20 flex-shrink-0">
-                {user.firstName?.[0]}{user.lastName?.[0]}
-              </div>
-              <div className="min-w-0">
-                <p className="font-bold text-xs text-slate-900 truncate">
-                  {user.firstName} {user.lastName}
-                </p>
-                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60 mt-0.5">
-                  {roleLabel}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Nav items */}
-        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  collapsed ? 'justify-center' : 'justify-start'
-                } ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                }`
-              }
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon size={18} className="flex-shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Logout */}
-        <div className="p-3 border-t border-slate-100">
-          <button
-            onClick={handleLogout}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors ${
-              collapsed ? 'justify-center' : 'justify-start'
-            }`}
-            title={collapsed ? 'Logout' : undefined}
-          >
-            <LogOut size={18} className="flex-shrink-0" />
-            {!collapsed && <span>Log Out</span>}
-          </button>
-        </div>
+      {/* ═══ Desktop sidebar ═══ */}
+      <aside className="hidden lg:flex" style={{
+        width: 240, flexShrink: 0,
+        position: 'sticky', top: 0, height: '100vh',
+        flexDirection: 'column',
+        background: '#fff',
+        borderRight: '1.5px solid #edf0f3',
+        zIndex: 40, overflowY: 'auto',
+      }}>
+        <SidebarContent navItems={navItems} user={user} roleLabel={roleLabel}
+          roleColor={roleColor} handleLogout={logout_} />
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top header */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-6 h-16 flex items-center justify-between shadow-sm shadow-slate-900/5">
-          <div className="flex items-center gap-3">
-            <button className="lg:hidden p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg" onClick={() => setMobileOpen(true)}>
+      {/* ═══ Main ═══ */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* Header */}
+        <header style={{
+          position: 'sticky', top: 0, zIndex: 30,
+          height: 64, background: '#fff',
+          borderBottom: '1.5px solid #edf0f3',
+          padding: '0 28px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <button className="lg:hidden" onClick={() => setMo(true)}
+              style={{ background:'none',border:'none',cursor:'pointer',color:'#6b7280',padding:4,borderRadius:6,display:'flex',alignItems:'center' }}>
               <Menu size={20} />
             </button>
-            <h2 className="font-bold text-sm text-slate-800 tracking-tight">
-              {roleLabel} Console
-            </h2>
+            <div>
+              <p style={{ margin:0,fontWeight:700,fontSize:'0.9375rem',color:'#111827',letterSpacing:'-0.2px' }}>
+                {roleLabel} Console
+              </p>
+              <p style={{ margin:0,fontSize:'0.75rem',color:'#9ca3af',marginTop:1 }}>
+                Welcome back, {user?.firstName} 👋
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div style={{ display:'flex',alignItems:'center',gap:10 }}>
             <NotificationBell />
-            <Link to="/" className="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-1.5">
+            <Link to="/"
+              style={{ fontSize:'0.8125rem',fontWeight:500,color:'#6b7280',textDecoration:'none',
+                padding:'5px 13px',borderRadius:7,border:'1.5px solid #e5e7eb',background:'#fff',
+                transition:'all 0.12s',fontFamily:'inherit' }}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='#3b82f6';e.currentTarget.style.color='#3b82f6';e.currentTarget.style.background='#eff6ff';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='#e5e7eb';e.currentTarget.style.color='#6b7280';e.currentTarget.style.background='#fff';}}>
               ← View Site
             </Link>
+            <div style={{
+              width:34,height:34,borderRadius:'50%',
+              background:'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+              color:'#fff',fontWeight:700,fontSize:'0.8rem',
+              display:'flex',alignItems:'center',justifyContent:'center',
+              flexShrink:0,cursor:'pointer',
+              boxShadow:'0 2px 6px rgba(59,130,246,0.3)',
+              letterSpacing:'-0.3px',
+            }}>
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
+            </div>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
+        {/* Content */}
+        <main style={{ flex:1, padding:'28px 32px', maxWidth:1300, width:'100%', margin:'0 auto' }}>
           <Outlet />
         </main>
       </div>
 
-      {/* Mobile sidebar */}
-      <aside
-        className={`fixed top-0 left-0 bottom-0 w-64 bg-white z-50 flex flex-col border-r border-slate-200/80 transition-transform duration-300 ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 text-slate-900" onClick={() => setMobileOpen(false)}>
-            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
-              <Briefcase size={18} />
-            </div>
-            <span className="font-extrabold text-lg tracking-tight">Career<span className="text-blue-600">Lift</span></span>
-          </Link>
-          <button onClick={() => setMobileOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
-            <X size={20} />
-          </button>
-        </div>
-        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={() => setMobileOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                }`
-              }
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-slate-100">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
-          >
-            <LogOut size={18} />
-            <span>Log Out</span>
-          </button>
-        </div>
+      {/* ═══ Mobile sidebar ═══ */}
+      <aside style={{
+        position:'fixed',top:0,left:0,bottom:0,width:240,zIndex:49,
+        background:'#fff',borderRight:'1.5px solid #edf0f3',
+        transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition:'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
+        overflowY:'auto', display:'flex', flexDirection:'column',
+      }}>
+        <SidebarContent navItems={navItems} user={user} roleLabel={roleLabel}
+          roleColor={roleColor} handleLogout={logout_} onNavigate={() => setMo(false)} />
       </aside>
     </div>
   );

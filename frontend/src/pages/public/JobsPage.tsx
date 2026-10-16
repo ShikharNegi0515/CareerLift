@@ -74,13 +74,15 @@ export default function JobsPage() {
       navigate('/login');
       return;
     }
-    if (user?.role !== 'job_seeker') {
-      alert('Only job seekers can apply for jobs.');
-      return;
-    }
     setSelectedJob(jobToApply);
     setApplyError(null);
     setApplySuccess(false);
+
+    if (user?.role !== 'job_seeker') {
+      setApplyError('You are currently logged in as an Employer. Applications can only be submitted from Job Seeker accounts.');
+      setShowApplyModal(true);
+      return;
+    }
 
     try {
       const res = await api.get<Resume[]>('/resumes');
@@ -779,7 +781,7 @@ export default function JobsPage() {
                               onChange={() => setSelectedResumeId(r.id)}
                               className="text-blue-600 focus:ring-blue-500"
                             />
-                            <span className="truncate max-w-xs">{r.title || r.fileName || 'Resume'}</span>
+                            <span className="truncate max-w-xs">{r.fileName || 'Resume'}</span>
                           </div>
                           {r.isDefault && (
                             <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">
