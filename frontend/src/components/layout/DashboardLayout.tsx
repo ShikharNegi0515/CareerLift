@@ -62,7 +62,7 @@ export default function DashboardLayout({ role }: Props) {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50/60">
+    <div className="flex min-h-screen bg-slate-50">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div

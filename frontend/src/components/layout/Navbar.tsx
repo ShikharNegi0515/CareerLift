@@ -79,7 +79,23 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
+              {user.role === UserRole.EMPLOYER ? (
+                <Link
+                  to="/employer/jobs/new"
+                  className="btn btn-primary btn-sm flex items-center gap-1.5 shadow-sm shadow-blue-500/20"
+                >
+                  <Briefcase size={14} /> Post a Job
+                </Link>
+              ) : (
+                <Link
+                  to="/dashboard/applications"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold border border-blue-200/50 transition-colors"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  My Applications
+                </Link>
+              )}
               <NotificationBell />
               <div className="relative">
                 <button

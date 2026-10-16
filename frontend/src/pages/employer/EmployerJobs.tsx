@@ -84,49 +84,94 @@ export default function EmployerJobs() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr style={{ borderBottom: '2px solid #e9ecef' }}>
+              <tr className="border-b border-slate-200 bg-slate-50/50">
                 {['Job Title', 'Applicants', 'Views', 'Type', 'Deadline', 'Status', 'Actions'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                  <th key={h} className="py-3 px-4 font-bold text-[11px] text-slate-500 uppercase tracking-wider">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {filtered.map((job) => (
-                <tr key={job.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <p style={{ fontWeight: 600, color: '#212529' }}>{job.title}</p>
-                    <p style={{ fontSize: '0.75rem', color: '#6c757d' }}>Posted: {new Date(job.createdAt).toLocaleDateString()}</p>
+                <tr key={job.id} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-4">
+                    <p className="font-bold text-slate-900 hover:text-blue-600 transition-colors cursor-pointer">{job.title}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Posted: {new Date(job.createdAt).toLocaleDateString()}</p>
                   </td>
-                  <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <Link to={`/employer/jobs/${job.id}/applicants`} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#0d6efd', textDecoration: 'none', fontWeight: 600 }}>
-                      <Users size={14} /> {job.applicationCount || 0}
+                  <td className="py-3.5 px-4">
+                    <Link
+                      to={`/employer/jobs/${job.id}/applicants`}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold"
+                    >
+                      <Users size={13} /> {job.applicationCount || 0}
                     </Link>
                   </td>
-                  <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={13} />{job.viewCount || 0}</span>
+                  <td className="py-3.5 px-4 text-slate-500">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium">
+                      <Eye size={13} className="text-slate-400" /> {job.viewCount || 0}
+                    </span>
                   </td>
-                  <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <span className="job-badge badge-primary">{formatStatus(job.jobType)}</span>
+                  <td className="py-3.5 px-4">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                      {formatStatus(job.jobType)}
+                    </span>
                   </td>
-                  <td style={{ padding: '0.875rem 0.5rem', color: '#6c757d', fontSize: '0.8125rem' }}>{job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString() : '—'}</td>
-                  <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: statusColors[job.status] || '#6c757d', background: statusBgs[job.status] || '#e9ecef', padding: '3px 10px', borderRadius: 9999 }}>{formatStatus(job.status)}</span>
+                  <td className="py-3.5 px-4 text-xs text-slate-500 font-medium">
+                    {job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString() : '—'}
                   </td>
-                  <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <div style={{ display: 'flex', gap: '0.375rem' }}>
-                      <Link to={`/employer/jobs/${job.id}/edit`} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem' }}><Edit size={13} /></Link>
-                      <Link to={`/employer/jobs/${job.id}/applicants`} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem' }}><Users size={13} /></Link>
-                      <button onClick={() => deleteJob(job.id)} className="btn btn-light btn-sm" style={{ padding: '0.3rem 0.5rem', color: '#dc3545' }}><Trash2 size={13} /></button>
+                  <td className="py-3.5 px-4">
+                    <span
+                      style={{
+                        color: statusColors[job.status] || '#6c757d',
+                        background: statusBgs[job.status] || '#e9ecef',
+                      }}
+                      className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"
+                    >
+                      {formatStatus(job.status)}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <div className="flex items-center gap-1.5">
+                      <Link
+                        to={`/employer/jobs/${job.id}/edit`}
+                        className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition-all"
+                        title="Edit Job"
+                      >
+                        <Edit size={14} />
+                      </Link>
+                      <Link
+                        to={`/employer/jobs/${job.id}/applicants`}
+                        className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition-all"
+                        title="View Candidates"
+                      >
+                        <Users size={14} />
+                      </Link>
+                      <button
+                        onClick={() => deleteJob(job.id)}
+                        className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 transition-all"
+                        title="Delete Job"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: '#6c757d' }}>No jobs found.</td>
+                  <td colSpan={7} className="text-center py-12 px-4">
+                    <div className="max-w-sm mx-auto text-center">
+                      <p className="text-sm font-bold text-slate-700 mb-1">No jobs found</p>
+                      <p className="text-xs text-slate-400 mb-4">You have not published any job openings matching this filter.</p>
+                      <Link to="/employer/jobs/new" className="btn btn-primary btn-sm inline-flex items-center gap-1.5">
+                        <PlusCircle size={14} /> Post Your First Job
+                      </Link>
+                    </div>
+                  </td>
                 </tr>
               )}
             </tbody>

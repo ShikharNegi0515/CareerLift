@@ -315,14 +315,9 @@ export default function EmployerApplicants() {
         </div>
 
         {/* View content: Board or List */}
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
-            <Filter size={40} style={{ color: '#dee2e6', margin: '0 auto 1rem' }} />
-            <p>No applicants found matching your filters.</p>
-          </div>
-        ) : viewMode === 'kanban' ? (
+        {viewMode === 'kanban' ? (
           /* ──────── Jira-Style Kanban Pipeline Board ──────── */
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5 overflow-x-auto pb-4 min-h-[580px] bg-slate-100/60 p-3 rounded-2xl border border-slate-200/80">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5 overflow-x-auto pb-4 min-h-[580px] bg-slate-100/70 p-3.5 rounded-2xl border border-slate-200/80">
             {[
               { key: ApplicationStatus.APPLIED, label: 'TO DO / APPLIED', tag: 'APP', badgeBg: 'bg-slate-200 text-slate-700', headerBorder: 'border-blue-500' },
               { key: ApplicationStatus.UNDER_REVIEW, label: 'IN REVIEW', tag: 'REV', badgeBg: 'bg-amber-100 text-amber-800', headerBorder: 'border-amber-500' },
@@ -476,6 +471,12 @@ export default function EmployerApplicants() {
                 </div>
               );
             })}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+            <Filter size={36} className="text-slate-300 mx-auto mb-3" />
+            <h3 className="text-sm font-bold text-slate-700 mb-1">No applicants found</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">There are no candidates matching your current filter criteria.</p>
           </div>
         ) : (
           /* ──────── Classic List View ──────── */

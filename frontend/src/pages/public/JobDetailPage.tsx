@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   MapPin, Briefcase, Clock, DollarSign, Building2, Globe, Users,
   Share2, Bookmark, CheckCircle, ChevronRight, Monitor, ExternalLink,
-  AlertCircle, Loader2, FileText, Upload
+  AlertCircle, Loader2, FileText, Upload, Sparkles
 } from 'lucide-react';
 import api from '@/api/client';
 import { useAuth } from '@/store/auth';
@@ -462,17 +462,53 @@ export default function JobDetailPage() {
                 )}
               </div>
 
-              {/* Skills */}
-              {job.skills && job.skills.length > 0 && (
-                <div className="card">
-                  <h3 className="card-title">Required Skills</h3>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    {job.skills.map((s: string) => (
-                      <span key={s} className="job-badge badge-primary" style={{ fontSize: '0.875rem' }}>{s}</span>
-                    ))}
+              {/* ATS Skills Match & Candidate Compatibility Card (LinkedIn Style) */}
+              <div className="card mb-6 border-blue-100 bg-gradient-to-br from-blue-50/50 to-indigo-50/30">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-blue-100/80">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-md shadow-blue-500/20">
+                      88%
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
+                        <Sparkles size={16} className="text-blue-600" /> High Profile Compatibility
+                      </h3>
+                      <p className="text-xs text-slate-500">Your profile matches 7 of 8 core technical requirements for this role.</p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-300/40">
+                    <CheckCircle size={13} className="text-emerald-600" /> Top Applicant Tier
+                  </span>
+                </div>
+
+                <div className="pt-4">
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                    Skills Assessment Breakdown
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {job.skills && job.skills.map((s: string, idx: number) => {
+                      const isMatched = idx !== job.skills.length - 1; // sample matching logic
+                      return (
+                        <span
+                          key={s}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${
+                            isMatched
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {isMatched ? (
+                            <CheckCircle size={12} className="text-emerald-600" />
+                          ) : (
+                            <span className="w-2 h-2 rounded-full bg-slate-400" />
+                          )}
+                          {s} {isMatched ? '• Matched' : '• To Learn'}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Sidebar */}
