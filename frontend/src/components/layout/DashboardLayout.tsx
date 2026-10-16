@@ -179,16 +179,26 @@ export default function DashboardLayout({ role }: Props) {
         ::-webkit-scrollbar{width:4px}
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+        @media (min-width: 1024px) {
+          .cl-desktop-sidebar { display: flex !important; }
+          .cl-hamburger-btn { display: none !important; }
+          .cl-mobile-sidebar { display: none !important; }
+          .cl-mobile-overlay { display: none !important; }
+        }
+        @media (max-width: 1023px) {
+          .cl-desktop-sidebar { display: none !important; }
+          .cl-hamburger-btn { display: flex !important; }
+        }
       `}</style>
 
       {/* Overlay */}
       {mobileOpen && (
-        <div style={{ position:'fixed',inset:0,zIndex:48,background:'rgba(15,23,42,0.4)',backdropFilter:'blur(2px)' }}
+        <div className="cl-mobile-overlay" style={{ position:'fixed',inset:0,zIndex:48,background:'rgba(15,23,42,0.4)',backdropFilter:'blur(2px)' }}
           onClick={() => setMo(false)} />
       )}
 
       {/* ═══ Desktop sidebar ═══ */}
-      <aside className="hidden lg:flex" style={{
+      <aside className="cl-desktop-sidebar" style={{
         width: 240, flexShrink: 0,
         position: 'sticky', top: 0, height: '100vh',
         flexDirection: 'column',
@@ -213,8 +223,8 @@ export default function DashboardLayout({ role }: Props) {
           flexShrink: 0,
         }}>
           <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-            <button className="lg:hidden" onClick={() => setMo(true)}
-              style={{ background:'none',border:'none',cursor:'pointer',color:'#6b7280',padding:4,borderRadius:6,display:'flex',alignItems:'center' }}>
+            <button className="cl-hamburger-btn" onClick={() => setMo(true)}
+              style={{ background:'none',border:'none',cursor:'pointer',color:'#6b7280',padding:4,borderRadius:6,alignItems:'center' }}>
               <Menu size={20} />
             </button>
             <div>
@@ -257,7 +267,7 @@ export default function DashboardLayout({ role }: Props) {
       </div>
 
       {/* ═══ Mobile sidebar ═══ */}
-      <aside style={{
+      <aside className="cl-mobile-sidebar" style={{
         position:'fixed',top:0,left:0,bottom:0,width:240,zIndex:49,
         background:'#fff',borderRight:'1.5px solid #edf0f3',
         transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',

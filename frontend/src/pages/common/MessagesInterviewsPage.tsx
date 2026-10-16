@@ -7,13 +7,12 @@ export default function MessagesInterviewsPage() {
       {/* ══ BACKGROUND: Light chat UI — blurred ══ */}
       <div style={{
         position: 'absolute', inset: 0,
-        filter: 'blur(7px)',
-        transform: 'scale(1.05)',
+        filter: 'blur(3.5px)',
         pointerEvents: 'none',
         userSelect: 'none',
-        background: '#f4f6f9',
+        background: '#f8fafc',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr', height: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', height: '100%' }}>
 
           {/* Left: conversation list */}
           <div style={{
@@ -110,7 +109,7 @@ export default function MessagesInterviewsPage() {
       {/* ══ Very light overlay — just enough to soften the blur ══ */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'rgba(244, 246, 249, 0.55)',
+        background: 'rgba(255, 255, 255, 0.32)',
         zIndex: 5,
       }} />
 
@@ -120,12 +119,12 @@ export default function MessagesInterviewsPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <div style={{
-          background: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.9)',
+          background: 'rgba(255, 255, 255, 0.88)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
           borderRadius: 20,
-          boxShadow: '0 8px 40px rgba(0,0,0,0.10), 0 2px 12px rgba(37,99,235,0.08)',
+          boxShadow: '0 12px 36px rgba(15, 23, 42, 0.08), 0 2px 10px rgba(0, 0, 0, 0.04)',
           padding: '2.5rem 3rem',
           maxWidth: 460,
           width: '90%',

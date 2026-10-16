@@ -99,13 +99,19 @@ export default function EmployerJobs() {
               {filtered.map((job) => (
                 <tr key={job.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="py-3.5 px-4">
-                    <p className="font-bold text-slate-900 hover:text-blue-600 transition-colors cursor-pointer">{job.title}</p>
+                    <Link
+                      to={`/employer/jobs/${job.id}/applicants`}
+                      className="font-bold text-slate-900 hover:text-blue-600 transition-colors block text-sm"
+                    >
+                      {job.title}
+                    </Link>
                     <p className="text-xs text-slate-400 mt-0.5">Posted: {new Date(job.createdAt).toLocaleDateString()}</p>
                   </td>
                   <td className="py-3.5 px-4">
                     <Link
                       to={`/employer/jobs/${job.id}/applicants`}
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold"
+                      title="View Kanban Board for this job"
                     >
                       <Users size={13} /> {job.applicationCount || 0}
                     </Link>

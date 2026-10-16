@@ -65,6 +65,8 @@ export default function EmployerApplicants() {
   const [draggedAppId, setDraggedAppId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
 
+  const [employerJobs, setEmployerJobs] = useState<Job[]>([]);
+
   const getResumeUrl = (url?: string) => {
     if (!url) return '';
     return url.startsWith('http') ? url : `http://localhost:3000${url}`;
@@ -88,6 +90,10 @@ export default function EmployerApplicants() {
     setLoading(true);
     setError(null);
     try {
+      // Always fetch employer jobs list for the switcher
+      const jobsRes = await api.get<Job[]>('/jobs/employer/me');
+      setEmployerJobs(jobsRes.data);
+
       if (id) {
         // Fetch job details and applicants for this job
         const [jobRes, appsRes] = await Promise.all([
@@ -99,6 +105,7 @@ export default function EmployerApplicants() {
       } else {
         // Fetch all applicants for this employer
         const res = await api.get<ApplicantData[]>('/applications/employer');
+        setJob(null);
         setApplicants(res.data);
       }
     } catch (err: any) {
@@ -193,11 +200,46 @@ export default function EmployerApplicants() {
               <ArrowLeft size={14} /> Back to Jobs
             </Link>
           )}
-          <h1 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#212529' }}>
-            {job ? `Applicants for "${job.title}"` : 'All Applicants'}
-          </h1>
-          <p style={{ color: '#6c757d', fontSize: '0.9rem', marginTop: 2 }}>
-            {applicants.length} total applicant{applicants.length === 1 ? '' : 's'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <h1 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#212529', margin: 0 }}>
+              {job ? `Applicants for "${job.title}"` : 'All Applicants'}
+            </h1>
+            {/* Quick Job Switcher */}
+            {employerJobs.length > 0 && (
+              <select
+                value={id || 'all'}
+                onChange={(e) => {
+                  const targetJobId = e.target.value;
+                  if (targetJobId === 'all') {
+                    navigate('/employer/applicants');
+                  } else {
+                    navigate(`/employer/jobs/${targetJobId}/applicants`);
+                  }
+                }}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 8,
+                  border: '1.5px solid #cbd5e1',
+                  background: '#fff',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: '#334155',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                }}
+              >
+                <option value="all">📁 All Jobs ({employerJobs.reduce((acc, j) => acc + (j.applicationCount || 0), 0)} applicants)</option>
+                {employerJobs.map((j) => (
+                  <option key={j.id} value={j.id}>
+                    💼 {j.title} ({j.applicationCount || 0} applicants)
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <p style={{ color: '#6c757d', fontSize: '0.9rem', marginTop: 4 }}>
+            {applicants.length} total applicant{applicants.length === 1 ? '' : 's'} in pipeline
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
