@@ -179,8 +179,8 @@ export class EmailService {
     return this.sendMail({
       to: email,
       subject: companyName
-        ? `Partner Invitation: Hire top candidates for ${companyName} on CareerLift`
-        : 'Exclusive Recruiter Invitation: Source top talent on CareerLift 🚀',
+        ? `Invitation to join CareerLift as a Hiring Partner (${companyName})`
+        : 'Invitation: Join CareerLift as an Employer Partner',
       html,
     });
   }

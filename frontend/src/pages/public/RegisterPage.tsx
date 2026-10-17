@@ -107,6 +107,7 @@ export default function RegisterPage() {
           industry,
           companySize,
           location: location.trim(),
+          inviteToken: inviteToken || undefined,
         }),
       });
       navigate(role === UserRole.EMPLOYER ? '/employer' : '/dashboard');

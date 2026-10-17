@@ -6,33 +6,111 @@
 export function getBaseEmailLayout(title: string, contentHtml: string): string {
   return `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${title}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-    .wrapper { width: 100%; table-layout: fixed; background-color: #f4f6f8; padding: 40px 0; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .header { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); padding: 32px; text-align: center; }
-    .logo { color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; text-decoration: none; }
-    .content { padding: 36px 32px; color: #212529; line-height: 1.6; font-size: 15px; }
-    .btn { display: inline-block; background-color: #0d6efd; color: #ffffff !important; font-weight: 600; font-size: 15px; padding: 12px 28px; text-decoration: none; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 4px rgba(13,110,253,0.2); }
-    .footer { padding: 24px 32px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; text-align: center; font-size: 13px; color: #6c757d; }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 13px; }
-    .badge-applied { background-color: #cff4fc; color: #055160; }
-    .badge-shortlisted { background-color: #d1e7dd; color: #0f5132; }
-    .badge-rejected { background-color: #f8d7da; color: #842029; }
-    .badge-hired { background-color: #d1e7dd; color: #0f5132; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    table { border-collapse: separate; }
+    .wrapper {
+      width: 100%;
+      background-color: #f1f5f9;
+      padding: 40px 16px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+    .header-bar {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 28px 36px;
+      text-align: left;
+      border-bottom: 3px solid #3b82f6;
+    }
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .brand-name {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .brand-tagline {
+      display: inline-block;
+      float: right;
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 40px 36px 32px;
+      color: #334155;
+      line-height: 1.65;
+      font-size: 15px;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 34px;
+      text-decoration: none;
+      border-radius: 8px;
+      text-align: center;
+      letter-spacing: 0.2px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+    .footer {
+      padding: 28px 36px;
+      background-color: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
   <div class="wrapper">
     <table class="container" role="presentation" cellpadding="0" cellspacing="0" width="100%">
       <tr>
-        <td class="header">
-          <div class="logo">🚀 CareerLift</div>
+        <td class="header-bar">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <span style="font-size: 22px; vertical-align: middle;">💼</span>
+                <span class="brand-name">CareerLift</span>
+              </td>
+              <td align="right">
+                <span class="brand-tagline">Talent & Hiring Network</span>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
       <tr>
@@ -42,8 +120,11 @@ export function getBaseEmailLayout(title: string, contentHtml: string): string {
       </tr>
       <tr>
         <td class="footer">
-          <p style="margin: 0 0 8px;">© ${new Date().getFullYear()} CareerLift Inc. All rights reserved.</p>
-          <p style="margin: 0; font-size: 12px; color: #adb5bd;">Connecting talent with opportunity worldwide.</p>
+          <p style="margin: 0 0 6px; font-weight: 600; color: #475569;">CareerLift Recruiting & Hiring Platform</p>
+          <p style="margin: 0 0 10px;">Connecting world-class engineering, product, and leadership talent with top teams.</p>
+          <p style="margin: 0; color: #94a3b8; font-size: 11px;">
+            © ${new Date().getFullYear()} CareerLift Inc. All rights reserved. • <a href="http://localhost:5173/privacy" style="color: #64748b; text-decoration: underline;">Privacy Policy</a> • <a href="http://localhost:5173/terms" style="color: #64748b; text-decoration: underline;">Terms of Service</a>
+          </p>
         </td>
       </tr>
     </table>
@@ -248,45 +329,89 @@ export function getRecruiterInviteEmailHtml(
   customMessage?: string | null,
 ): string {
   const greeting = contactName ? `Hi ${contactName},` : 'Hello,';
-  const targetCompany = companyName ? `for <strong>${companyName}</strong>` : 'for your organization';
+  const companyHighlight = companyName ? ` for <strong>${companyName}</strong>` : '';
 
   const body = `
-    <h2 style="margin-top: 0; color: #1a1f36; font-size: 22px;">Join CareerLift as an Exclusive Hiring Partner 🤝</h2>
-    <p>${greeting}</p>
-    <p>You've been invited to join <strong>CareerLift</strong> to hire top engineering, product, and leadership talent ${targetCompany}.</p>
-    
+    <div style="margin-bottom: 24px;">
+      <span style="display: inline-block; background-color: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 12px; border-radius: 9999px; border: 1px solid #bfdbfe; margin-bottom: 12px;">
+        Direct Partner Invitation
+      </span>
+      <h1 style="margin: 0 0 10px; color: #0f172a; font-size: 24px; font-weight: 800; line-height: 1.3;">
+        Partner with CareerLift to Hire Top Talent${companyName ? ` for ${companyName}` : ''}
+      </h1>
+      <p style="font-size: 15px; color: #475569; margin: 0; line-height: 1.6;">
+        ${greeting} you've been invited to join CareerLift's curated employer network to streamline candidate discovery, technical evaluation, and direct hiring${companyHighlight}.
+      </p>
+    </div>
+
     ${
       customMessage
-        ? `<div style="background-color: #f1f5f9; border-left: 4px solid #0d6efd; padding: 14px 18px; margin: 20px 0; border-radius: 6px; font-style: italic; color: #334155;">
-            "${customMessage}"
+        ? `<div style="background-color: #f8fafc; border-left: 4px solid #2563eb; border: 1px solid #e2e8f0; border-left-width: 4px; padding: 16px 20px; margin: 24px 0; border-radius: 8px;">
+            <p style="margin: 0 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; color: #64748b;">Note from CareerLift Admin:</p>
+            <p style="margin: 0; font-size: 14px; color: #1e293b; font-style: italic; line-height: 1.5;">"${customMessage}"</p>
           </div>`
         : ''
     }
 
-    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin: 24px 0;">
-      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Why Recruit with CareerLift?</h3>
-      <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.8;">
-        <li>⚡ <strong>Post Jobs in Minutes:</strong> Publish open positions and immediately get in front of 2.5M+ active seekers.</li>
-        <li>🎯 <strong>AI-Powered Screening:</strong> Instant skill-matching algorithm filters top 5% candidates automatically.</li>
-        <li>💬 <strong>Direct Candidate Chat:</strong> Message applicants and schedule interviews directly within the platform.</li>
-        <li>🎁 <strong>Complimentary Partner Access:</strong> Claim free premium job postings with this direct invite.</li>
-      </ul>
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 28px 0;">
+      <h2 style="margin: 0 0 16px; font-size: 13px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.75px;">
+        Key Platform Advantages
+      </h2>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; line-height: 1.6;">
+        <tr>
+          <td style="padding: 8px 0; vertical-align: top; width: 28px;">
+            <div style="width: 20px; height: 20px; background-color: #dbeafe; color: #1d4ed8; border-radius: 50%; text-align: center; line-height: 20px; font-size: 11px; font-weight: bold;">✓</div>
+          </td>
+          <td style="padding: 8px 0 8px 10px; vertical-align: top; color: #334155;">
+            <strong style="color: #0f172a;">Active Candidate Pool:</strong> Reach 2.5M+ pre-vetted software engineers, product managers, and specialists actively seeking roles.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; vertical-align: top; width: 28px;">
+            <div style="width: 20px; height: 20px; background-color: #dbeafe; color: #1d4ed8; border-radius: 50%; text-align: center; line-height: 20px; font-size: 11px; font-weight: bold;">✓</div>
+          </td>
+          <td style="padding: 8px 0 8px 10px; vertical-align: top; color: #334155;">
+            <strong style="color: #0f172a;">AI Skill Matching:</strong> Automatic algorithmic screening delivers high-relevance applicants with match ratings and structured skill breakdowns.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; vertical-align: top; width: 28px;">
+            <div style="width: 20px; height: 20px; background-color: #dbeafe; color: #1d4ed8; border-radius: 50%; text-align: center; line-height: 20px; font-size: 11px; font-weight: bold;">✓</div>
+          </td>
+          <td style="padding: 8px 0 8px 10px; vertical-align: top; color: #334155;">
+            <strong style="color: #0f172a;">Real-Time Messaging & Interviews:</strong> Directly chat with applicants, schedule interviews, and track pipeline stages in one consolidated dashboard.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; vertical-align: top; width: 28px;">
+            <div style="width: 20px; height: 20px; background-color: #dbeafe; color: #1d4ed8; border-radius: 50%; text-align: center; line-height: 20px; font-size: 11px; font-weight: bold;">✓</div>
+          </td>
+          <td style="padding: 8px 0 8px 10px; vertical-align: top; color: #334155;">
+            <strong style="color: #0f172a;">Complimentary Launch Credits:</strong> Priority listing and featured company profile privileges are enabled with this direct invitation.
+          </td>
+        </tr>
+      </table>
     </div>
 
-    <div style="text-align: center; margin: 34px 0;">
-      <a href="${inviteUrl}" class="btn" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); font-size: 16px; padding: 14px 32px;">Claim Your Recruiter Invite & Post Jobs</a>
+    <div style="text-align: center; margin: 36px 0 24px;">
+      <a href="${inviteUrl}" class="btn-primary" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; font-weight: 600; font-size: 15px; padding: 14px 36px; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+        Activate Recruiter Account & Post Jobs &rarr;
+      </a>
     </div>
 
-    <p style="color: #64748b; font-size: 13px; text-align: center;">
-      Or copy & paste this link in your browser:<br>
-      <a href="${inviteUrl}" style="color: #0d6efd; word-break: break-all;">${inviteUrl}</a>
+    <p style="color: #64748b; font-size: 12px; text-align: center; margin: 24px 0 0; line-height: 1.5;">
+      Button not working? Copy and paste this URL into your browser:<br>
+      <a href="${inviteUrl}" style="color: #2563eb; word-break: break-all; text-decoration: underline;">${inviteUrl}</a>
     </p>
 
-    <p style="color: #94a3b8; font-size: 12px; text-align: center; margin-top: 24px;">
-      If you did not expect this invitation or are not currently hiring, you can safely ignore this email.
-    </p>
+    <div style="border-top: 1px solid #e2e8f0; margin-top: 28px; padding-top: 16px; text-align: center;">
+      <p style="color: #94a3b8; font-size: 11px; margin: 0;">
+        This invitation was intended for ${contactName ? contactName : 'hiring teams'}${companyName ? ` at ${companyName}` : ''}. If you are not actively hiring, you may disregard this notice.
+      </p>
+    </div>
   `;
 
-  return getBaseEmailLayout('Exclusive Recruiter Invitation - CareerLift', body);
+  return getBaseEmailLayout(`Recruiter Invitation: Hire on CareerLift${companyName ? ` (${companyName})` : ''}`, body);
 }
 

@@ -10,10 +10,11 @@ import { JwtStrategy } from './jwt.strategy.js';
 import { JobSeekerProfile } from '../users/job-seeker-profile.entity.js';
 import { EmployerProfile } from '../users/employer-profile.entity.js';
 import { Company } from '../companies/company.entity.js';
+import { RecruiterInvite } from '../admin/recruiter-invite.entity.js';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, JobSeekerProfile, EmployerProfile, Company]),
+    TypeOrmModule.forFeature([User, JobSeekerProfile, EmployerProfile, Company, RecruiterInvite]),
     PassportModule,
     JwtModule.register({}),
   ],

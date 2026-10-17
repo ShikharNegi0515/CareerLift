@@ -45,4 +45,8 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @IsOptional()
+  @IsString()
+  inviteToken?: string;
 }

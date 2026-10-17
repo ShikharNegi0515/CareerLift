@@ -83,6 +83,7 @@ export interface RegisterDto {
   industry?: string;
   companySize?: string;
   location?: string;
+  inviteToken?: string;
 }
 
 export interface AuthResponse {

@@ -14,6 +14,7 @@ import { JobSeekerProfile } from '../users/job-seeker-profile.entity.js';
 import { EmployerProfile } from '../users/employer-profile.entity.js';
 import { Company } from '../companies/company.entity.js';
 import { EmailService } from '../email/email.service.js';
+import { RecruiterInvite, RecruiterInviteStatus } from '../admin/recruiter-invite.entity.js';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,8 @@ export class AuthService {
     private employerProfileRepository: Repository<EmployerProfile>,
     @InjectRepository(Company)
     private companiesRepository: Repository<Company>,
+    @InjectRepository(RecruiterInvite)
+    private recruiterInvitesRepository: Repository<RecruiterInvite>,
     private jwtService: JwtService,
     private configService: ConfigService,
     private emailService: EmailService,
@@ -57,25 +60,32 @@ export class AuthService {
     } else if (dto.role === UserRole.EMPLOYER) {
       let company = null;
       if (dto.companyName) {
-        const slug =
-          dto.companyName
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '') +
-          '-' +
-          Date.now();
-
-        company = this.companiesRepository.create({
-          name: dto.companyName.trim(),
-          slug,
-          website: dto.companyWebsite || undefined,
-          industry: dto.industry || undefined,
-          size: dto.companySize || undefined,
-          location: dto.location || undefined,
-          registrationNumber: dto.registrationNumber || undefined,
-          isVerified: false, // Default unverified until reviewed/approved
+        const trimmedName = dto.companyName.trim();
+        company = await this.companiesRepository.findOne({
+          where: { name: trimmedName },
         });
-        company = await this.companiesRepository.save(company);
+
+        if (!company) {
+          const slug =
+            trimmedName
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '') +
+            '-' +
+            Date.now();
+
+          company = this.companiesRepository.create({
+            name: trimmedName,
+            slug,
+            website: dto.companyWebsite || undefined,
+            industry: dto.industry || undefined,
+            size: dto.companySize || undefined,
+            location: dto.location || undefined,
+            registrationNumber: dto.registrationNumber || undefined,
+            isVerified: false, // Default unverified until reviewed/approved
+          });
+          company = await this.companiesRepository.save(company);
+        }
       }
 
       const profile = this.employerProfileRepository.create({
@@ -84,6 +94,30 @@ export class AuthService {
         company: company || undefined,
       });
       await this.employerProfileRepository.save(profile);
+    }
+
+    // Automatically link & accept recruiter invitation if applicable
+    if (dto.role === UserRole.EMPLOYER) {
+      try {
+        let invite = null;
+        if (dto.inviteToken) {
+          invite = await this.recruiterInvitesRepository.findOne({
+            where: { inviteToken: dto.inviteToken, status: RecruiterInviteStatus.PENDING },
+          });
+        }
+        if (!invite && dto.email) {
+          invite = await this.recruiterInvitesRepository.findOne({
+            where: { email: dto.email.toLowerCase().trim(), status: RecruiterInviteStatus.PENDING },
+          });
+        }
+        if (invite) {
+          invite.status = RecruiterInviteStatus.ACCEPTED;
+          invite.acceptedAt = new Date();
+          await this.recruiterInvitesRepository.save(invite);
+        }
+      } catch (err) {
+        console.warn('Error updating recruiter invite status:', err);
+      }
     }
 
     // Trigger asynchronous welcome email
