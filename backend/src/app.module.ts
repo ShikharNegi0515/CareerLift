@@ -40,6 +40,7 @@ import { Notification } from './modules/notifications/notification.entity.js';
 import { BlogPost } from './modules/blog/blog-post.entity.js';
 import { SupportTicket } from './modules/support/support-ticket.entity.js';
 import { Conversation, Message, Interview } from './modules/conversations/conversation.entity.js';
+import { RecruiterInvite } from './modules/admin/recruiter-invite.entity.js';
 
 import { JobView } from './modules/jobs/job-view.entity.js';
 
@@ -76,6 +77,7 @@ import { JobView } from './modules/jobs/job-view.entity.js';
           Conversation,
           Message,
           Interview,
+          RecruiterInvite,
         ],
       }),
     }),

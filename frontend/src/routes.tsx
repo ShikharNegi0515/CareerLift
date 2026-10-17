@@ -52,6 +52,7 @@ import AdminCategories from '@/pages/admin/AdminCategories';
 import AdminBlog from '@/pages/admin/AdminBlog';
 import AdminSupport from '@/pages/admin/AdminSupport';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminRecruiterInvites from '@/pages/admin/AdminRecruiterInvites';
 
 // ================================
 // ROUTE GUARDS
@@ -188,6 +189,7 @@ export default function AppRoutes() {
         <Route path="categories" element={<AdminCategories />} />
         <Route path="blog" element={<AdminBlog />} />
         <Route path="support" element={<AdminSupport />} />
+        <Route path="recruiter-invites" element={<AdminRecruiterInvites />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 

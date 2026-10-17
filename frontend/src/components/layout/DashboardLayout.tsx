@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import {
   LayoutDashboard, User, FileText, Bookmark, Star, Settings, LogOut,
   Briefcase, Users, Building2, Tag, BookOpen, LifeBuoy, PlusCircle,
-  Menu, MessageSquare,
+  Menu, MessageSquare, Mail,
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -28,13 +28,14 @@ const employerNav = [
   { to: '/employer/settings',     label: 'Settings',              icon: Settings },
 ];
 const adminNav = [
-  { to: '/admin',            label: 'Overview',   icon: LayoutDashboard, end: true },
-  { to: '/admin/users',      label: 'Users',      icon: Users },
-  { to: '/admin/jobs',       label: 'Jobs',       icon: Briefcase },
-  { to: '/admin/companies',  label: 'Companies',  icon: Building2 },
-  { to: '/admin/categories', label: 'Categories', icon: Tag },
-  { to: '/admin/blog',       label: 'Blog',       icon: BookOpen },
-  { to: '/admin/support',    label: 'Support',    icon: LifeBuoy },
+  { to: '/admin',                   label: 'Overview',          icon: LayoutDashboard, end: true },
+  { to: '/admin/users',             label: 'Users',             icon: Users },
+  { to: '/admin/jobs',              label: 'Jobs',              icon: Briefcase },
+  { to: '/admin/companies',         label: 'Companies',         icon: Building2 },
+  { to: '/admin/categories',        label: 'Categories',        icon: Tag },
+  { to: '/admin/blog',              label: 'Blog',              icon: BookOpen },
+  { to: '/admin/support',           label: 'Support',           icon: LifeBuoy },
+  { to: '/admin/recruiter-invites', label: 'Recruiter Invites', icon: Mail },
 ];
 
 interface Props { role: 'seeker' | 'employer' | 'admin'; }

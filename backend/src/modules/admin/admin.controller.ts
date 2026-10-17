@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Delete, Param, Body, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { AdminService } from './admin.service.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 
@@ -66,4 +66,36 @@ export class AdminController {
     this.checkAdmin(req);
     return this.adminService.deleteCompany(id);
   }
+
+  // ─── Recruiter Invites / Outreach ──────────────────────────────────────────
+  @Get('recruiter-invites')
+  async getRecruiterInvites(@Req() req: any) {
+    this.checkAdmin(req);
+    return this.adminService.getRecruiterInvites();
+  }
+
+  @Post('recruiter-invites')
+  async sendRecruiterInvite(
+    @Req() req: any,
+    @Body() dto: { email: string; companyName?: string; contactName?: string; customMessage?: string },
+  ) {
+    this.checkAdmin(req);
+    if (!dto.email || !dto.email.includes('@')) {
+      throw new BadRequestException('A valid recruiter email address is required.');
+    }
+    return this.adminService.sendRecruiterInvite(dto);
+  }
+
+  @Post('recruiter-invites/:id/resend')
+  async resendRecruiterInvite(@Req() req: any, @Param('id') id: string) {
+    this.checkAdmin(req);
+    return this.adminService.resendRecruiterInvite(id);
+  }
+
+  @Delete('recruiter-invites/:id')
+  async deleteRecruiterInvite(@Req() req: any, @Param('id') id: string) {
+    this.checkAdmin(req);
+    return this.adminService.deleteRecruiterInvite(id);
+  }
 }
+

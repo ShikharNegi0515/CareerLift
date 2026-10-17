@@ -1,26 +1,35 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/store/auth';
 import {
   Briefcase, Mail, Lock, Eye, EyeOff, User, AlertCircle, Loader2,
   Briefcase as BriefcaseIcon, Search, Building2, Globe, FileCheck2,
-  ShieldCheck, MapPin, Users
+  ShieldCheck, MapPin, Users, Sparkles, CheckCircle2
 } from 'lucide-react';
 import { UserRole } from '@/types';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { register } = useAuth();
-  const [role, setRole] = useState<UserRole.JOB_SEEKER | UserRole.EMPLOYER>(UserRole.JOB_SEEKER);
+
+  const paramRole = searchParams.get('role');
+  const paramEmail = searchParams.get('email') || '';
+  const paramCompany = searchParams.get('company') || '';
+  const inviteToken = searchParams.get('inviteToken') || '';
+
+  const [role, setRole] = useState<UserRole.JOB_SEEKER | UserRole.EMPLOYER>(
+    paramRole === 'employer' ? UserRole.EMPLOYER : UserRole.JOB_SEEKER
+  );
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(paramEmail);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   // Employer verification fields
-  const [companyName, setCompanyName] = useState('');
+  const [companyName, setCompanyName] = useState(paramCompany);
   const [jobTitle, setJobTitle] = useState('');
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
@@ -30,6 +39,18 @@ export default function RegisterPage() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (paramRole === 'employer') {
+      setRole(UserRole.EMPLOYER);
+    }
+    if (paramEmail && !email) {
+      setEmail(paramEmail);
+    }
+    if (paramCompany && !companyName) {
+      setCompanyName(paramCompany);
+    }
+  }, [paramRole, paramEmail, paramCompany]);
 
   const isFreeEmail =
     role === UserRole.EMPLOYER &&
@@ -119,11 +140,45 @@ export default function RegisterPage() {
           <h2 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#212529', marginBottom: '0.375rem', textAlign: 'center' }}>
             {role === UserRole.EMPLOYER ? 'Register as Verified Employer' : 'Create Your Account'}
           </h2>
-          <p style={{ color: '#6c757d', textAlign: 'center', marginBottom: '1.75rem', fontSize: '0.9375rem' }}>
-            {role === UserRole.EMPLOYER
-              ? 'Complete company verification details to hire top talent securely'
-              : 'Join 2.5M+ professionals on CareerLift'}
-          </p>
+          {inviteToken && (
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1rem 1.25rem',
+                backgroundColor: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: '0.75rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#dbeafe',
+                  color: '#1d4ed8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '2px',
+                }}
+              >
+                <Sparkles size={18} />
+              </div>
+              <div style={{ fontSize: '0.875rem', lineHeight: '1.4' }}>
+                <div style={{ fontWeight: 700, color: '#1e3a8a', marginBottom: '2px' }}>
+                  Exclusive Partner Invitation Activated
+                </div>
+                <div style={{ color: '#1e40af' }}>
+                  Welcome! You're claiming a direct recruiter invite{paramCompany ? ` for ${paramCompany}` : ''}. Finish setting up your account to post jobs and access top talent.
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Role selector */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.75rem' }}>

@@ -9,6 +9,7 @@ import {
   getPasswordResetEmailHtml,
   getEmailVerificationHtml,
   getJobAlertDigestEmailHtml,
+  getRecruiterInviteEmailHtml,
 } from './email-templates.js';
 
 export interface SendMailOptions {
@@ -162,4 +163,27 @@ export class EmailService {
       html,
     });
   }
+
+  async sendRecruiterInvite(
+    email: string,
+    contactName: string | null,
+    companyName: string | null,
+    inviteToken: string,
+    customMessage?: string | null,
+  ): Promise<boolean> {
+    const inviteUrl = `${this.frontendUrl}/register?role=employer&inviteToken=${inviteToken}${
+      companyName ? `&company=${encodeURIComponent(companyName)}` : ''
+    }${email ? `&email=${encodeURIComponent(email)}` : ''}`;
+
+    const html = getRecruiterInviteEmailHtml(contactName, companyName, inviteUrl, customMessage);
+    return this.sendMail({
+      to: email,
+      subject: companyName
+        ? `Partner Invitation: Hire top candidates for ${companyName} on CareerLift`
+        : 'Exclusive Recruiter Invitation: Source top talent on CareerLift 🚀',
+      html,
+    });
+  }
 }
+
+

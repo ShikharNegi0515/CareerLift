@@ -5,6 +5,9 @@ import { User } from '../auth/user.entity.js';
 import { Job } from '../jobs/job.entity.js';
 import { Company } from '../companies/company.entity.js';
 import { Application } from '../applications/application.entity.js';
+import { RecruiterInvite, RecruiterInviteStatus } from './recruiter-invite.entity.js';
+import { EmailService } from '../email/email.service.js';
+import crypto from 'crypto';
 
 @Injectable()
 export class AdminService {
@@ -17,6 +20,9 @@ export class AdminService {
     private companiesRepo: Repository<Company>,
     @InjectRepository(Application)
     private applicationsRepo: Repository<Application>,
+    @InjectRepository(RecruiterInvite)
+    private recruiterInvitesRepo: Repository<RecruiterInvite>,
+    private emailService: EmailService,
   ) {}
 
   async getDashboardStats() {
@@ -95,4 +101,113 @@ export class AdminService {
   async deleteCompany(id: string) {
     return this.companiesRepo.delete(id);
   }
+
+  // ─── Recruiter Invites / Outreach ──────────────────────────────────────────
+  async getRecruiterInvites() {
+    const [invites, totalCount, pendingCount, acceptedCount] = await Promise.all([
+      this.recruiterInvitesRepo.find({ order: { createdAt: 'DESC' } }),
+      this.recruiterInvitesRepo.count(),
+      this.recruiterInvitesRepo.count({ where: { status: RecruiterInviteStatus.PENDING } }),
+      this.recruiterInvitesRepo.count({ where: { status: RecruiterInviteStatus.ACCEPTED } }),
+    ]);
+
+    const conversionRate = totalCount > 0 ? Math.round((acceptedCount / totalCount) * 100) : 0;
+
+    return {
+      invites,
+      stats: {
+        total: totalCount,
+        pending: pendingCount,
+        accepted: acceptedCount,
+        conversionRate,
+      },
+    };
+  }
+
+  async sendRecruiterInvite(dto: {
+    email: string;
+    companyName?: string;
+    contactName?: string;
+    customMessage?: string;
+  }) {
+    const cleanEmail = dto.email.trim().toLowerCase();
+    const token = crypto.randomBytes(24).toString('hex');
+
+    // Check if an invite already exists for this email
+    let invite = await this.recruiterInvitesRepo.findOne({ where: { email: cleanEmail } });
+
+    if (invite) {
+      invite.companyName = dto.companyName || invite.companyName;
+      invite.contactName = dto.contactName || invite.contactName;
+      invite.customMessage = dto.customMessage || invite.customMessage;
+      invite.inviteToken = token;
+      invite.status = RecruiterInviteStatus.PENDING;
+      invite.sentAt = new Date();
+    } else {
+      invite = this.recruiterInvitesRepo.create({
+        email: cleanEmail,
+        companyName: dto.companyName || null,
+        contactName: dto.contactName || null,
+        customMessage: dto.customMessage || null,
+        inviteToken: token,
+        status: RecruiterInviteStatus.PENDING,
+        sentAt: new Date(),
+      });
+    }
+
+    const saved = await this.recruiterInvitesRepo.save(invite);
+
+    // Send email via EmailService
+    await this.emailService.sendRecruiterInvite(
+      saved.email,
+      saved.contactName,
+      saved.companyName,
+      saved.inviteToken,
+      saved.customMessage,
+    );
+
+    return saved;
+  }
+
+  async resendRecruiterInvite(id: string) {
+    const invite = await this.recruiterInvitesRepo.findOne({ where: { id } });
+    if (!invite) throw new NotFoundException('Invite not found');
+
+    invite.sentAt = new Date();
+    invite.status = RecruiterInviteStatus.PENDING;
+    const saved = await this.recruiterInvitesRepo.save(invite);
+
+    await this.emailService.sendRecruiterInvite(
+      saved.email,
+      saved.contactName,
+      saved.companyName,
+      saved.inviteToken,
+      saved.customMessage,
+    );
+
+    return saved;
+  }
+
+  async deleteRecruiterInvite(id: string) {
+    const invite = await this.recruiterInvitesRepo.findOne({ where: { id } });
+    if (!invite) throw new NotFoundException('Invite not found');
+    return this.recruiterInvitesRepo.delete(id);
+  }
+
+  async markInviteAccepted(token: string) {
+    const invite = await this.recruiterInvitesRepo.findOne({
+      where: { inviteToken: token, status: RecruiterInviteStatus.PENDING },
+    });
+    if (invite) {
+      invite.status = RecruiterInviteStatus.ACCEPTED;
+      invite.acceptedAt = new Date();
+      await this.recruiterInvitesRepo.save(invite);
+    }
+    return invite;
+  }
+
+  async getInviteByToken(token: string) {
+    return this.recruiterInvitesRepo.findOne({ where: { inviteToken: token } });
+  }
 }
+

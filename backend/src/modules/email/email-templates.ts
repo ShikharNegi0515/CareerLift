@@ -241,3 +241,52 @@ export function getJobAlertDigestEmailHtml(
   return getBaseEmailLayout('New Job Matches for You', body);
 }
 
+export function getRecruiterInviteEmailHtml(
+  contactName: string | null,
+  companyName: string | null,
+  inviteUrl: string,
+  customMessage?: string | null,
+): string {
+  const greeting = contactName ? `Hi ${contactName},` : 'Hello,';
+  const targetCompany = companyName ? `for <strong>${companyName}</strong>` : 'for your organization';
+
+  const body = `
+    <h2 style="margin-top: 0; color: #1a1f36; font-size: 22px;">Join CareerLift as an Exclusive Hiring Partner 🤝</h2>
+    <p>${greeting}</p>
+    <p>You've been invited to join <strong>CareerLift</strong> to hire top engineering, product, and leadership talent ${targetCompany}.</p>
+    
+    ${
+      customMessage
+        ? `<div style="background-color: #f1f5f9; border-left: 4px solid #0d6efd; padding: 14px 18px; margin: 20px 0; border-radius: 6px; font-style: italic; color: #334155;">
+            "${customMessage}"
+          </div>`
+        : ''
+    }
+
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin: 24px 0;">
+      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Why Recruit with CareerLift?</h3>
+      <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.8;">
+        <li>⚡ <strong>Post Jobs in Minutes:</strong> Publish open positions and immediately get in front of 2.5M+ active seekers.</li>
+        <li>🎯 <strong>AI-Powered Screening:</strong> Instant skill-matching algorithm filters top 5% candidates automatically.</li>
+        <li>💬 <strong>Direct Candidate Chat:</strong> Message applicants and schedule interviews directly within the platform.</li>
+        <li>🎁 <strong>Complimentary Partner Access:</strong> Claim free premium job postings with this direct invite.</li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; margin: 34px 0;">
+      <a href="${inviteUrl}" class="btn" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); font-size: 16px; padding: 14px 32px;">Claim Your Recruiter Invite & Post Jobs</a>
+    </div>
+
+    <p style="color: #64748b; font-size: 13px; text-align: center;">
+      Or copy & paste this link in your browser:<br>
+      <a href="${inviteUrl}" style="color: #0d6efd; word-break: break-all;">${inviteUrl}</a>
+    </p>
+
+    <p style="color: #94a3b8; font-size: 12px; text-align: center; margin-top: 24px;">
+      If you did not expect this invitation or are not currently hiring, you can safely ignore this email.
+    </p>
+  `;
+
+  return getBaseEmailLayout('Exclusive Recruiter Invitation - CareerLift', body);
+}
+

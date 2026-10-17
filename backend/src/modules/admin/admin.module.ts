@@ -7,9 +7,13 @@ import { Job } from '../jobs/job.entity.js';
 import { Company } from '../companies/company.entity.js';
 import { Application } from '../applications/application.entity.js';
 
+import { RecruiterInvite } from './recruiter-invite.entity.js';
+import { EmailModule } from '../email/email.module.js';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Job, Company, Application]),
+    TypeOrmModule.forFeature([User, Job, Company, Application, RecruiterInvite]),
+    EmailModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],
