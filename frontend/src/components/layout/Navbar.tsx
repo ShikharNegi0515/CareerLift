@@ -172,7 +172,7 @@ export default function Navbar() {
                 Sign In
               </Link>
               <Link to="/register" className="btn btn-primary btn-sm font-semibold shadow-sm shadow-blue-500/20">
-                Post a Job
+                Get Started
               </Link>
             </div>
           )}

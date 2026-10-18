@@ -6,7 +6,7 @@ import api from '../../api/client';
 import {
   Search, MapPin, Briefcase, ChevronRight, Monitor, HeartPulse,
   GraduationCap, TrendingUp, Building2, Cpu, Palette, ShieldCheck,
-  Users, Star, ArrowRight, CheckCircle, Zap
+  Users, Star, ArrowRight, CheckCircle, Zap, PlusCircle
 } from 'lucide-react';
 
 // ─── Mock data ───────────────────────────────────────────────────────────────
@@ -124,6 +124,37 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+
+          {/* Role-Specific Hero Action Bar */}
+          {isAuthenticated && user?.role === UserRole.EMPLOYER ? (
+            <div className="mt-8 p-4 bg-blue-50/80 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-blue-500/20">
+                  <Briefcase size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">Hiring for your team?</h3>
+                  <p className="text-xs text-slate-600">Publish open positions directly to 2.5M+ active pre-vetted candidates.</p>
+                </div>
+              </div>
+              <Link
+                to="/employer/jobs/new"
+                className="btn btn-primary btn-sm flex items-center gap-2 shadow-sm whitespace-nowrap self-stretch sm:self-auto justify-center"
+              >
+                <PlusCircle size={15} /> Post a Job Now
+              </Link>
+            </div>
+          ) : !isAuthenticated ? (
+            <div className="mt-6 flex items-center gap-3 text-xs text-slate-600">
+              <span>Are you hiring?</span>
+              <Link
+                to="/register?role=employer"
+                className="font-bold text-blue-600 hover:text-blue-700 underline underline-offset-2 flex items-center gap-1"
+              >
+                Post a job as an Employer <ChevronRight size={13} />
+              </Link>
+            </div>
+          ) : null}
 
           <div className="flex items-center gap-6 mt-8 flex-wrap">
             {[
@@ -563,9 +594,19 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <Link to={postJobPath} className="btn btn-secondary btn-lg shadow-md">
-                Post a Job Today <ChevronRight size={18} />
-              </Link>
+              {isAuthenticated && user?.role === UserRole.JOB_SEEKER ? (
+                <Link to="/jobs" className="btn btn-secondary btn-lg shadow-md">
+                  Browse Opportunities <ChevronRight size={18} />
+                </Link>
+              ) : isAuthenticated && user?.role === UserRole.EMPLOYER ? (
+                <Link to="/employer/jobs/new" className="btn btn-secondary btn-lg shadow-md">
+                  Post a Job Today <ChevronRight size={18} />
+                </Link>
+              ) : (
+                <Link to="/register?role=employer" className="btn btn-secondary btn-lg shadow-md">
+                  Hire with CareerLift <ChevronRight size={18} />
+                </Link>
+              )}
             </div>
           </div>
         </div>
