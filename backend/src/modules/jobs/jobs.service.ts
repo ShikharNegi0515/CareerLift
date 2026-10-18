@@ -46,14 +46,112 @@ export class JobsService implements OnModuleInit {
     qb.leftJoinAndSelect('job.company', 'company');
     qb.leftJoinAndSelect('job.category', 'category');
 
-    if (query.keyword) {
-      qb.andWhere('(job.title LIKE :keyword OR job.description LIKE :keyword)', { keyword: '%' + query.keyword + '%' });
+    // Only return published jobs for public search (or draft if requested explicitly)
+    if (query.status) {
+      qb.andWhere('job.status = :status', { status: query.status });
     }
+
     if (query.location) {
-      qb.andWhere('job.location LIKE :location', { location: '%' + query.location + '%' });
+      qb.andWhere('LOWER(job.location) LIKE :location', { location: `%${query.location.toLowerCase().trim()}%` });
     }
-    
-    // The query is much more complex in real life, but keeping it simple for now
+
+    if (query.jobType) {
+      qb.andWhere('job.jobType = :jobType', { jobType: query.jobType });
+    }
+
+    if (query.workMode) {
+      qb.andWhere('job.workMode = :workMode', { workMode: query.workMode });
+    }
+
+    if (query.experienceLevel) {
+      qb.andWhere('job.experienceLevel = :experienceLevel', { experienceLevel: query.experienceLevel });
+    }
+
+    const rawKeyword = query.keyword ? String(query.keyword).trim() : '';
+
+    if (!rawKeyword) {
+      // Default: latest jobs first, featured boosted
+      qb.orderBy('job.isFeatured', 'DESC');
+      qb.addOrderBy('job.createdAt', 'DESC');
+      return qb.getMany();
+    }
+
+    // Stack synonym dictionary for tech search
+    const STACK_MAP: Record<string, string[]> = {
+      mern: ['mern', 'mongodb', 'express', 'react', 'node', 'nodejs'],
+      mean: ['mean', 'mongodb', 'express', 'angular', 'node', 'nodejs'],
+      lamp: ['lamp', 'linux', 'apache', 'mysql', 'php'],
+      jamstack: ['jamstack', 'javascript', 'api', 'markup', 'next.js', 'react'],
+      frontend: ['frontend', 'front-end', 'react', 'vue', 'angular', 'javascript', 'typescript', 'css', 'html'],
+      backend: ['backend', 'back-end', 'node', 'express', 'nestjs', 'django', 'python', 'java', 'golang', 'sql'],
+      fullstack: ['fullstack', 'full-stack', 'react', 'node', 'javascript', 'typescript', 'database', 'frontend', 'backend'],
+      python: ['python', 'django', 'flask', 'fastapi', 'pandas'],
+      java: ['java', 'spring', 'springboot', 'hibernate'],
+      devops: ['devops', 'docker', 'kubernetes', 'aws', 'ci/cd', 'terraform'],
+    };
+
+    const cleanKw = rawKeyword.toLowerCase();
+    const relatedTokens: string[] = [cleanKw];
+
+    // If query matches a known stack acronym (e.g. "mern"), expand to related skills
+    if (STACK_MAP[cleanKw]) {
+      for (const t of STACK_MAP[cleanKw]) {
+        if (!relatedTokens.includes(t)) relatedTokens.push(t);
+      }
+    } else {
+      // Check each space-separated term
+      const words = cleanKw.split(/\s+/).filter(Boolean);
+      for (const w of words) {
+        if (!relatedTokens.includes(w)) relatedTokens.push(w);
+        if (STACK_MAP[w]) {
+          for (const st of STACK_MAP[w]) {
+            if (!relatedTokens.includes(st)) relatedTokens.push(st);
+          }
+        }
+      }
+    }
+
+    // Build conditions that match primary keyword OR any related stack keywords
+    const whereClauses: string[] = [];
+    const params: Record<string, string> = {
+      exactKeyword: `%${cleanKw}%`,
+    };
+
+    whereClauses.push('LOWER(job.title) LIKE :exactKeyword');
+    whereClauses.push('LOWER(job.description) LIKE :exactKeyword');
+    whereClauses.push('LOWER(CAST(job.skills AS text)) LIKE :exactKeyword');
+    whereClauses.push('LOWER(company.name) LIKE :exactKeyword');
+
+    relatedTokens.forEach((token, idx) => {
+      const pName = `tok_${idx}`;
+      params[pName] = `%${token}%`;
+      whereClauses.push(`LOWER(job.title) LIKE :${pName}`);
+      whereClauses.push(`LOWER(job.description) LIKE :${pName}`);
+      whereClauses.push(`LOWER(CAST(job.skills AS text)) LIKE :${pName}`);
+    });
+
+    qb.andWhere(`(${whereClauses.join(' OR ')})`, params);
+
+    // Tiered Classification:
+    // Tier 1 (Score 10): Direct Exact Match (Title or Skills)
+    // Tier 2 (Score 5):  Exact match in Description or Company
+    // Tier 3 (Score 1):  Related Stack Synonym (e.g. React/Node for MERN)
+    // Within each Tier, the LATEST jobs (newest createdAt) ALWAYS come first!
+    const exactCondition = `(LOWER(job.title) LIKE :exactKeyword OR LOWER(CAST(job.skills AS text)) LIKE :exactKeyword)`;
+    const secondaryCondition = `(LOWER(job.description) LIKE :exactKeyword OR LOWER(company.name) LIKE :exactKeyword)`;
+
+    const tierSql = `(
+      CASE 
+        WHEN ${exactCondition} THEN 10
+        WHEN ${secondaryCondition} THEN 5
+        ELSE 1
+      END
+    )`;
+
+    qb.addSelect(tierSql, 'relevance_tier');
+    qb.orderBy('relevance_tier', 'DESC');
+    qb.addOrderBy('job.createdAt', 'DESC');
+
     return qb.getMany();
   }
 
