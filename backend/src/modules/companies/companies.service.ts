@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Company } from './company.entity.js';
 import { EmployerProfile } from '../users/employer-profile.entity.js';
 import { Job, JobStatus } from '../jobs/job.entity.js';
@@ -17,9 +17,13 @@ export class CompaniesService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const count = await this.companiesRepository.count();
-    if (count === 0) {
-      await this.seedInitialCompanies();
+    try {
+      const count = await this.companiesRepository.count();
+      if (count === 0) {
+        await this.seedInitialCompanies();
+      }
+    } catch (err) {
+      console.warn('Notice: Companies initial seed skipped or encountered error (safe to ignore):', err);
     }
   }
 
@@ -99,12 +103,16 @@ export class CompaniesService implements OnModuleInit {
 
       // Link any unassigned jobs to TechCorp
       if (saved.slug === 'techcorp') {
-        const unassignedJobs = await this.jobsRepository.find({
-          where: { company: null as any },
-        });
-        for (const job of unassignedJobs) {
-          job.company = saved;
-          await this.jobsRepository.save(job);
+        try {
+          const unassignedJobs = await this.jobsRepository.find({
+            where: { company: IsNull() },
+          });
+          for (const job of unassignedJobs) {
+            job.company = saved;
+            await this.jobsRepository.save(job);
+          }
+        } catch (err) {
+          console.warn('Notice: Could not link unassigned jobs during seed (safe to ignore):', err);
         }
       }
     }
