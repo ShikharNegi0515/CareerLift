@@ -14,7 +14,7 @@ export class CompaniesService implements OnModuleInit {
     private employerProfileRepository: Repository<EmployerProfile>,
     @InjectRepository(Job)
     private jobsRepository: Repository<Job>,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     try {
@@ -171,7 +171,7 @@ export class CompaniesService implements OnModuleInit {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
 
     const qb = this.companiesRepository.createQueryBuilder('company');
-    
+
     if (isUuid) {
       qb.where('company.id = :slugOrId', { slugOrId });
     } else {
@@ -213,7 +213,7 @@ export class CompaniesService implements OnModuleInit {
     });
 
     const savedCompany = await this.companiesRepository.save(company);
-    
+
     profile.company = savedCompany;
     await this.employerProfileRepository.save(profile);
 

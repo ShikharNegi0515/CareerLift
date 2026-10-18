@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../auth/user.entity.js';
+import { User, UserRole } from '../auth/user.entity.js';
 import { Job } from '../jobs/job.entity.js';
 import { Company } from '../companies/company.entity.js';
 import { Application } from '../applications/application.entity.js';
@@ -59,9 +59,25 @@ export class AdminService {
     });
   }
 
-  async updateUserRole(id: string, role: any) {
+  async updateUserRole(id: string, role: any, currentUserId?: string) {
+    if (!Object.values(UserRole).includes(role)) {
+      throw new BadRequestException(`Invalid role: ${role}`);
+    }
+
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
+
+    if (currentUserId && currentUserId === id && role !== UserRole.ADMIN) {
+      throw new BadRequestException('You cannot demote yourself from Admin.');
+    }
+
+    if (user.role === UserRole.ADMIN && role !== UserRole.ADMIN) {
+      const adminCount = await this.usersRepo.count({ where: { role: UserRole.ADMIN } });
+      if (adminCount <= 1) {
+        throw new BadRequestException('Cannot demote the last remaining admin in the system.');
+      }
+    }
+
     user.role = role;
     return this.usersRepo.save(user);
   }

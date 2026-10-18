@@ -28,7 +28,7 @@ export class AdminController {
   @Put('users/:id/role')
   async updateUserRole(@Req() req: any, @Param('id') id: string, @Body('role') role: string) {
     this.checkAdmin(req);
-    return this.adminService.updateUserRole(id, role);
+    return this.adminService.updateUserRole(id, role, req.user?.id);
   }
 
   @Get('jobs')

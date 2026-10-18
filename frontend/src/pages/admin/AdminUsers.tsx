@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 import { UserRole } from '@/types';
 import api from '@/api/client';
+import { useAuth } from '@/store/auth';
 
 interface UserItem {
   id: string;
@@ -14,6 +15,7 @@ interface UserItem {
 }
 
 export default function AdminUsers() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -37,11 +39,18 @@ export default function AdminUsers() {
   };
 
   const handleRoleChange = async (id: string, newRole: string) => {
+    if (currentUser?.id === id && newRole !== UserRole.ADMIN) {
+      alert('You cannot demote yourself from Admin.');
+      return;
+    }
+
     try {
       setUpdatingId(id);
       await api.put(`/admin/users/${id}/role`, { role: newRole });
       setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: newRole as UserRole } : u)));
-    } catch (err) {
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Failed to update user role';
+      alert(message);
       console.error('Failed to update user role', err);
     } finally {
       setUpdatingId(null);
@@ -117,17 +126,23 @@ export default function AdminUsers() {
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <select
-                      className="form-control"
-                      style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', width: 'auto' }}
-                      value={u.role}
-                      disabled={updatingId === u.id}
-                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                    >
-                      <option value={UserRole.JOB_SEEKER}>Job Seeker</option>
-                      <option value={UserRole.EMPLOYER}>Employer</option>
-                      <option value={UserRole.ADMIN}>Admin</option>
-                    </select>
+                    {currentUser?.id === u.id ? (
+                      <span style={{ fontSize: '0.8rem', color: '#6c757d', fontStyle: 'italic' }}>
+                        Current User (Admin)
+                      </span>
+                    ) : (
+                      <select
+                        className="form-control"
+                        style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+                        value={u.role}
+                        disabled={updatingId === u.id}
+                        onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                      >
+                        <option value={UserRole.JOB_SEEKER}>Job Seeker</option>
+                        <option value={UserRole.EMPLOYER}>Employer</option>
+                        <option value={UserRole.ADMIN}>Admin</option>
+                      </select>
+                    )}
                   </td>
                 </tr>
               ))}
