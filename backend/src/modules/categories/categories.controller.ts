@@ -36,7 +36,7 @@ export class CategoriesController {
     @Req() req: any,
     @Body() body: { name: string; slug?: string; icon?: string; description?: string },
   ) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can create categories');
     }
     return this.categoriesService.create(body);
@@ -49,7 +49,7 @@ export class CategoriesController {
     @Param('id') id: string,
     @Body() body: { name?: string; slug?: string; icon?: string; description?: string },
   ) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can update categories');
     }
     return this.categoriesService.update(id, body);
@@ -58,7 +58,7 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Req() req: any, @Param('id') id: string) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can delete categories');
     }
     return this.categoriesService.remove(id);

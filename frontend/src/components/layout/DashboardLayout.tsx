@@ -168,8 +168,9 @@ export default function DashboardLayout({ role }: Props) {
   const [mobileOpen, setMo] = useState(false);
 
   const navItems  = role === 'seeker' ? seekerNav : role === 'employer' ? employerNav : adminNav;
-  const roleLabel = role === 'seeker' ? 'Job Seeker' : role === 'employer' ? 'Employer' : 'Admin';
-  const roleColor = role === 'admin' ? '#dc2626' : role === 'employer' ? '#16a34a' : '#2563eb';
+  const isSuperAdmin = user?.role === 'super_admin';
+  const roleLabel = role === 'seeker' ? 'Job Seeker' : role === 'employer' ? 'Employer' : isSuperAdmin ? 'Super Admin' : 'Admin';
+  const roleColor = isSuperAdmin ? '#6f42c1' : role === 'admin' ? '#dc2626' : role === 'employer' ? '#16a34a' : '#2563eb';
   const logout_  = async () => { await logout(); navigate('/'); };
 
   return (

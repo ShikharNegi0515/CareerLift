@@ -17,7 +17,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const dashboardPath =
-    user?.role === UserRole.ADMIN
+    user?.role === UserRole.ADMIN || user?.role === UserRole.SUPER_ADMIN
       ? '/admin'
       : user?.role === UserRole.EMPLOYER
       ? '/employer'

@@ -128,9 +128,9 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} <strong className="text-white">CareerLift Inc.</strong> All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            <Link to="/about" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <span>&bull;</span>
-            <Link to="/about" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             <span>&bull;</span>
             <Link to="/contact" className="hover:text-white transition-colors">Support</Link>
           </div>

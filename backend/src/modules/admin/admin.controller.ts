@@ -8,8 +8,14 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   private checkAdmin(req: any) {
-    if (req.user?.role !== 'admin') {
-      throw new UnauthorizedException('Access denied. Admin role required.');
+    if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
+      throw new UnauthorizedException('Access denied. Admin or Super Admin role required.');
+    }
+  }
+
+  private checkSuperAdmin(req: any) {
+    if (req.user?.role !== 'super_admin') {
+      throw new UnauthorizedException('Access denied. Only Super Admin can perform this action.');
     }
   }
 
@@ -27,7 +33,7 @@ export class AdminController {
 
   @Put('users/:id/role')
   async updateUserRole(@Req() req: any, @Param('id') id: string, @Body('role') role: string) {
-    this.checkAdmin(req);
+    this.checkSuperAdmin(req);
     return this.adminService.updateUserRole(id, role, req.user?.id);
   }
 

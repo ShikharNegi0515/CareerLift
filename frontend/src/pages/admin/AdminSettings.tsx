@@ -77,7 +77,15 @@ export default function AdminSettings() {
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <p style={{ fontSize: '0.8125rem', color: '#6c757d', marginBottom: 2 }}>Access Level</p>
-            <span className="job-badge" style={{ background: '#6f42c1', color: '#fff' }}>Super Admin</span>
+            <span
+              className="job-badge"
+              style={{
+                background: user?.role === 'super_admin' ? '#6f42c1' : '#dc3545',
+                color: '#fff',
+              }}
+            >
+              {user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+            </span>
           </div>
           <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center' }}>Change Password</button>
         </div>

@@ -16,6 +16,8 @@ import BlogPage from '@/pages/public/BlogPage';
 import BlogPostPage from '@/pages/public/BlogPostPage';
 import AboutPage from '@/pages/public/AboutPage';
 import ContactPage from '@/pages/public/ContactPage';
+import PrivacyPolicyPage from '@/pages/public/PrivacyPolicyPage';
+import TermsPage from '@/pages/public/TermsPage';
 import NotFoundPage from '@/pages/public/NotFoundPage';
 
 // Auth pages
@@ -105,6 +107,8 @@ export default function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route
           path="/login"
           element={<GuestOnly><LoginPage /></GuestOnly>}
@@ -177,7 +181,7 @@ export default function AppRoutes() {
       <Route
         path="/admin"
         element={
-          <RequireAuth roles={[UserRole.ADMIN]}>
+          <RequireAuth roles={[UserRole.ADMIN, UserRole.SUPER_ADMIN]}>
             <DashboardLayout role="admin" />
           </RequireAuth>
         }

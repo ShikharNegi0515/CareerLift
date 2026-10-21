@@ -44,7 +44,7 @@ export class SupportController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAllTickets(@Req() req: any, @Query('status') status?: string) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can view all support tickets');
     }
     return this.supportService.findAll(status);
@@ -58,7 +58,7 @@ export class SupportController {
     @Param('id') id: string,
     @Body() body: { status: TicketStatus; adminReply?: string },
   ) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can update support tickets');
     }
     return this.supportService.updateStatus(id, body.status, body.adminReply);

@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/store/auth';
 import {
   Briefcase, Mail, Lock, Eye, EyeOff, User, AlertCircle, Loader2,
-  Briefcase as BriefcaseIcon, Search, Building2, Globe, FileCheck2,
+  Briefcase as BriefcaseIcon, Search, Building2, Globe,
   ShieldCheck, MapPin, Users, Sparkles, CheckCircle2
 } from 'lucide-react';
 import { UserRole } from '@/types';
@@ -32,7 +32,6 @@ export default function RegisterPage() {
   const [companyName, setCompanyName] = useState(paramCompany);
   const [jobTitle, setJobTitle] = useState('');
   const [companyWebsite, setCompanyWebsite] = useState('');
-  const [registrationNumber, setRegistrationNumber] = useState('');
   const [industry, setIndustry] = useState('Technology & Software');
   const [companySize, setCompanySize] = useState('11-50 employees');
   const [location, setLocation] = useState('');
@@ -80,10 +79,6 @@ export default function RegisterPage() {
         setError('Official company website URL is required.');
         return;
       }
-      if (!registrationNumber.trim()) {
-        setError('Business registration number (CIN / Tax ID / Reg #) is required for employer validity.');
-        return;
-      }
       if (!location.trim()) {
         setError('Company headquarters or primary location is required.');
         return;
@@ -103,7 +98,6 @@ export default function RegisterPage() {
           companyName: companyName.trim(),
           jobTitle: jobTitle.trim(),
           companyWebsite: companyWebsite.trim(),
-          registrationNumber: registrationNumber.trim(),
           industry,
           companySize,
           location: location.trim(),
@@ -318,38 +312,19 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
-                  <div className="form-group" style={{ marginBottom: '0.85rem' }}>
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Company Website *</label>
-                    <div style={{ position: 'relative' }}>
-                      <Globe size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-                      <input
-                        type="url"
-                        className="form-control"
-                        style={{ paddingLeft: 34, fontSize: '0.875rem' }}
-                        placeholder="https://acmecorp.com"
-                        value={companyWebsite}
-                        onChange={(e) => setCompanyWebsite(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group" style={{ marginBottom: '0.85rem' }}>
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>
-                      Registration / Tax ID / CIN *
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <FileCheck2 size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
-                      <input
-                        className="form-control"
-                        style={{ paddingLeft: 34, fontSize: '0.875rem' }}
-                        placeholder="e.g. EIN 12-3456789 or CIN / Reg #"
-                        value={registrationNumber}
-                        onChange={(e) => setRegistrationNumber(e.target.value)}
-                        required
-                      />
-                    </div>
+                <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+                  <label className="form-label" style={{ fontSize: '0.8rem' }}>Company Website *</label>
+                  <div style={{ position: 'relative' }}>
+                    <Globe size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#adb5bd' }} />
+                    <input
+                      type="url"
+                      className="form-control"
+                      style={{ paddingLeft: 34, fontSize: '0.875rem' }}
+                      placeholder="https://acmecorp.com"
+                      value={companyWebsite}
+                      onChange={(e) => setCompanyWebsite(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 

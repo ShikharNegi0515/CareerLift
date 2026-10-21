@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Calendar, Clock, User, Tag, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/api/client';
+import { AdSenseBanner } from '@/components/common/AdSenseBanner';
 
 interface BlogPost {
   id: string;
@@ -115,6 +116,9 @@ export default function BlogPostPage() {
             >
               {post.content}
             </div>
+
+            {/* Ad Placement: Bottom of Article */}
+            <AdSenseBanner slot="blog_post_bottom" className="my-6" />
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (

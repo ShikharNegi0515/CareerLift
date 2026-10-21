@@ -67,15 +67,19 @@ export class AdminService {
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
-    if (currentUserId && currentUserId === id && role !== UserRole.ADMIN) {
-      throw new BadRequestException('You cannot demote yourself from Admin.');
+    if (user.role === UserRole.SUPER_ADMIN && role !== UserRole.SUPER_ADMIN) {
+      throw new BadRequestException('The Super Admin role cannot be modified or demoted.');
     }
 
-    if (user.role === UserRole.ADMIN && role !== UserRole.ADMIN) {
-      const adminCount = await this.usersRepo.count({ where: { role: UserRole.ADMIN } });
-      if (adminCount <= 1) {
-        throw new BadRequestException('Cannot demote the last remaining admin in the system.');
+    if (role === UserRole.SUPER_ADMIN && user.role !== UserRole.SUPER_ADMIN) {
+      const superAdminCount = await this.usersRepo.count({ where: { role: UserRole.SUPER_ADMIN } });
+      if (superAdminCount >= 1) {
+        throw new BadRequestException('There can only be one Super Admin in the system.');
       }
+    }
+
+    if (currentUserId && currentUserId === id && role !== user.role) {
+      throw new BadRequestException('You cannot change your own role.');
     }
 
     user.role = role;

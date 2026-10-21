@@ -29,7 +29,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Get('admin/all')
   async getAllForAdmin(@Req() req: any, @Query('status') status?: string) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can access all posts');
     }
     return this.blogService.findAll(status);
@@ -44,7 +44,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Req() req: any, @Body() body: any) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can publish blog posts');
     }
     return this.blogService.create({
@@ -56,7 +56,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can update blog posts');
     }
     return this.blogService.update(id, body);
@@ -65,7 +65,7 @@ export class BlogController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Req() req: any, @Param('id') id: string) {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       throw new UnauthorizedException('Only administrators can delete blog posts');
     }
     return this.blogService.remove(id);

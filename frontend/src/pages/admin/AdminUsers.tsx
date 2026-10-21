@@ -38,9 +38,16 @@ export default function AdminUsers() {
     }
   };
 
+  const isSuperAdmin = currentUser?.role === UserRole.SUPER_ADMIN;
+
   const handleRoleChange = async (id: string, newRole: string) => {
-    if (currentUser?.id === id && newRole !== UserRole.ADMIN) {
-      alert('You cannot demote yourself from Admin.');
+    if (!isSuperAdmin) {
+      alert('Only the Super Admin has permission to modify user roles.');
+      return;
+    }
+
+    if (currentUser?.id === id) {
+      alert('You cannot change your own role.');
       return;
     }
 
@@ -78,7 +85,10 @@ export default function AdminUsers() {
     <div className="animate-fadeIn">
       <div style={{ marginBottom: '1.75rem' }}>
         <h1 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#212529', marginBottom: '0.25rem' }}>User Management</h1>
-        <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>View, filter, and manage user roles across CareerLift.</p>
+        <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>
+          View, filter, and manage user roles across CareerLift.
+          {!isSuperAdmin && ' (Role changes are reserved for Super Admin)'}
+        </p>
       </div>
 
       <div className="card">
@@ -88,7 +98,7 @@ export default function AdminUsers() {
             <input className="form-control" style={{ paddingLeft: 32 }} placeholder="Search users by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-            {['All', UserRole.JOB_SEEKER, UserRole.EMPLOYER, UserRole.ADMIN].map((r) => (
+            {['All', UserRole.JOB_SEEKER, UserRole.EMPLOYER, UserRole.ADMIN, UserRole.SUPER_ADMIN].map((r) => (
               <button key={r} onClick={() => setRoleFilter(r)} style={{ padding: '0.375rem 0.75rem', borderRadius: 9999, border: '1.5px solid', fontSize: '0.8125rem', cursor: 'pointer', fontWeight: 500, borderColor: roleFilter === r ? '#0d6efd' : '#dee2e6', background: roleFilter === r ? '#e8f0fe' : '#fff', color: roleFilter === r ? '#0d6efd' : '#6c757d' }}>
                 {r.replace('_', ' ')}
               </button>
@@ -100,7 +110,7 @@ export default function AdminUsers() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e9ecef' }}>
-                {['User', 'Role', 'Email Verified', 'Joined', 'Change Role'].map((h) => (
+                {['User', 'Role', 'Email Verified', 'Joined', 'Role Management'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.75rem', color: '#6c757d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -113,8 +123,11 @@ export default function AdminUsers() {
                     <p style={{ fontSize: '0.75rem', color: '#6c757d' }}>{u.email}</p>
                   </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    <span className="job-badge" style={{ background: u.role === UserRole.ADMIN ? '#6f42c1' : u.role === UserRole.EMPLOYER ? '#fd7e14' : '#0d6efd', color: '#fff' }}>
-                      {u.role.replace('_', ' ')}
+                    <span className="job-badge" style={{
+                      background: u.role === UserRole.SUPER_ADMIN ? '#6f42c1' : u.role === UserRole.ADMIN ? '#dc3545' : u.role === UserRole.EMPLOYER ? '#fd7e14' : '#0d6efd',
+                      color: '#fff',
+                    }}>
+                      {u.role === UserRole.SUPER_ADMIN ? 'Super Admin' : u.role.replace('_', ' ')}
                     </span>
                   </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
@@ -126,9 +139,17 @@ export default function AdminUsers() {
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>
                   <td style={{ padding: '0.875rem 0.5rem' }}>
-                    {currentUser?.id === u.id ? (
+                    {u.role === UserRole.SUPER_ADMIN ? (
+                      <span style={{ fontSize: '0.8rem', color: '#6f42c1', fontWeight: 600 }}>
+                        Super Admin (Fixed)
+                      </span>
+                    ) : !isSuperAdmin ? (
                       <span style={{ fontSize: '0.8rem', color: '#6c757d', fontStyle: 'italic' }}>
-                        Current User (Admin)
+                        Restricted
+                      </span>
+                    ) : currentUser?.id === u.id ? (
+                      <span style={{ fontSize: '0.8rem', color: '#6c757d', fontStyle: 'italic' }}>
+                        Current User
                       </span>
                     ) : (
                       <select
