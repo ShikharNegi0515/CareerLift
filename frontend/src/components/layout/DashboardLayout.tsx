@@ -60,9 +60,9 @@ function SidebarContent({
       }}>
         <div style={{
           width: 32, height: 32, borderRadius: 9,
-          background: 'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+          background: 'linear-gradient(135deg,#00a7b5,#008b97)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0, boxShadow: '0 2px 6px rgba(59,130,246,0.3)',
+          flexShrink: 0, boxShadow: '0 2px 6px rgba(0,167,181,0.3)',
         }}>
           <Briefcase size={15} color="#fff" strokeWidth={2.2} />
         </div>
@@ -71,7 +71,7 @@ function SidebarContent({
             fontWeight: 800, fontSize: '1.075rem',
             color: '#111827', letterSpacing: '-0.5px',
           }}>
-            Career<span style={{ color: '#3b82f6' }}>Lift</span>
+            Career<span style={{ color: '#00a7b5' }}>Lift</span>
           </span>
         </Link>
       </div>
@@ -86,11 +86,11 @@ function SidebarContent({
         }}>
           <div style={{
             width: 38, height: 38, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+            background: 'linear-gradient(135deg,#00a7b5,#008b97)',
             color: '#fff', fontWeight: 700, fontSize: '0.8125rem',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, letterSpacing: '-0.3px',
-            boxShadow: '0 2px 6px rgba(59,130,246,0.25)',
+            boxShadow: '0 2px 6px rgba(0,167,181,0.25)',
           }}>
             {user.firstName?.[0]}{user.lastName?.[0]}
           </div>
@@ -123,7 +123,7 @@ function SidebarContent({
                 style={{
                   display: 'flex', alignItems: 'center', gap: 11,
                   padding: '9px 12px', marginBottom: 2, borderRadius: 8,
-                  background: isActive ? '#2563eb' : 'transparent',
+                  background: isActive ? '#00a7b5' : 'transparent',
                   color: isActive ? '#fff' : '#6b7280',
                   fontSize: '0.855rem', fontWeight: isActive ? 600 : 400,
                   cursor: 'pointer', transition: 'all 0.12s ease',
@@ -170,7 +170,7 @@ export default function DashboardLayout({ role }: Props) {
   const navItems  = role === 'seeker' ? seekerNav : role === 'employer' ? employerNav : adminNav;
   const isSuperAdmin = user?.role === 'super_admin';
   const roleLabel = role === 'seeker' ? 'Job Seeker' : role === 'employer' ? 'Employer' : isSuperAdmin ? 'Super Admin' : 'Admin';
-  const roleColor = isSuperAdmin ? '#6f42c1' : role === 'admin' ? '#dc2626' : role === 'employer' ? '#16a34a' : '#2563eb';
+  const roleColor = isSuperAdmin ? '#6f42c1' : role === 'admin' ? '#dc2626' : role === 'employer' ? '#16a34a' : '#00a7b5';
   const logout_  = async () => { await logout(); navigate('/'); };
 
   return (
@@ -244,17 +244,17 @@ export default function DashboardLayout({ role }: Props) {
               style={{ fontSize:'0.8125rem',fontWeight:500,color:'#6b7280',textDecoration:'none',
                 padding:'5px 13px',borderRadius:7,border:'1.5px solid #e5e7eb',background:'#fff',
                 transition:'all 0.12s',fontFamily:'inherit' }}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor='#3b82f6';e.currentTarget.style.color='#3b82f6';e.currentTarget.style.background='#eff6ff';}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='#00a7b5';e.currentTarget.style.color='#00a7b5';e.currentTarget.style.background='#e6f7f8';}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor='#e5e7eb';e.currentTarget.style.color='#6b7280';e.currentTarget.style.background='#fff';}}>
               ← View Site
             </Link>
             <div style={{
               width:34,height:34,borderRadius:'50%',
-              background:'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+              background:'linear-gradient(135deg,#00a7b5,#008b97)',
               color:'#fff',fontWeight:700,fontSize:'0.8rem',
               display:'flex',alignItems:'center',justifyContent:'center',
               flexShrink:0,cursor:'pointer',
-              boxShadow:'0 2px 6px rgba(59,130,246,0.3)',
+              boxShadow:'0 2px 6px rgba(0,167,181,0.25)',
               letterSpacing:'-0.3px',
             }}>
               {user?.firstName?.[0]}{user?.lastName?.[0]}

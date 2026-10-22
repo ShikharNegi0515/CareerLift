@@ -52,11 +52,7 @@ export default function HomePage() {
   const [location, setLocation] = useState('');
   const [experienceText, setExperienceText] = useState('');
 
-  const postJobPath = !isAuthenticated
-    ? '/register'
-    : user?.role === UserRole.EMPLOYER
-    ? '/employer/jobs/new'
-    : '/dashboard';
+  const postJobPath = !isAuthenticated ? '/register' : user?.role === UserRole.EMPLOYER ? '/employer/jobs/new' : '/dashboard';
 
   useEffect(() => {
     api.get('/jobs')
@@ -66,58 +62,84 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      {/* ── DAYLIGHT HERO ─────────────────────────────────────────── */}
       <section className="hero-section">
-        <div className="hero-overlay" />
-        <div className="container hero-content py-20 animate-fadeInUp">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold mb-6">
-            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-            The #1 Platform for Top Engineering & Product Roles
+        <div className="container hero-content py-36 animate-fadeInUp">
+          {/* Kicker badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-bold uppercase tracking-widest"
+            style={{ background: 'rgba(0,167,181,0.18)', border: '1px solid rgba(0,167,181,0.4)', color: '#34e2e4' }}>
+            <span className="w-2 h-2 rounded-full bg-[#34e2e4] animate-pulse" />
+            #1 Platform for Engineering &amp; Product Roles
           </div>
+
+          {/* Main headline */}
           <h1 className="hero-title">
-            Discover Opportunities at <br />
-            <span className="text-blue-600">World-Class Companies</span>
+            Find Jobs That<br />
+            <span style={{ background: 'linear-gradient(135deg, #ffffff 10%, #34e2e4 70%, #00a7b5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Actually Match You</span>
           </h1>
+
+          {/* Subtitle */}
           <p className="hero-subtitle">
-            Connect directly with verified employers and fast-track your career with AI-driven job matching and instant hiring workflows.
+            Connect directly with hiring managers at world-class companies.
+            AI-powered matching, real-time pipeline tracking, zero ghosting.
           </p>
 
-          {/* Search bar inside Hero container */}
+          {/* Search bar — clean white on hero */}
           <div className="search-bar mt-8">
             <form
-              onSubmit={(e) => { 
-                e.preventDefault(); 
+              onSubmit={(e) => {
+                e.preventDefault();
                 const params = new URLSearchParams();
                 if (keyword) params.set('keyword', keyword);
                 if (location) params.set('location', location);
                 if (experienceText) params.set('experienceText', experienceText);
-                window.location.href = `/jobs?${params.toString()}`; 
+                window.location.href = `/jobs?${params.toString()}`;
               }}
-              className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center"
+              className="grid grid-cols-1 md:grid-cols-4 gap-2 items-center"
             >
               <div className="relative">
-                <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input className="search-input" placeholder="Role, skill, or keyword..." style={{ paddingLeft: 40 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+                <Search size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="search-input"
+                  placeholder="Role, skill, or keyword..."
+                  style={{ paddingLeft: 40 }}
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                />
               </div>
               <div className="relative">
-                <MapPin size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input className="search-input" placeholder="Location or 'Remote'..." style={{ paddingLeft: 40 }} value={location} onChange={(e) => setLocation(e.target.value)} />
+                <MapPin size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="search-input"
+                  placeholder="Location or 'Remote'..."
+                  style={{ paddingLeft: 40 }}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
               </div>
               <div className="relative">
-                <Briefcase size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input className="search-input" placeholder="Experience level..." style={{ paddingLeft: 40 }} value={experienceText} onChange={(e) => setExperienceText(e.target.value)} />
+                <Briefcase size={17} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="search-input"
+                  placeholder="Experience level..."
+                  style={{ paddingLeft: 40 }}
+                  value={experienceText}
+                  onChange={(e) => setExperienceText(e.target.value)}
+                />
               </div>
-              <button type="submit" className="btn btn-primary btn-lg w-full">
-                Find Jobs
+              <button type="submit" className="btn btn-primary btn-lg w-full" style={{ background: 'linear-gradient(135deg, #00a7b5 0%, #008b97 100%)', border: 'none', boxShadow: '0 4px 20px rgba(0,167,181,0.45)' }}>
+                <Search size={17} /> Find Jobs
               </button>
             </form>
-            <div className="flex items-center gap-2 mt-4 flex-wrap text-xs text-slate-500">
-              <span className="font-semibold text-slate-700">Trending Searches:</span>
+
+            {/* Trending pills */}
+            <div className="flex items-center gap-2 mt-3 px-1 flex-wrap">
+              <span className="text-xs text-slate-400 font-semibold">Trending:</span>
               {['Frontend Engineer', 'Product Designer', 'Data Scientist', 'Remote'].map((kw) => (
                 <Link
                   key={kw}
                   to={`/jobs?keyword=${kw}`}
-                  className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-600 transition-colors"
+                  className="text-xs px-3 py-1 rounded-full text-slate-600 hover:text-[#00a7b5] hover:bg-[#e6f7f8] transition-all border border-slate-200 font-medium"
                 >
                   {kw}
                 </Link>
@@ -125,51 +147,49 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Role-Specific Hero Action Bar */}
+          {/* Role-Specific Action Bar */}
           {isAuthenticated && user?.role === UserRole.EMPLOYER ? (
-            <div className="mt-8 p-4 bg-blue-50/80 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-8 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4"
+              style={{ background: 'rgba(0,167,181,0.15)', border: '1px solid rgba(0,167,181,0.35)' }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shrink-0 shadow-md shadow-blue-500/20">
+                <div className="w-10 h-10 rounded-xl bg-[#00a7b5]/25 text-[#34e2e4] flex items-center justify-center font-bold shrink-0">
                   <Briefcase size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Hiring for your team?</h3>
-                  <p className="text-xs text-slate-600">Publish open positions directly to 2.5M+ active pre-vetted candidates.</p>
+                  <h3 className="font-bold text-white text-sm">Hiring for your team?</h3>
+                  <p className="text-xs text-white/70">Reach 2.5M+ pre-vetted candidates instantly.</p>
                 </div>
               </div>
-              <Link
-                to="/employer/jobs/new"
-                className="btn btn-primary btn-sm flex items-center gap-2 shadow-sm whitespace-nowrap self-stretch sm:self-auto justify-center"
-              >
-                <PlusCircle size={15} /> Post a Job Now
+              <Link to="/employer/jobs/new" className="btn btn-primary btn-sm flex items-center gap-2 whitespace-nowrap shadow-sm shadow-teal-500/25">
+                <PlusCircle size={15} /> Post a Job
               </Link>
             </div>
           ) : !isAuthenticated ? (
-            <div className="mt-6 flex items-center gap-3 text-xs text-slate-600">
-              <span>Are you hiring?</span>
+            <div className="mt-7 flex items-center gap-3 text-sm">
+              <span className="text-white/60">Employer?</span>
               <Link
                 to="/register?role=employer"
-                className="font-bold text-blue-600 hover:text-blue-700 underline underline-offset-2 flex items-center gap-1"
+                className="font-semibold text-[#34e2e4] hover:text-white flex items-center gap-1 transition-colors"
               >
-                Post a job as an Employer <ChevronRight size={13} />
+                Post a job free <ChevronRight size={14} />
               </Link>
             </div>
           ) : null}
 
-          <div className="flex items-center gap-6 mt-8 flex-wrap">
+          {/* Trust strip */}
+          <div className="flex items-center gap-5 mt-10 flex-wrap">
             {[
-              'Zero hidden fees',
-              '100% verified companies',
-              'Direct hiring manager access',
-            ].map((item) => (
-              <span key={item} className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                <CheckCircle size={16} className="text-emerald-500" /> {item}
+              { icon: CheckCircle, text: 'Zero hidden fees' },
+              { icon: ShieldCheck, text: '100% verified companies' },
+              { icon: Users, text: '2.5M+ job seekers' },
+            ].map(({ icon: Icon, text }) => (
+              <span key={text} className="flex items-center gap-2 text-sm font-medium text-white/70">
+                <Icon size={15} className="text-emerald-400" /> {text}
               </span>
             ))}
           </div>
         </div>
       </section>
-
       {/* ── Section 1: Social Proof & Metrics ───────────────────────────────────── */}
       <section className="bg-white border-y border-slate-200/80 py-14">
         <div className="container">
@@ -316,8 +336,8 @@ export default function HomePage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 border-t border-slate-100">
             {[
-              { number: '50,000+', label: 'Active Jobs', color: 'text-blue-600' },
-              { number: '120,000+', label: 'Registered Companies', color: 'text-violet-600' },
+              { number: '50,000+', label: 'Active Jobs', color: 'text-[#00a7b5]' },
+              { number: '120,000+', label: 'Registered Companies', color: 'text-slate-800' },
               { number: '2.5M+', label: 'Job Seekers', color: 'text-emerald-600' },
               { number: '94%', label: 'Success Rate', color: 'text-amber-600' },
             ].map((s) => (
@@ -330,17 +350,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Section 2: Split Showcase - "How CareerLift Works for Job Seekers" (BeginDaily / LinkedIn Style) ─── */}
+      {/* ── Section 2: Split Showcase - "How CareerLift Works for Job Seekers" (MediaNV Style) ─── */}
       <section className="py-24 bg-slate-50/70 border-b border-slate-200/80">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Copy */}
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#e6f7f8] text-[#008b97] border border-[#b2e9ec] text-xs font-bold uppercase tracking-wider mb-4">
                 For Job Seekers
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-5">
-                Apply in seconds. Track every stage with total transparency.
+                <span className="text-[#00a7b5]">Apply in seconds.</span> Track every stage with total transparency.
               </h2>
               <p className="text-slate-600 text-base leading-relaxed mb-8">
                 Say goodbye to ghosting. CareerLift offers direct access to hiring managers, real-time application status updates, and automated interview scheduling.
@@ -365,7 +385,7 @@ export default function HomePage() {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-[#e6f7f8] text-[#00a7b5] flex items-center justify-center shrink-0">
                       <item.icon size={20} />
                     </div>
                     <div>
@@ -377,7 +397,7 @@ export default function HomePage() {
               </div>
 
               <div className="mt-8">
-                <Link to="/jobs" className="btn btn-primary btn-lg shadow-md shadow-blue-500/20">
+                <Link to="/jobs" className="btn btn-primary btn-lg shadow-md shadow-teal-500/25">
                   Explore Active Openings <ArrowRight size={18} />
                 </Link>
               </div>
@@ -397,11 +417,11 @@ export default function HomePage() {
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-xl">
                   <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-2.5">
                     <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-500">
-                      <span className="text-blue-600">APP-STAGE</span>
+                      <span className="text-[#00a7b5]">APP-STAGE</span>
                       <span>/</span>
                       <span className="text-slate-900">APPLICATION #8492</span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#e6f7f8] text-[#008b97] border border-[#b2e9ec]">
                       Interview Scheduled
                     </span>
                   </div>
@@ -411,21 +431,21 @@ export default function HomePage() {
                       <h5 className="font-bold text-xs text-slate-900">Staff Frontend Engineer</h5>
                       <p className="text-[11px] text-slate-500">Stripe &bull; San Francisco (Remote)</p>
                     </div>
-                    <span className="font-mono text-xs font-bold text-blue-600">$165k - $195k</span>
+                    <span className="font-mono text-xs font-bold text-[#00a7b5]">$165k - $195k</span>
                   </div>
 
                   {/* Progress bar stages */}
                   <div className="grid grid-cols-4 gap-1.5 text-center text-[9px] font-bold mt-3">
-                    <div className="py-1 rounded bg-blue-600 text-white">Applied</div>
-                    <div className="py-1 rounded bg-blue-600 text-white">Review</div>
-                    <div className="py-1 rounded bg-blue-600 text-white">Interview</div>
+                    <div className="py-1 rounded bg-[#00a7b5] text-white">Applied</div>
+                    <div className="py-1 rounded bg-[#00a7b5] text-white">Review</div>
+                    <div className="py-1 rounded bg-[#00a7b5] text-white">Interview</div>
                     <div className="py-1 rounded bg-slate-100 text-slate-400">Offer</div>
                   </div>
                 </div>
               </div>
 
               {/* Decorative background blur glow */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl opacity-10 blur-xl -z-10"></div>
+              <div className="absolute -inset-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-3xl opacity-10 blur-xl -z-10"></div>
             </div>
           </div>
         </div>
@@ -436,7 +456,7 @@ export default function HomePage() {
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider mb-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#e6f7f8] text-[#008b97] border border-[#b2e9ec] text-xs font-bold uppercase tracking-wider mb-2">
                 Curated Opportunities
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -456,19 +476,19 @@ export default function HomePage() {
               <Link
                 key={job.id}
                 to={`/jobs/${job.id}`}
-                className="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow-xl transition-all flex flex-col justify-between"
+                className="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-[#00a7b5] hover:shadow-xl transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
+                    <span className="text-[10px] font-mono font-bold text-slate-400 group-hover:text-[#00a7b5] transition-colors uppercase tracking-tight">
                       JOB-{job.id.slice(0, 4).toUpperCase()}
                     </span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#e6f7f8] text-[#008b97] border border-[#b2e9ec]">
                       {job.type || 'Full Time'}
                     </span>
                   </div>
 
-                  <h3 className="font-extrabold text-base text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
+                  <h3 className="font-extrabold text-base text-slate-900 group-hover:text-[#00a7b5] transition-colors line-clamp-1 mb-1">
                     {job.title}
                   </h3>
                   <p className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-4">
@@ -489,7 +509,7 @@ export default function HomePage() {
 
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-[11px] text-slate-400 font-medium">Verified Employer</span>
-                  <span className="font-bold text-blue-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  <span className="font-bold text-[#00a7b5] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                     View & Apply <ChevronRight size={14} />
                   </span>
                 </div>
@@ -517,7 +537,7 @@ export default function HomePage() {
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-white/60 shadow-xl">
                   <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                      <span className="w-2 h-2 rounded-full bg-[#00a7b5]"></span>
                       <span className="text-[11px] font-mono font-bold text-slate-800 uppercase tracking-tight">HIRING PIPELINE &bull; CANDIDATES</span>
                     </div>
                     <span className="text-[10px] font-bold text-slate-400">Jira Board</span>
@@ -552,16 +572,16 @@ export default function HomePage() {
               </div>
 
               {/* Decorative background blur glow */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl opacity-10 blur-xl -z-10"></div>
+              <div className="absolute -inset-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-3xl opacity-10 blur-xl -z-10"></div>
             </div>
 
             {/* Right Copy */}
             <div className="order-1 lg:order-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#e6f7f8] text-[#008b97] border border-[#b2e9ec] text-xs font-bold uppercase tracking-wider mb-4">
                 For Employers & Recruiters
               </div>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-5">
-                Cut hiring cycles in half with Jira-grade candidate pipelines.
+                <span className="text-[#00a7b5]">Cut hiring cycles in half</span> with Jira-grade candidate pipelines.
               </h2>
               <p className="text-slate-600 text-base leading-relaxed mb-8">
                 Post positions in minutes, drag candidates between stages, download verified resumes, and schedule candidate calls in one unified portal.
@@ -583,7 +603,7 @@ export default function HomePage() {
                   },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-5 h-5 rounded-full bg-[#e6f7f8] text-[#00a7b5] flex items-center justify-center shrink-0 mt-0.5">
                       <CheckCircle size={13} />
                     </div>
                     <div>
@@ -616,7 +636,7 @@ export default function HomePage() {
       <section className="py-24 bg-white border-b border-slate-200/80">
         <div className="container">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-[11px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200/50">
+            <span className="text-[11px] font-bold text-[#008b97] uppercase tracking-widest bg-[#e6f7f8] px-3 py-1 rounded-md border border-[#b2e9ec]">
               Specialized Tracks
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
@@ -630,9 +650,9 @@ export default function HomePage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
             {categories.map((cat, idx) => {
               const colorSets = [
-                { bg: 'bg-blue-50', iconBg: 'bg-blue-600', hover: 'hover:border-blue-400', textHover: 'group-hover:text-blue-700' },
+                { bg: 'bg-[#e6f7f8]', iconBg: 'bg-[#00a7b5]', hover: 'hover:border-[#00a7b5]', textHover: 'group-hover:text-[#00a7b5]' },
                 { bg: 'bg-rose-50', iconBg: 'bg-rose-500', hover: 'hover:border-rose-400', textHover: 'group-hover:text-rose-700' },
-                { bg: 'bg-violet-50', iconBg: 'bg-violet-600', hover: 'hover:border-violet-400', textHover: 'group-hover:text-violet-700' },
+                { bg: 'bg-teal-50', iconBg: 'bg-[#008b97]', hover: 'hover:border-[#008b97]', textHover: 'group-hover:text-[#008b97]' },
                 { bg: 'bg-amber-50', iconBg: 'bg-amber-500', hover: 'hover:border-amber-400', textHover: 'group-hover:text-amber-700' },
                 { bg: 'bg-emerald-50', iconBg: 'bg-emerald-600', hover: 'hover:border-emerald-400', textHover: 'group-hover:text-emerald-700' },
                 { bg: 'bg-cyan-50', iconBg: 'bg-cyan-600', hover: 'hover:border-cyan-400', textHover: 'group-hover:text-cyan-700' },
@@ -662,45 +682,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Section 6: Testimonials (Dark Premium Quote Grid) ─────────────────── */}
-      <section className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}>
-        {/* Decorative dot grid */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
-        {/* Glow accents */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl"></div>
+      {/* ── Section 6: Testimonials (MediaNV Light) ─────────────────── */}
+      <section className="py-24 relative overflow-hidden" style={{ background: '#f4fafb' }}>
+        {/* Subtle teal tint circles */}
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#00a7b5]/5 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-[#10b981]/5 blur-3xl" />
 
         <div className="container relative z-10">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-[11px] font-bold text-blue-400 uppercase tracking-widest bg-blue-500/20 border border-blue-400/30 px-2.5 py-1 rounded-md">
+            <span className="text-[11px] font-bold text-[#008b97] uppercase tracking-widest bg-[#e6f7f8] border border-[#b2e9ec] px-3 py-1 rounded-full">
               Success Stories
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mt-3">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mt-4">
               Loved by Candidates &amp; Founders
             </h2>
-            <p className="text-sm text-slate-400 mt-2">
+            <p className="text-sm text-slate-500 mt-2">
               Real feedback from engineers who landed dream positions and founders who scaled teams.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((t) => (
-              <div key={t.id} className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm flex flex-col justify-between hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
+              <div key={t.id} className="testimonial-card flex flex-col justify-between group">
                 <div>
                   <div className="flex gap-1 text-amber-400 mb-5">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} size={16} fill="currentColor" />
                     ))}
                   </div>
-                  <p className="text-slate-300 text-sm leading-relaxed mb-6 font-normal">"{t.text}"</p>
+                  <p className="testimonial-text">"{t.text}"</p>
                 </div>
-                <div className="flex items-center gap-3 pt-5 border-t border-white/10">
-                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                <div className="flex items-center gap-3 pt-5 border-t border-slate-100">
+                  <div className="w-10 h-10 rounded-full bg-[#00a7b5] text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
                     {t.avatar}
                   </div>
                   <div>
-                    <p className="font-bold text-sm text-white">{t.name}</p>
-                    <p className="text-xs text-slate-400">{t.role}</p>
+                    <p className="font-bold text-sm text-slate-900">{t.name}</p>
+                    <p className="text-xs text-slate-500">{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -709,35 +727,45 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Section 7: Final High-Impact CTA Banner ────────────────────────────── */}
-      <section className="py-24 bg-white border-t border-slate-200 relative overflow-hidden">
-        {/* Background decorative rings */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[600px] h-[600px] rounded-full border border-blue-100/60"></div>
-          <div className="absolute w-[400px] h-[400px] rounded-full border border-blue-100/80"></div>
-          <div className="absolute w-[200px] h-[200px] rounded-full border border-blue-200/60"></div>
-        </div>
-        <div className="container relative z-10 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
-            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-            Join 2.5M+ professionals
+      {/* ── Section 7: MediaNV Teal Gradient CTA Banner ────────────────────────────── */}
+      <section className="py-16 px-4" style={{ background: '#f4fafb' }}>
+        <div className="container max-w-5xl">
+          <div className="relative overflow-hidden rounded-3xl px-8 py-14 md:px-14 md:py-16 flex flex-col md:flex-row items-center justify-between gap-8"
+            style={{ background: 'linear-gradient(135deg, #009aa8 0%, #00b4d8 60%, #10b981 100%)' }}>
+            {/* Decorative circle */}
+            <div className="absolute -left-16 -bottom-16 w-72 h-72 rounded-full opacity-15" style={{ background: 'rgba(255,255,255,0.3)' }} />
+            <div className="absolute right-12 -top-10 w-40 h-40 rounded-full opacity-10" style={{ background: 'rgba(255,255,255,0.4)' }} />
+
+            <div className="relative z-10 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider mb-4">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                Join 2.5M+ professionals
+              </div>
+              <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
+                Ready to Take Your<br />
+                <span className="text-white/90">Next Career Leap?</span>
+              </h2>
+              <p className="text-white/80 text-sm max-w-md leading-relaxed">
+                Discover elite opportunities and connect with world-class companies on the platform trusted by top engineers and founders.
+              </p>
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center gap-3 shrink-0">
+              <Link
+                to="/register"
+                className="px-8 py-3.5 rounded-full bg-white text-[#008b97] font-extrabold text-sm uppercase tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              >
+                Create Free Account
+              </Link>
+              <Link
+                to="/jobs"
+                className="text-white/80 text-xs font-semibold hover:text-white underline underline-offset-2 transition-colors"
+              >
+                Browse All Jobs →
+              </Link>
+              <p className="text-white/60 text-[11px]">No credit card required • Always free for job seekers</p>
+            </div>
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5 leading-tight text-slate-900">
-            Ready to Take Your<br />
-            <span className="text-blue-600">Next Career Leap?</span>
-          </h2>
-          <p className="text-base text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Discover elite opportunities and connect with world-class companies on the platform trusted by top engineers and founders.
-          </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link to="/register" className="btn btn-primary btn-lg shadow-lg shadow-blue-500/25">
-              Create Free Account <ArrowRight size={18} />
-            </Link>
-            <Link to="/jobs" className="btn btn-outline btn-lg">
-              Browse All Jobs
-            </Link>
-          </div>
-          <p className="text-xs text-slate-400 mt-6">No credit card required • Free forever for job seekers</p>
         </div>
       </section>
     </>
