@@ -19,6 +19,7 @@ export interface SendMailOptions {
   subject: string;
   html: string;
   text?: string;
+  silent?: boolean;
 }
 
 @Injectable()
@@ -68,7 +69,9 @@ export class EmailService {
     if (this.transporter) {
       try {
         await this.transporter.sendMail(mailOptions);
-        this.logger.log(`Email dispatched to ${options.to}: "${options.subject}"`);
+        if (!options.silent) {
+          this.logger.log(`Email dispatched to ${options.to}: "${options.subject}"`);
+        }
         return true;
       } catch (err: any) {
         this.logger.error(`Failed to send email to ${options.to}: ${err.message}`, err.stack);
@@ -76,7 +79,9 @@ export class EmailService {
       }
     } else {
       // Simulation mode
-      this.logger.log(`[SIMULATED EMAIL] To: ${options.to} | Subject: "${options.subject}"`);
+      if (!options.silent) {
+        this.logger.log(`[SIMULATED EMAIL] To: ${options.to} | Subject: "${options.subject}"`);
+      }
       return true;
     }
   }
@@ -212,6 +217,7 @@ export class EmailService {
       to: toEmail,
       subject: customHeadline || '⚡ Weekly Tech Opportunities & Fresh Openings on CareerLift',
       html,
+      silent: true,
     });
   }
 
@@ -244,6 +250,7 @@ export class EmailService {
       to: toEmail,
       subject: customHeadline || '💼 CareerLift Recruiter Digest: Weekly Market Insights & Talent Pool',
       html,
+      silent: true,
     });
   }
 }

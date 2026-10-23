@@ -249,7 +249,6 @@ export class NewsletterService {
    */
   async sendNewsletter(dto: SendNewsletterDto, sentBy = 'system', triggerType = 'manual'): Promise<NewsletterCampaign> {
     const targetAudience = dto.targetAudience || SubscriberRole.ALL;
-    this.logger.log(`Beginning newsletter dispatch for target: ${targetAudience}...`);
 
     // Ensure all registered users are synced into subscriber pool
     await this.syncRegisteredUsers();
@@ -338,19 +337,17 @@ export class NewsletterService {
       sentBy,
     });
 
-    const savedCampaign = await this.campaignRepo.save(campaign);
-    this.logger.log(`Newsletter campaign executed: ${sentCount} sent, ${failureCount} failed.`);
-    return savedCampaign;
+    return await this.campaignRepo.save(campaign);
   }
 
   /**
-   * Automated weekly newsletter cron (Runs every Monday at 09:00 AM)
+   * Automated weekly newsletter cron (Runs every week)
    */
-  @Cron(CronExpression.EVERY_5_MINUTES, { name: 'weekly_newsletter_digest' })
+  @Cron(CronExpression.EVERY_WEEK, { name: 'weekly_newsletter_digest' })
   async handleWeeklyCron() {
-    this.logger.log('Executing automated weekly newsletter cron job...');
+    this.logger.warn(`⏰ [NEWSLETTER CRON TRIGGERED] Executing weekly newsletter dispatch at ${new Date().toLocaleTimeString()}...`);
     try {
-      await this.sendNewsletter(
+      const result = await this.sendNewsletter(
         {
           subject: 'Weekly CareerLift Digest: Fresh Opportunities & Talent Insights',
           targetAudience: SubscriberRole.ALL,
@@ -358,8 +355,9 @@ export class NewsletterService {
         'automated_cron',
         'automated_cron',
       );
+      this.logger.log(`✅ [NEWSLETTER CRON COMPLETE] Dispatched campaign ${result.id}. Delivered: ${result.sentCount}, Failed: ${result.failureCount}`);
     } catch (err: any) {
-      this.logger.error(`Cron newsletter dispatch failed: ${err.message}`, err.stack);
+      this.logger.error(`❌ [NEWSLETTER CRON FAILED] Dispatch error: ${err.message}`, err.stack);
     }
   }
 }
