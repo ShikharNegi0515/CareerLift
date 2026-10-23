@@ -17,6 +17,8 @@ import {
   UserX,
   Calendar,
   Layers,
+  Eye,
+  ExternalLink,
 } from 'lucide-react';
 
 interface Subscriber {
@@ -54,7 +56,8 @@ interface NewsletterStats {
 }
 
 export default function AdminNewsletter() {
-  const [activeTab, setActiveTab] = useState<'broadcast' | 'subscribers' | 'history'>('broadcast');
+  const [activeTab, setActiveTab] = useState<'broadcast' | 'previews' | 'subscribers' | 'history'>('previews');
+  const [selectedPreview, setSelectedPreview] = useState<'job_seeker' | 'employer' | 'welcome' | 'welcome_employer'>('job_seeker');
   const [stats, setStats] = useState<NewsletterStats | null>(null);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -244,6 +247,17 @@ export default function AdminNewsletter() {
       {/* Tabs */}
       <div className="flex border-b border-slate-200 gap-6">
         <button
+          onClick={() => setActiveTab('previews')}
+          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
+            activeTab === 'previews'
+              ? 'border-[#00a7b5] text-[#00a7b5]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Eye size={16} />
+          <span>Live Template Previews</span>
+        </button>
+        <button
           onClick={() => setActiveTab('broadcast')}
           className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
             activeTab === 'broadcast'
@@ -277,6 +291,95 @@ export default function AdminNewsletter() {
           <span>Campaign History ({campaigns.length})</span>
         </button>
       </div>
+
+      {/* Tab: Live Template Previews */}
+      {activeTab === 'previews' && (
+        <div className="space-y-4">
+          {/* Format Selector Pills */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">
+                Select Template:
+              </span>
+              <button
+                onClick={() => setSelectedPreview('job_seeker')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  selectedPreview === 'job_seeker'
+                    ? 'bg-[#00a7b5] text-white shadow-md shadow-teal-500/20'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <span>🚀 Job Seeker Digest</span>
+              </button>
+              <button
+                onClick={() => setSelectedPreview('employer')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  selectedPreview === 'employer'
+                    ? 'bg-[#00a7b5] text-white shadow-md shadow-teal-500/20'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <span>💼 Employer &amp; Hiring Digest</span>
+              </button>
+              <button
+                onClick={() => setSelectedPreview('welcome')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  selectedPreview === 'welcome'
+                    ? 'bg-[#00a7b5] text-white shadow-md shadow-teal-500/20'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <span>🎉 Candidate Welcome Email</span>
+              </button>
+              <button
+                onClick={() => setSelectedPreview('welcome_employer')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  selectedPreview === 'welcome_employer'
+                    ? 'bg-[#00a7b5] text-white shadow-md shadow-teal-500/20'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <span>🤝 Employer Welcome Email</span>
+              </button>
+            </div>
+
+            <a
+              href={`http://localhost:3000/api/newsletter/preview?template=${selectedPreview}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors"
+            >
+              <span>Open in New Tab</span>
+              <ExternalLink size={13} />
+            </a>
+          </div>
+
+          {/* Iframe Preview Container */}
+          <div className="bg-slate-900/90 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-2xl flex flex-col items-center">
+            <div className="w-full max-w-[680px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-200">
+              {/* Browser-like window header */}
+              <div className="bg-slate-100 border-b border-slate-200 px-4 py-3 flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-rose-400" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                </div>
+                <span className="font-mono text-[11px] text-slate-600 bg-white px-3 py-1 rounded-md border border-slate-200">
+                  Inbox Preview &bull; {selectedPreview.replace('_', ' ').toUpperCase()}
+                </span>
+                <span className="text-[11px] font-bold text-teal-600">600px Responsive</span>
+              </div>
+
+              {/* Iframe */}
+              <iframe
+                title="Email Preview"
+                src={`http://localhost:3000/api/newsletter/preview?template=${selectedPreview}`}
+                className="w-full h-[780px] border-none bg-[#0b1120]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tab 1: Broadcast */}
       {activeTab === 'broadcast' && (

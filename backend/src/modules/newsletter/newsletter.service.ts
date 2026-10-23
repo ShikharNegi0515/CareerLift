@@ -49,7 +49,7 @@ export class NewsletterService {
     @InjectRepository(Application)
     private readonly appRepo: Repository<Application>,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   /**
    * Subscribe public visitor or member
@@ -346,7 +346,7 @@ export class NewsletterService {
   /**
    * Automated weekly newsletter cron (Runs every Monday at 09:00 AM)
    */
-  @Cron(CronExpression.EVERY_WEEK, { name: 'weekly_newsletter_digest' })
+  @Cron(CronExpression.EVERY_5_MINUTES, { name: 'weekly_newsletter_digest' })
   async handleWeeklyCron() {
     this.logger.log('Executing automated weekly newsletter cron job...');
     try {
