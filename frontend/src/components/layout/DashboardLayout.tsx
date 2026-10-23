@@ -4,7 +4,7 @@ import { useAuth } from '@/store/auth';
 import {
   LayoutDashboard, User, FileText, Bookmark, Star, Settings, LogOut,
   Briefcase, Users, Building2, Tag, BookOpen, LifeBuoy, PlusCircle,
-  Menu, MessageSquare, Mail,
+  Menu, MessageSquare, Mail, Send,
 } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
@@ -36,6 +36,7 @@ const adminNav = [
   { to: '/admin/blog',              label: 'Blog',              icon: BookOpen },
   { to: '/admin/support',           label: 'Support',           icon: LifeBuoy },
   { to: '/admin/recruiter-invites', label: 'Recruiter Invites', icon: Mail },
+  { to: '/admin/newsletter',        label: 'Newsletter',        icon: Send },
 ];
 
 interface Props { role: 'seeker' | 'employer' | 'admin'; }

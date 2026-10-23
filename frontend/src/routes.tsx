@@ -55,6 +55,8 @@ import AdminBlog from '@/pages/admin/AdminBlog';
 import AdminSupport from '@/pages/admin/AdminSupport';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminRecruiterInvites from '@/pages/admin/AdminRecruiterInvites';
+import AdminNewsletter from '@/pages/admin/AdminNewsletter';
+import UnsubscribePage from '@/pages/public/UnsubscribePage';
 
 // ================================
 // ROUTE GUARDS
@@ -119,6 +121,7 @@ export default function AppRoutes() {
         />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
       </Route>
 
       {/* Job Seeker dashboard */}
@@ -194,6 +197,7 @@ export default function AppRoutes() {
         <Route path="blog" element={<AdminBlog />} />
         <Route path="support" element={<AdminSupport />} />
         <Route path="recruiter-invites" element={<AdminRecruiterInvites />} />
+        <Route path="newsletter" element={<AdminNewsletter />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 

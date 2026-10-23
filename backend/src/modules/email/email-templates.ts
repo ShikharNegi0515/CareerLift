@@ -415,3 +415,198 @@ export function getRecruiterInviteEmailHtml(
   return getBaseEmailLayout(`Recruiter Invitation: Hire on CareerLift${companyName ? ` (${companyName})` : ''}`, body);
 }
 
+export function getJobSeekerNewsletterHtml(
+  name: string,
+  frontendUrl: string,
+  latestJobs: Array<{
+    title: string;
+    companyName: string;
+    location: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    slug: string;
+    type?: string;
+  }>,
+  customHeadline?: string,
+  customMessage?: string,
+  unsubscribeUrl?: string,
+): string {
+  const jobsListHtml =
+    latestJobs && latestJobs.length > 0
+      ? latestJobs
+          .map((job) => {
+            const salaryText =
+              job.salaryMin && job.salaryMax
+                ? `$${Math.round(job.salaryMin / 1000)}k - $${Math.round(job.salaryMax / 1000)}k`
+                : 'Competitive Salary';
+            return `
+        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <span style="display: inline-block; background-color: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; margin-bottom: 6px;">
+                  ${job.type ? job.type.replace('_', ' ') : 'Open Position'}
+                </span>
+                <h3 style="margin: 4px 0 2px; font-size: 16px; font-weight: 700; color: #0f172a;">
+                  <a href="${frontendUrl}/jobs/${job.slug}" style="color: #0f172a; text-decoration: none;">${job.title}</a>
+                </h3>
+                <p style="margin: 0; font-size: 13px; color: #64748b;">
+                  <strong style="color: #334155;">${job.companyName}</strong> &bull; ${job.location || 'Remote'} &bull; <span style="color: #00a7b5; font-weight: 600;">${salaryText}</span>
+                </p>
+              </td>
+              <td align="right" style="vertical-align: middle; width: 100px;">
+                <a href="${frontendUrl}/jobs/${job.slug}" style="display: inline-block; background-color: #00a7b5; color: #ffffff !important; font-size: 12px; font-weight: 600; padding: 8px 14px; text-decoration: none; border-radius: 6px; white-space: nowrap;">
+                  Apply &rarr;
+                </a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `;
+          })
+          .join('')
+      : `<p style="color: #64748b; font-size: 14px; text-align: center; padding: 20px;">Explore dozens of fresh engineering, product, and AI roles live on CareerLift.</p>`;
+
+  const body = `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <span style="display: inline-block; background-color: #e6f7f8; color: #008b97; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 9999px; letter-spacing: 0.5px; text-transform: uppercase;">
+        Weekly Talent Digest
+      </span>
+      <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin: 14px 0 8px; letter-spacing: -0.5px;">
+        ${customHeadline || 'Top Opportunities Handpicked For You'}
+      </h1>
+      <p style="color: #64748b; font-size: 15px; margin: 0 auto; max-width: 480px;">
+        Hi ${name || 'there'}, here are the most recent verified roles and top engineering teams hiring this week on CareerLift.
+      </p>
+    </div>
+
+    ${
+      customMessage
+        ? `<div style="background-color: #f8fafc; border-left: 4px solid #00a7b5; border-radius: 4px; padding: 14px 18px; margin: 20px 0 24px;">
+            <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.5;">${customMessage}</p>
+          </div>`
+        : ''
+    }
+
+    <div style="margin: 28px 0 20px;">
+      <h2 style="font-size: 14px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.75px; margin-bottom: 14px;">
+        Featured Job Openings
+      </h2>
+      ${jobsListHtml}
+    </div>
+
+    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12px; padding: 24px; text-align: center; color: #ffffff; margin: 32px 0 20px;">
+      <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 700; color: #ffffff;">Stand Out to Tech Recruiters</h3>
+      <p style="margin: 0 0 16px; font-size: 13px; color: #94a3b8;">Keep your profile and resume updated to let hiring managers discover and reach out to you first.</p>
+      <a href="${frontendUrl}/jobs" style="display: inline-block; background-color: #00a7b5; color: #ffffff !important; font-weight: 700; font-size: 13px; padding: 10px 24px; text-decoration: none; border-radius: 8px;">
+        Browse All Active Jobs &rarr;
+      </a>
+    </div>
+
+    ${
+      unsubscribeUrl
+        ? `<p style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 24px;">
+            You received this newsletter because you are subscribed to CareerLift Job Updates.<br>
+            <a href="${unsubscribeUrl}" style="color: #64748b; text-decoration: underline;">Unsubscribe from newsletter</a>
+          </p>`
+        : ''
+    }
+  `;
+
+  return getBaseEmailLayout('CareerLift Weekly Digest: Hot Openings Just For You', body);
+}
+
+export function getEmployerNewsletterHtml(
+  name: string,
+  frontendUrl: string,
+  stats: {
+    activeSeekersCount?: number;
+    recentApplicationsCount?: number;
+    popularSkills?: string[];
+  },
+  customHeadline?: string,
+  customMessage?: string,
+  unsubscribeUrl?: string,
+): string {
+  const seekersCount = stats.activeSeekersCount || '2,500+';
+  const skillsList = stats.popularSkills?.length
+    ? stats.popularSkills.map(s => `<span style="display: inline-block; background: #e2e8f0; color: #1e293b; padding: 3px 8px; border-radius: 6px; font-size: 12px; margin: 2px 4px 2px 0; font-weight: 600;">${s}</span>`).join(' ')
+    : '<span style="display: inline-block; background: #e2e8f0; color: #1e293b; padding: 3px 8px; border-radius: 6px; font-size: 12px; margin: 2px 4px 2px 0;">React</span> <span style="display: inline-block; background: #e2e8f0; color: #1e293b; padding: 3px 8px; border-radius: 6px; font-size: 12px; margin: 2px 4px 2px 0;">Node.js</span> <span style="display: inline-block; background: #e2e8f0; color: #1e293b; padding: 3px 8px; border-radius: 6px; font-size: 12px; margin: 2px 4px 2px 0;">Python</span> <span style="display: inline-block; background: #e2e8f0; color: #1e293b; padding: 3px 8px; border-radius: 6px; font-size: 12px; margin: 2px 4px 2px 0;">DevOps</span>';
+
+  const body = `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <span style="display: inline-block; background-color: #e6f7f8; color: #008b97; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 9999px; letter-spacing: 0.5px; text-transform: uppercase;">
+        Hiring & Market Insights
+      </span>
+      <h1 style="color: #0f172a; font-size: 24px; font-weight: 800; margin: 14px 0 8px; letter-spacing: -0.5px;">
+        ${customHeadline || 'Hiring Trends & Active Talent Pool'}
+      </h1>
+      <p style="color: #64748b; font-size: 15px; margin: 0 auto; max-width: 480px;">
+        Hi ${name || 'Hiring Team'}, here is your weekly CareerLift hiring report and tips to accelerate candidate conversion.
+      </p>
+    </div>
+
+    ${
+      customMessage
+        ? `<div style="background-color: #f8fafc; border-left: 4px solid #00a7b5; border-radius: 4px; padding: 14px 18px; margin: 20px 0 24px;">
+            <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.5;">${customMessage}</p>
+          </div>`
+        : ''
+    }
+
+    <!-- Talent Stats Bar -->
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 24px 0;">
+      <h2 style="margin: 0 0 14px; font-size: 13px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.75px;">
+        Platform Talent Dynamics
+      </h2>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding: 8px 12px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; width: 48%; text-align: center;">
+            <div style="font-size: 22px; font-weight: 800; color: #00a7b5;">${seekersCount}</div>
+            <div style="font-size: 12px; color: #64748b; font-weight: 500;">Active Job Seekers</div>
+          </td>
+          <td style="width: 4%;"></td>
+          <td style="padding: 8px 12px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; width: 48%; text-align: center;">
+            <div style="font-size: 22px; font-weight: 800; color: #2563eb;">⚡ 48 hrs</div>
+            <div style="font-size: 12px; color: #64748b; font-weight: 500;">Avg. Candidate Response</div>
+          </td>
+        </tr>
+      </table>
+
+      <div style="margin-top: 16px;">
+        <p style="margin: 0 0 6px; font-size: 12px; font-weight: 700; color: #475569;">Top Skills in High Demand this Week:</p>
+        <div>${skillsList}</div>
+      </div>
+    </div>
+
+    <!-- Recruiter Tips -->
+    <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 24px 0;">
+      <h3 style="margin: 0 0 10px; font-size: 15px; font-weight: 700; color: #0f172a;">Recruiter Pro-Tip for this Week 💡</h3>
+      <p style="margin: 0; font-size: 13px; color: #334155; line-height: 1.6;">
+        Jobs that include explicit salary ranges receive over <strong>2.8x more verified applicants</strong>. Ensure your current job listings have compensation details configured on your employer dashboard.
+      </p>
+    </div>
+
+    <div style="text-align: center; margin: 32px 0 20px;">
+      <a href="${frontendUrl}/employer/jobs/new" style="display: inline-block; background-color: #00a7b5; color: #ffffff !important; font-weight: 700; font-size: 14px; padding: 12px 30px; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,167,181,0.25);">
+        Post a New Position Now &rarr;
+      </a>
+      <span style="display: block; margin-top: 10px;">
+        <a href="${frontendUrl}/employer" style="color: #64748b; font-size: 12px; text-decoration: underline;">Open Employer Dashboard</a>
+      </span>
+    </div>
+
+    ${
+      unsubscribeUrl
+        ? `<p style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 24px;">
+            You received this newsletter because you are registered as an Employer or subscribed to Employer Insights on CareerLift.<br>
+            <a href="${unsubscribeUrl}" style="color: #64748b; text-decoration: underline;">Unsubscribe from newsletter</a>
+          </p>`
+        : ''
+    }
+  `;
+
+  return getBaseEmailLayout('CareerLift Employer Digest: Hiring Trends & Talent Report', body);
+}
+
+

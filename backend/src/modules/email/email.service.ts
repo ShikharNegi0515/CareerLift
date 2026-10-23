@@ -10,6 +10,8 @@ import {
   getEmailVerificationHtml,
   getJobAlertDigestEmailHtml,
   getRecruiterInviteEmailHtml,
+  getJobSeekerNewsletterHtml,
+  getEmployerNewsletterHtml,
 } from './email-templates.js';
 
 export interface SendMailOptions {
@@ -184,6 +186,67 @@ export class EmailService {
       html,
     });
   }
+
+  async sendJobSeekerNewsletter(
+    toEmail: string,
+    toName: string,
+    latestJobs: any[],
+    customHeadline?: string,
+    customMessage?: string,
+    unsubscribeToken?: string,
+  ): Promise<boolean> {
+    const unsubscribeUrl = unsubscribeToken
+      ? `${this.frontendUrl}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}&email=${encodeURIComponent(toEmail)}`
+      : undefined;
+
+    const html = getJobSeekerNewsletterHtml(
+      toName,
+      this.frontendUrl,
+      latestJobs,
+      customHeadline,
+      customMessage,
+      unsubscribeUrl,
+    );
+
+    return this.sendMail({
+      to: toEmail,
+      subject: customHeadline || '⚡ Weekly Tech Opportunities & Fresh Openings on CareerLift',
+      html,
+    });
+  }
+
+  async sendEmployerNewsletter(
+    toEmail: string,
+    toName: string,
+    stats: {
+      activeSeekersCount?: number;
+      recentApplicationsCount?: number;
+      popularSkills?: string[];
+    },
+    customHeadline?: string,
+    customMessage?: string,
+    unsubscribeToken?: string,
+  ): Promise<boolean> {
+    const unsubscribeUrl = unsubscribeToken
+      ? `${this.frontendUrl}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}&email=${encodeURIComponent(toEmail)}`
+      : undefined;
+
+    const html = getEmployerNewsletterHtml(
+      toName,
+      this.frontendUrl,
+      stats,
+      customHeadline,
+      customMessage,
+      unsubscribeUrl,
+    );
+
+    return this.sendMail({
+      to: toEmail,
+      subject: customHeadline || '💼 CareerLift Recruiter Digest: Weekly Market Insights & Talent Pool',
+      html,
+    });
+  }
 }
+
 
 

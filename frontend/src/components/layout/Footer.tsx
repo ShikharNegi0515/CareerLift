@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, Phone, Mail, ArrowUpRight, Globe } from 'lucide-react';
+import { Briefcase, MapPin, Phone, Mail, ArrowUpRight, Globe, CheckCircle2, Send, Sparkles } from 'lucide-react';
+import api from '@/api/client';
 
 const footerLinks = {
   quickLinks: [
@@ -28,9 +30,131 @@ const footerLinks = {
 };
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'job_seeker' | 'employer'>('job_seeker');
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setStatus({ type: 'error', message: 'Please enter a valid email address.' });
+      return;
+    }
+
+    setLoading(true);
+    setStatus(null);
+    try {
+      const res = await api.post('/newsletter/subscribe', {
+        email,
+        role,
+      });
+      setStatus({
+        type: 'success',
+        message: res.data?.message || 'Thank you for subscribing! Check your inbox for updates.',
+      });
+      setEmail('');
+    } catch (err: any) {
+      setStatus({
+        type: 'error',
+        message: err.response?.data?.message || 'Failed to subscribe. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="container">
+        {/* Newsletter Subscription Banner */}
+        <div className="mb-14 p-6 md:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/60 shadow-xl relative overflow-hidden">
+          <div className="absolute right-0 top-0 -mt-10 -mr-10 w-64 h-64 bg-[#00a7b5]/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
+            <div className="lg:col-span-5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00a7b5]/20 text-[#00e1f4] text-xs font-semibold mb-2.5">
+                <Sparkles size={13} />
+                <span>Weekly Curated Digest</span>
+              </div>
+              <h4 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+                Get handpicked jobs &amp; hiring insights
+              </h4>
+              <p className="text-slate-400 text-xs md:text-sm mt-1.5 leading-relaxed">
+                Tailored for your role: high-paying tech openings for job seekers, top-tier talent metrics &amp; applicant insights for employers.
+              </p>
+            </div>
+
+            <div className="lg:col-span-7">
+              <form onSubmit={handleSubscribe} className="space-y-2.5">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-medium text-slate-300">I am a:</span>
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer text-xs text-white">
+                    <input
+                      type="radio"
+                      name="footer_newsletter_role"
+                      value="job_seeker"
+                      checked={role === 'job_seeker'}
+                      onChange={() => setRole('job_seeker')}
+                      className="accent-[#00a7b5]"
+                    />
+                    <span>Job Seeker (Openings &amp; Tips)</span>
+                  </label>
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer text-xs text-white">
+                    <input
+                      type="radio"
+                      name="footer_newsletter_role"
+                      value="employer"
+                      checked={role === 'employer'}
+                      onChange={() => setRole('employer')}
+                      className="accent-[#00a7b5]"
+                    />
+                    <span>Employer (Hiring &amp; Candidates)</span>
+                  </label>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="Enter your work or personal email..."
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-950/70 text-white placeholder-slate-500 rounded-xl border border-slate-700 focus:outline-none focus:border-[#00a7b5] text-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#00a7b5] hover:bg-[#00919e] text-white font-semibold text-sm rounded-xl transition-all shadow-md shadow-teal-500/20 disabled:opacity-50 shrink-0"
+                  >
+                    {loading ? (
+                      'Subscribing...'
+                    ) : (
+                      <>
+                        <span>Subscribe</span>
+                        <Send size={14} />
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {status && (
+                  <div
+                    className={`text-xs flex items-center gap-1.5 pt-1 ${
+                      status.type === 'success' ? 'text-emerald-400 font-medium' : 'text-rose-400 font-medium'
+                    }`}
+                  >
+                    {status.type === 'success' && <CheckCircle2 size={14} />}
+                    <span>{status.message}</span>
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12">
           {/* Brand column */}
           <div>

@@ -25,6 +25,7 @@ import { SupportModule } from './modules/support/support.module.js';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { ConversationsModule } from './modules/conversations/conversations.module.js';
+import { NewsletterModule } from './modules/newsletter/newsletter.module.js';
 
 // Entities
 import { User } from './modules/auth/user.entity.js';
@@ -41,6 +42,8 @@ import { BlogPost } from './modules/blog/blog-post.entity.js';
 import { SupportTicket } from './modules/support/support-ticket.entity.js';
 import { Conversation, Message, Interview } from './modules/conversations/conversation.entity.js';
 import { RecruiterInvite } from './modules/admin/recruiter-invite.entity.js';
+import { NewsletterSubscriber } from './modules/newsletter/newsletter-subscriber.entity.js';
+import { NewsletterCampaign } from './modules/newsletter/newsletter-campaign.entity.js';
 
 import { JobView } from './modules/jobs/job-view.entity.js';
 
@@ -78,6 +81,8 @@ import { JobView } from './modules/jobs/job-view.entity.js';
               Message,
               Interview,
               RecruiterInvite,
+              NewsletterSubscriber,
+              NewsletterCampaign,
             ],
           };
         }
@@ -110,6 +115,8 @@ import { JobView } from './modules/jobs/job-view.entity.js';
             Message,
             Interview,
             RecruiterInvite,
+            NewsletterSubscriber,
+            NewsletterCampaign,
           ],
         };
       },
@@ -129,6 +136,7 @@ import { JobView } from './modules/jobs/job-view.entity.js';
     RecommendationsModule,
     EmailModule,
     ConversationsModule,
+    NewsletterModule,
   ],
   controllers: [AppController],
   providers: [
